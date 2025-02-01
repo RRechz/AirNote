@@ -1,57 +1,37 @@
+# Project AirNote
+[![GitHub Actions Status](https://img.shields.io/github/actions/workflow/status/WSTxda/Google-Shortcuts-Launcher/.github%2Fworkflows%2Fandroid.yml?style=for-the-badge&logo=github-actions&labelColor=21262D&color=3FB950)](https://github.com/WSTxda/Google-Shortcuts-Launcher/actions) [![Platform](https://img.shields.io/badge/android-platform?style=for-the-badge&label=platform&labelColor=21262d&color=6e7681)](https://www.android.com) [![API](https://img.shields.io/badge/24%2B-level?style=for-the-badge&logo=android&logoColor=3cd382&label=API&labelColor=21262d&color=ff663b)](https://developer.android.com/studio/releases/platforms) [![Release](https://img.shields.io/github/v/release/RRechz/AirNote?display_name=tag&style=for-the-badge&logo=github&labelColor=21262d&color=1f6feb)](https://github.com/RRechz/AirNote/releases)
 
+![alt text](https://github.com/RRechz/AirNote/blob/master/metadata/en-US/images/phoneScreenshots/airnote_banner.png)
 
-<div align="center">
-<img width="192" height="192" src="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" align="center" alt="">
+Take notes with Material3 and Material You design accompaniment. Even add widgets/shortcuts for quick note-taking in emergencies! By the way, taking notes has never been so easy and beautiful :D
 
-<br></br>
+## Features
 
+- Dynamic colors (Material You Design)
+- Modern note editing screen
+- Theme support for AMOLED displays
+- Multi-language support
+- Local Backup
+- Screen Guard Support for Privacy
+- App Lock
+- %100 Free and No AD
 
-# Easy Notes
-Lightweight android notes app with Material You.
+## Screenshots
 
-[<img src=".github/github.png" alt="Get it on GitHub" height="55">](https://github.com/Kin69/EasyNotes/releases/latest) &nbsp; 
-[<img src=".github/fdroid.png" alt="Get it on F-Droid" height="55">](https://f-droid.org/packages/com.kin.easynotes/) &nbsp;
-
-[<img src=".github/nightly.png" alt="Get Nightly Build" height="55">](https://github.com/Kin69/EasyNotes/releases/download/Nightly/EasyNotes-nightly.apk) &nbsp;
-
----
-
-</div>
-<div align="left">
-
-<div align="center">
-    <img src="metadata/en-US/images/phoneScreenshots/1_home.png" width="30%"  alt=""/>
-    <img src="metadata/en-US/images/phoneScreenshots/2_widgets.png" width="30%"  alt=""/>
-    <img src="metadata/en-US/images/phoneScreenshots/3_preview.png" width="30%"  alt=""/>
-</div>
-</div>
-
+<p float="left">
+  <img src="https://github.com/RRechz/AirNote/blob/master/metadata/en-US/images/phoneScreenshots/1738433890050.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/metadata/en-US/images/phoneScreenshots/1738433890044.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/metadata/en-US/images/phoneScreenshots/1738433890038.jpg" width="200" />
+</p>
+<p float="left">
+  <img src="https://github.com/RRechz/AirNote/blob/master/metadata/en-US/images/phoneScreenshots/1738433890033.jpg" width="200" />
+</p>
 
 
 
 --- 
-## 📢 News
-- ! [Applock Hotfix](https://github.com/Kin69/EasyNotes/releases/download/Nightly/EasyNotes-nightly.apk) !
-- [Telegram](https://t.me/EasyApps69)
-- [Discord Server](https://discord.gg/ZrP4G8z23H)
-- [Images Support Back!](https://github.com/Kin69/EasyNotes/discussions/29)
-
----
-
-
-## 🎉 Features
-- 📝 Sleek, Minimalistic Design
-- 🌟 Full Markdown Support (Images Included)
-- 🔒 Secure, Encrypted Notes Vault
-- 🚀 Constant Updates & Improvements
-- 🔐 Zero Permissions Required
-
----
-
-## 💬 Contact Me
-
--  Email : contact@easyapps.me
--  Discord : [Easy Notes](https://discord.gg/ZrP4G8z23H)
+## 📢 News and Other Project İnfo
+- [Telegram](https://t.me/by_BabelSoftware)
 
 ---
 ## 🌍 Translation - [Weblate](https://hosted.weblate.org/projects/easy-notes/) (Your contributions to translations are greatly appreciated)
