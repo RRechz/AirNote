@@ -4,7 +4,7 @@
 
 ![alt text](https://github.com/RRechz/AirNote/blob/master/image/airnote_banner.png)
 
-**AirNote2** goes beyond standard note-taking functions, utilizing Google's powerful Gemini API as a writing assistant. This project is designed not only to store information, but also to help you express your thoughts more effectively. It is built with modern Android development principles and a clean architecture.
+**AirNote** goes beyond standard note-taking functions, utilizing Google's powerful Gemini API as a writing assistant. This project is designed not only to store information, but also to help you express your thoughts more effectively. It is built with modern Android development principles and a clean architecture.
 
 [<img src="https://github.com/machiav3lli/oandbackupx/blob/034b226cea5c1b30eb4f6a6f313e4dadcbb0ece4/badge_github.png" alt="Get it on GitHub" height="80">](https://github.com/RRechz/AirNote/releases/latest)
 
