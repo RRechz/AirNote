@@ -36,9 +36,9 @@ git clone https://github.com/RRechz/AirNote.git
 
 ## Donate
 
-If you like the EchoWave project, you can donate to help the project add more features and keep it updated for longer.
+If you like the AirNote project, you can donate to help the project add more features and keep it updated for longer.
 
-<a href="https://www.buymeacoffee.com/section" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+<a href="https://www.buymeacoffee.com/dev_rrechz.kt" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
 ## Credit
 
@@ -55,7 +55,7 @@ are owned by the respective owners.
 ## License
     AirNote
 
-    Copyright (c)2025 Babel Software
+    Copyright (c) 2025 Babel Software
 
     The AirNote project is based solely on the resources of Kin69's Easy Notes project. 
     The AirNote project was developed as an alternative to other AI-powered note-taking applications.
