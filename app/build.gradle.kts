@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.babelsoftware.airnote"
-    compileSdk = 34
+    compileSdk = 36
     flavorDimensions += "default"
 
     buildFeatures {
@@ -32,9 +32,9 @@ android {
     defaultConfig {
         applicationId = "com.babelsoftware.airnote"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
-        versionName = "v1.0"
+        versionName = "v1.0-beta"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -83,7 +83,7 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-    buildToolsVersion = "34.0.0"
+    buildToolsVersion = "36.0.0"
 }
 
 dependencies {

@@ -6,13 +6,13 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Label
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.Battery1Bar
 import androidx.compose.material.icons.rounded.Colorize
@@ -25,11 +25,11 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.RoundedCorner
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.ViewAgenda
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material.icons.automirrored.rounded.Label
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -45,12 +45,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.presentation.screens.settings.SettingsScaffold
+import com.babelsoftware.airnote.presentation.screens.settings.model.IconResource
 import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsViewModel
 import com.babelsoftware.airnote.presentation.screens.settings.widgets.ActionType
 import com.babelsoftware.airnote.presentation.screens.settings.widgets.SettingsBox
-import com.babelsoftware.airnote.R
-import com.babelsoftware.airnote.presentation.screens.settings.model.IconResource
 
 fun shapeManager(isBoth: Boolean = false,isLast: Boolean = false,isFirst: Boolean = false,radius: Int): RoundedCornerShape {
     val smallerRadius: Dp = (radius/5).dp
@@ -102,7 +102,6 @@ fun ColorStylesScreen(navController: NavController, settingsViewModel: SettingsV
                     icon = IconResource.Vector(Icons.Rounded.HdrAuto),
                     actionType = ActionType.SWITCH,
                     radius = shapeManager(
-                        isFirst = true,
                         isBoth = (!isSystemInDarkTheme() && settingsViewModel.settings.value.automaticTheme),
                         radius = settingsViewModel.settings.value.cornerRadius
                     ),
@@ -217,13 +216,35 @@ fun ColorStylesScreen(navController: NavController, settingsViewModel: SettingsV
                     ),
                     actionType = ActionType.CUSTOM,
                     customAction = { onExit ->
-                        OnRadiusClicked(settingsViewModel) {
-                            settingsViewModel.update(
-                                settingsViewModel.settings.value.copy(
-                                    cornerRadius = it
+                        SettingsSliderDialog(
+                            title = stringResource(id = R.string.select_radius),
+                            valueLabelText = "${settingsViewModel.settings.value.cornerRadius} dp",
+                            initialValue = settingsViewModel.settings.value.cornerRadius.toFloat(),
+                            valueRange = 5f..35f,
+                            cornerRadius = settingsViewModel.settings.value.cornerRadius,
+                            onValueChange = { newValue ->
+                                settingsViewModel.update(
+                                    settingsViewModel.settings.value.copy(cornerRadius = newValue.toInt())
                                 )
-                            )
-                            onExit()
+                            },
+                            onDismiss = { onExit() }
+                        ) { currentValue ->
+                            @Composable
+                            fun Example(shape: RoundedCornerShape) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(32.dp, 3.dp, 32.dp, 1.dp)
+                                        .height(62.dp)
+                                        .background(
+                                            shape = shape,
+                                            color = MaterialTheme.colorScheme.surfaceContainerHigh
+                                        )
+                                )
+                            }
+                            Example(shapeManager(radius = currentValue.toInt(), isFirst = true))
+                            Example(shapeManager(radius = currentValue.toInt()))
+                            Example(shapeManager(radius = currentValue.toInt(), isLast = true))
                         }
                     }
                 )
@@ -323,9 +344,41 @@ fun ColorStylesScreen(navController: NavController, settingsViewModel: SettingsV
                     ),
                     actionType = ActionType.CUSTOM,
                     customAction = { onExit ->
-                        OnFontSizeClicked(settingsViewModel) {
-                            settingsViewModel.update(settingsViewModel.settings.value.copy(fontSize = it))
-                            onExit()
+                        SettingsSliderDialog(
+                            title = stringResource(id = R.string.font_size),
+                            valueLabelText = stringResource(id = R.string.font_size_value, settingsViewModel.settings.value.fontSize),
+                            initialValue = settingsViewModel.settings.value.fontSize.toFloat(),
+                            valueRange = 12f..18f,
+                            cornerRadius = settingsViewModel.settings.value.cornerRadius,
+                            onValueChange = { newValue ->
+                                settingsViewModel.update(
+                                    settingsViewModel.settings.value.copy(fontSize = newValue.toInt())
+                                )
+                            },
+                            onDismiss = { onExit() }
+                        ) { currentValue ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                        shape = RoundedCornerShape(settingsViewModel.settings.value.cornerRadius / 2)
+                                    )
+                                    .padding(16.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.font_size_preview_title),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                )
+                                Text(
+                                    text = stringResource(id = R.string.font_size_preview_text),
+                                    fontSize = currentValue.toInt().sp,
+                                    fontWeight = FontWeight.Normal,
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
                         }
                     }
                 )
@@ -334,140 +387,76 @@ fun ColorStylesScreen(navController: NavController, settingsViewModel: SettingsV
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OnRadiusClicked(settingsViewModel: SettingsViewModel, onExit: (Int) -> Unit) {
-    val minimalRadius = 5
-    val settingsRadius = settingsViewModel.settings.value.cornerRadius
-    var sliderPosition by remember { mutableFloatStateOf(((settingsRadius - minimalRadius).toFloat()/30)) }
-    val realRadius : Int  = (((sliderPosition*100).toInt())/3) + minimalRadius
+fun SettingsSliderDialog(
+    title: String,
+    valueLabelText: String,
+    initialValue: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    cornerRadius: Int,
+    onValueChange: (Float) -> Unit,
+    onDismiss: () -> Unit,
+    previewContent: @Composable (currentValue: Float) -> Unit
+) {
+    var sliderPosition by remember { mutableFloatStateOf(initialValue) }
 
-    @Composable
-    fun example(shape: RoundedCornerShape) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp, 3.dp, 32.dp, 1.dp)
-                .background(
-                    shape = shape,
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh
-                )
-                .height(62.dp),
-        )
-    }
-    Dialog(onDismissRequest = { onExit(realRadius) }) {
+    Dialog(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
                 .background(
                     color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    shape = RoundedCornerShape(realRadius / 3)
+                    shape = RoundedCornerShape(cornerRadius / 3)
                 )
                 .fillMaxWidth()
-                .fillMaxSize(0.38f)
         ) {
             Text(
-                text = stringResource(id = R.string.select_radius),
+                text = title,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 16.dp)
+                    .padding(top = 24.dp, bottom = 8.dp)
             )
-            example(shapeManager(radius = realRadius, isFirst = true))
-            example(shapeManager(radius = realRadius))
-            example(shapeManager(radius =  realRadius, isLast = true))
-            Slider(
-                value = sliderPosition,
-                modifier = Modifier.padding(32.dp,16.dp,32.dp,16.dp),
-                colors = SliderDefaults.colors(inactiveTrackColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                onValueChange = { newValue -> sliderPosition = newValue}
-            )
-        }
-    }
-}
 
-@Composable
-fun OnFontSizeClicked(settingsViewModel: SettingsViewModel, onExit: (Int) -> Unit) {
-    val minFontSize = 12
-    val maxFontSize = 18
-    val currentFontSize = settingsViewModel.settings.value.fontSize
-    var sliderPosition by remember { mutableFloatStateOf(((currentFontSize - minFontSize).toFloat()) / (maxFontSize - minFontSize)) }
-    val selectedFontSize = minFontSize + ((maxFontSize - minFontSize) * sliderPosition).toInt()
-
-    Dialog(onDismissRequest = { onExit(selectedFontSize) }) {
-        Column(
-            modifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    shape = RoundedCornerShape(settingsViewModel.settings.value.cornerRadius / 3)
-                )
-                .fillMaxWidth()
-                .fillMaxSize(0.5f)
-        ) {
             Text(
-                text = stringResource(id = R.string.font_size),
+                text = valueLabelText,
                 textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 8.dp)
-            )
-            
-            Text(
-                text = stringResource(id = R.string.font_size_value, selectedFontSize),
-                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
             )
-            
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        shape = RoundedCornerShape(settingsViewModel.settings.value.cornerRadius / 2)
-                    )
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.font_size_preview_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                
-                Text(
-                    text = stringResource(id = R.string.font_size_preview_text),
-                    fontSize = selectedFontSize.sp,
-                    fontWeight = FontWeight.Normal,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-            }
-            
+
+            previewContent(sliderPosition)
+
             Slider(
                 value = sliderPosition,
-                modifier = Modifier.padding(32.dp, 16.dp, 32.dp, 16.dp),
-                colors = SliderDefaults.colors(inactiveTrackColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                onValueChange = { newValue -> 
-                    sliderPosition = newValue 
-                    val newFontSize = minFontSize + ((maxFontSize - minFontSize) * newValue).toInt()
-                }
+                onValueChange = {
+                    sliderPosition = it
+                    onValueChange(it)
+                },
+                valueRange = valueRange,
+                steps = (valueRange.endInclusive - valueRange.start).toInt() - 1,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                colors = SliderDefaults.colors(inactiveTrackColor = MaterialTheme.colorScheme.surfaceContainerHigh)
             )
-            
-            // Add a button to confirm the selection
+
+            // Onay Butonu
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(bottom = 24.dp, top = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
                     modifier = Modifier
                         .background(
                             color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(settingsViewModel.settings.value.cornerRadius / 2)
+                            shape = RoundedCornerShape(cornerRadius / 2)
                         )
-                        .clickable { onExit(selectedFontSize) }
+                        .clickable { onDismiss() }
                         .padding(horizontal = 24.dp, vertical = 12.dp)
                 ) {
                     Text(
@@ -480,4 +469,3 @@ fun OnFontSizeClicked(settingsViewModel: SettingsViewModel, onExit: (Int) -> Uni
         }
     }
 }
-
