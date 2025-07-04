@@ -9,7 +9,11 @@ import com.google.ai.client.generativeai.type.generationConfig
 import com.babelsoftware.airnote.domain.repository.SettingsRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 enum class AiAction(val displayName: String) {
@@ -38,7 +42,11 @@ enum class AiTone(val displayName: String, val promptInstruction: String) {
 enum class AiAssistantAction(val displayName: String) {
     GIVE_IDEA("Bana bir fikir ver"),
     CONTINUE_WRITING("Yazmaya devam et"),
-    CHANGE_PERSPECTIVE("Farklı bir açıdan yaklaş")
+    CHANGE_PERSPECTIVE("Farklı bir açıdan yaklaş"),
+    PROS_AND_CONS("Artı ve Eksileri"),
+    CREATE_TODO_LIST("Yapılacaklar Listesi Oluştur"),
+    SIMPLIFY("Basitleştir"),
+    SUGGEST_A_TITLE("Başlık Öner")
 }
 
 class GeminiRepository @Inject constructor(
@@ -109,7 +117,7 @@ class GeminiRepository @Inject constructor(
         noteName: String,
         noteDescription: String,
         action: AiAssistantAction
-    ): String? {
+    ): Flow<String> {
         // API Anahtarı yönetimi (processAiAction'dan kopyalanabilir)
         val currentSettings = settingsRepository.settings.first()
         val apiKeyToUse = if (currentSettings.useAirNoteApi) {
@@ -119,7 +127,8 @@ class GeminiRepository @Inject constructor(
         }
 
         if (apiKeyToUse.isNullOrBlank()) {
-            return "Kullanıcı API anahtarı bulunamadı. Lütfen ayarlardan kontrol edin."
+            // Hata durumunda flow ile tek bir hata mesajı emit ediyoruz.
+            return flowOf("Kullanıcı API anahtarı bulunamadı. Lütfen ayarlardan kontrol edin.")
         }
 
         val generativeModel = GenerativeModel(
@@ -140,14 +149,27 @@ class GeminiRepository @Inject constructor(
 
             AiAssistantAction.CHANGE_PERSPECTIVE ->
                 "Aşağıdaki metni analiz et ve bu konuya tamamen farklı bir bakış açısıyla nasıl yaklaşılabileceğine dair bir paragraf yaz. Mevcut metni özetleme, ona alternatif bir perspektif sun:\n\n---\n\nBaşlık: $noteName\n\nİçerik:\n$noteDescription"
+            AiAssistantAction.PROS_AND_CONS ->
+                "Aşağıdaki metni analiz et ve bir '### Artılar' ve bir '### Eksiler' başlığı altında, konuyla ilgili olumlu ve olumsuz noktaları madde madde listele. Sadece bu iki başlığı ve maddeleri cevap olarak ver:\n\n---\n\n$noteDescription"
+
+            AiAssistantAction.CREATE_TODO_LIST ->
+                "Aşağıdaki metni analiz et. Eğer metin gün içinde yapılacak görevlerden bahsediyorsa, bu görevleri her satırın başına '[] ' koyarak bir yapılacaklar listesine dönüştür. Eğer metin görevlerden bahsetmiyorsa, başka hiçbir şey yazmadan SADECE 'NO_TASKS' kelimesini cevap olarak ver. Metnin dilini algıla ve listeyi o dilde oluştur:\n\n---\n\n$noteDescription"
+
+            AiAssistantAction.SIMPLIFY ->
+                "Aşağıdaki karmaşık metni, herkesin anlayabileceği basit ve akıcı bir dile çevir. Metnin ana fikrini ve önemli detaylarını koru. Sadece basitleştirilmiş metni cevap olarak ver:\n\n---\n\n$noteDescription"
+
+            AiAssistantAction.SUGGEST_A_TITLE ->
+                "Aşağıdaki metnin içeriğine en uygun, yaratıcı ve dikkat çekici 5 adet başlık önerisi sun. Cevabını numaralandırılmış bir liste olarak ver:\n\n---\n\n$noteDescription"
         }
 
-        return try {
-            val response = generativeModel.generateContent(prompt)
-            response.text
-        } catch (e: Exception) {
-            e.printStackTrace()
-            "API isteği başarısız oldu: ${e.message}"
-        }
+        return generativeModel
+            .generateContentStream(prompt)
+            .map { response ->
+                // Gelen her parçanın metnini alıyoruz.
+                response.text ?: ""
+            }.catch {
+                // Akış sırasında bir hata olursa yakalayıp mesaj emit ediyoruz.
+                emit("API isteği başarısız oldu: ${it.message}")
+            }
     }
 }

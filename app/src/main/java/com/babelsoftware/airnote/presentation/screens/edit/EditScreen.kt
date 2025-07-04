@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -123,18 +125,23 @@ fun EditNoteView(
         }
     }
 
-    //---> AI Asistant Sheet
-    if (viewModel.isAiAssistantSheetVisible.value) {
-        AiAssistantSheet(viewModel = viewModel)
-    }
-    //<---
-
     if (viewModel.isAiActionSheetVisible.value) {
         AiActionSheet(viewModel = viewModel)
     }
 
     if (viewModel.isToneActionSheetVisible.value) {
         ToneActionSheet(viewModel = viewModel)
+    }
+
+    if (viewModel.titleSuggestions.value.isNotEmpty()) {
+        TitleSuggestionDialog(
+            suggestions = viewModel.titleSuggestions.value,
+            onDismiss = { viewModel.clearTitleSuggestions() },
+            onSelect = { selectedTitle ->
+                viewModel.updateNoteName(TextFieldValue(selectedTitle))
+                viewModel.clearTitleSuggestions()
+            }
+        )
     }
 
     val pagerState = rememberPagerState(initialPage = if (id == 0 || isWidget || settingsViewModel.settings.value.editMode) 0 else 1, pageCount = { 2 })
@@ -160,31 +167,46 @@ fun EditNoteView(
 @Composable
 fun TopBarActions(pagerState: PagerState, onClickBack: () -> Unit, viewModel: EditViewModel) {
     val context = LocalContext.current
+    val isAssistantStreaming = viewModel.isAiAssistantStreaming.value
+    val isMenuExpanded = viewModel.isAiAssistantSheetVisible.value
 
-    when (pagerState.currentPage) {
-
-        0 -> {
-            Row {
+    val actionButtonPlaceholder = @Composable {
+        Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+            if (isAssistantStreaming) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.5.dp
+                )
+            } else {
                 IconButton(onClick = { viewModel.toggleAiAssistantSheet(true) }) {
                     Icon(
                         imageVector = Icons.Rounded.AutoAwesome,
-                        contentDescription = "AI Asistant"
+                        contentDescription = "AI Asistanı"
                     )
                 }
+            }
+            AiCommandMenu(
+                viewModel = viewModel,
+                expanded = isMenuExpanded,
+                onDismiss = { viewModel.toggleAiAssistantSheet(false) }
+            )
+        }
+    }
+
+    when (pagerState.currentPage) {
+
+        0 -> { // Düzenleme Modu
+            Row(verticalAlignment = Alignment.CenterVertically) { // Hizalama eklendi
+                actionButtonPlaceholder() // Ortak komponenti çağırıyoruz
                 if (viewModel.isDescriptionInFocus.value) {
                     RedoButton { viewModel.redo() }
                 }
                 SaveButton { onClickBack() }
             }
         }
-        1 -> {
-            Row {
-                IconButton(onClick = { viewModel.toggleAiAssistantSheet(true) }) {
-                    Icon(
-                        imageVector = Icons.Rounded.AutoAwesome,
-                        contentDescription = "AI Asistant"
-                    )
-                }
+        1 -> { // Önizleme Modu
+            Row(verticalAlignment = Alignment.CenterVertically) { // Hizalama eklendi
+                actionButtonPlaceholder() // Ortak komponenti çağırıyoruz
                 MoreButton {
                     viewModel.toggleEditMenuVisibility(true)
                 }
@@ -552,31 +574,118 @@ fun ModeButton(
     pagerState: PagerState,
     coroutineScope: CoroutineScope,
     isMinimalistic: Boolean = false,
-    isExtremeAmoled: Boolean = false,
+    isExtremeAmoled: Boolean = false
 ) {
     Row {
-        if (!isMinimalistic) {
-            RenderButton(
-                pagerState,
-                coroutineScope,
-                0,
-                Icons.Rounded.Edit,
-                false,
-                isExtremeAmoled
-            )
-            RenderButton(
-                    pagerState,
-            coroutineScope,
-            1,
-            Icons.Rounded.RemoveRedEye,
-            false,
-            isExtremeAmoled
-            )
-        } else {
-            val currentPage = pagerState.currentPage
-            val icon = if (currentPage == 1) Icons.Rounded.Edit else Icons.Rounded.RemoveRedEye
-            RenderButton(pagerState, coroutineScope, if (currentPage == 1) 0 else 1, icon, true, isExtremeAmoled)
+        RenderButton(
+            pagerState = pagerState,
+            coroutineScope = coroutineScope,
+            pageIndex = 0,
+            icon = Icons.Rounded.Edit,
+            isMinimalistic = isMinimalistic,
+            isExtremeAmoled = isExtremeAmoled
+        )
+        RenderButton(
+            pagerState = pagerState,
+            coroutineScope = coroutineScope,
+            pageIndex = 1,
+            icon = Icons.Rounded.RemoveRedEye,
+            isMinimalistic = isMinimalistic,
+            isExtremeAmoled = isExtremeAmoled
+        )
+    }
+}
+
+// YENİ: Başlık Önerileri için AlertDialog
+@Composable
+private fun TitleSuggestionDialog(
+    suggestions: List<String>,
+    onDismiss: () -> Unit,
+    onSelect: (String) -> Unit // Kullanıcı bir başlık seçtiğinde
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("AI Önerisi") },
+        text = {
+            LazyColumn {
+                items(suggestions) { suggestion ->
+                    Text(
+                        text = suggestion,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(suggestion) }
+                            .padding(vertical = 8.dp)
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Kapat")
+            }
         }
+    )
+}
+
+// YENİ: Her bir komut satırının tasarımı
+@Composable
+private fun CommandMenuItem(
+    title: String,
+    subtitle: String? = null,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Text(text = title, style = MaterialTheme.typography.bodyLarge)
+        if (subtitle != null) {
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+
+// YENİ: Notion tarzı Komut Menüsü
+@Composable
+fun AiCommandMenu(
+    viewModel: EditViewModel,
+    expanded: Boolean,
+    onDismiss: () -> Unit
+) {
+    // Menüyü, onu açan butonun altına konumlandırmak için kullanacağız.
+    // Şimdilik DropdownMenu gibi davranmasını sağlayalım.
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismiss,
+        // Geniş bir menü için offset'leri ve genişliği ayarlayalım
+        modifier = Modifier.widthIn(min = 280.dp)
+    ) {
+        // Enum'ları ve özel metinleri kullanarak menü elemanlarını oluştur
+        CommandMenuItem(
+            title = "Artı ve Eksilerini Listele",
+            onClick = { viewModel.executeAiAssistantAction(AiAssistantAction.PROS_AND_CONS) }
+        )
+        CommandMenuItem(
+            title = "Yapılacaklar Listesi Oluştur",
+            onClick = { viewModel.executeAiAssistantAction(AiAssistantAction.CREATE_TODO_LIST) }
+        )
+        CommandMenuItem(
+            title = "Daha Basit Anlat",
+            subtitle = "İçe aktarılan dosyalar için önerilir",
+            onClick = { viewModel.executeAiAssistantAction(AiAssistantAction.SIMPLIFY) }
+        )
+        CommandMenuItem(
+            title = "Başlık Öner",
+            onClick = { viewModel.executeAiAssistantAction(AiAssistantAction.SUGGEST_A_TITLE) }
+        )
     }
 }
 
@@ -696,30 +805,5 @@ private fun ToneActionSheet(viewModel: EditViewModel) {
                 )
             }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AiAssistantSheet(viewModel: EditViewModel) {
-    // Dize listesi yerine doğrudan enum listesi kullanalım
-    val assistantActions = AiAssistantAction.values().toList()
-
-    ModalBottomSheet(
-        onDismissRequest = { viewModel.toggleAiAssistantSheet(false) }
-    ) {
-        LazyColumn {
-            items(assistantActions) { action ->
-                ListItem(
-                    // Enum'daki displayName özelliğini göster
-                    headlineContent = { Text(text = action.displayName) },
-                    modifier = Modifier.clickable {
-                        // Artık doğru eylemle ViewModel fonksiyonunu çağırabiliriz
-                        viewModel.executeAiAssistantAction(action)
-                    }
-                )
-            }
-        }
-        Spacer(modifier = Modifier.imePadding())
     }
 }

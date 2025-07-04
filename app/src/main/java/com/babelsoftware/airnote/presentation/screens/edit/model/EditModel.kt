@@ -21,7 +21,10 @@ import com.babelsoftware.airnote.data.repository.GeminiRepository
 import com.babelsoftware.airnote.data.repository.AiAction
 import com.babelsoftware.airnote.data.repository.AiAssistantAction
 import com.babelsoftware.airnote.data.repository.AiTone
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 
 @HiltViewModel
@@ -74,12 +77,17 @@ class EditViewModel @Inject constructor(
 
     private val _isAiLoading = mutableStateOf(false)
     val isAiLoading: State<Boolean> = _isAiLoading
+
+    private val _isAiAssistantStreaming = mutableStateOf(false)
+    val isAiAssistantStreaming: State<Boolean> = _isAiAssistantStreaming
     private var _lastSelection: TextRange? = null // Tentative texts to be sent to AI
     private val _uiEvent = Channel<String>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private val _isAiAssistantSheetVisible = mutableStateOf(false)
     val isAiAssistantSheetVisible: State<Boolean> = _isAiAssistantSheetVisible
+    private val _titleSuggestions = mutableStateOf<List<String>>(emptyList())
+    val titleSuggestions: State<List<String>> = _titleSuggestions
     // --- AI'S STATES | END---
 
     // --- AI FUNCTIONS ---
@@ -109,10 +117,10 @@ class EditViewModel @Inject constructor(
             return
         }
 
-        val selection = _lastSelection
+        val selection = _lastSelection ?: noteDescription.value.selection
 
         // --->If there is no selection stored or if this selection is collapsed in some way, give an error.
-        if (selection == null || selection.collapsed) {
+        if (selection.collapsed) {
             viewModelScope.launch {
                 _uiEvent.send("Lütfen üzerinde işlem yapmak istediğiniz metni seçin.")
             }
@@ -127,7 +135,6 @@ class EditViewModel @Inject constructor(
             viewModelScope.launch {
                 _isAiLoading.value = true
                 try {
-                    // ... fonksiyonun geri kalanı aynı
                     val result = geminiRepository.processAiAction(selectedText, action, tone)
                     if (!result.isNullOrBlank()) {
                         if (result.startsWith("API isteği başarısız oldu") || result.startsWith("Kullanıcı API anahtarı bulunamadı")) {
@@ -149,42 +156,63 @@ class EditViewModel @Inject constructor(
     }
 
     fun executeAiAssistantAction(action: AiAssistantAction) {
-        // Asistan menüsünü hemen kapat
         toggleAiAssistantSheet(false)
 
         viewModelScope.launch {
-            _isAiLoading.value = true
-            try {
-                val result = geminiRepository.processAssistantAction(
-                    noteName = noteName.value.text,
-                    noteDescription = noteDescription.value.text,
-                    action = action
-                )
+            var fullResponse = StringBuilder()
 
-                if (!result.isNullOrBlank()) {
-                    // Hata mesajlarını Snackbar ile göster
-                    if (result.startsWith("API isteği başarısız oldu") || result.startsWith("Kullanıcı API anahtarı bulunamadı")) {
-                        _uiEvent.send(result)
-                    } else {
-                        // Başarılı sonucu mevcut metnin sonuna ekle
-                        val currentText = _noteDescription.value.text
-                        // Daha iyi formatlama için araya boşluk ekleyelim
-                        val separator = if (currentText.isNotBlank()) "\n\n" else ""
-                        val newText = currentText + separator + result
-
-                        // TextFieldValue'yu güncelle ve imleci en sona taşı
-                        _noteDescription.value = TextFieldValue(
-                            text = newText,
-                            selection = TextRange(newText.length)
-                        )
-                    }
-                } else {
-                    _uiEvent.send("Yapay zeka bir yanıt üretemedi.")
+            geminiRepository.processAssistantAction(
+                noteName = noteName.value.text,
+                noteDescription = noteDescription.value.text,
+                action = action
+            )
+                // --->
+                .onStart {
+                    if (action != AiAssistantAction.SUGGEST_A_TITLE) _isAiAssistantStreaming.value = true // Akış başladığında yeni state'imizi true yap
                 }
-            } catch (e: Exception) {
-                _uiEvent.send("İşlem başarısız oldu. İnternet bağlantınızı kontrol edin.")
-            } finally {
-                _isAiLoading.value = false
+                .onCompletion {
+                    _isAiAssistantStreaming.value = false // Akış bittiğinde (başarılı veya hatalı) false yap
+                }
+                // <---
+
+                .collect { chunk ->
+                    if (chunk.startsWith("API isteği başarısız oldu") || chunk.startsWith("Kullanıcı API anahtarı bulunamadı")) {
+                        _uiEvent.send(chunk)
+                        // Hata durumunda akışın geri kalanını iptal et. (launch job'ını cancel ederek)
+                        this.coroutineContext.cancel()
+                        return@collect
+                    }
+                    fullResponse.append(chunk)
+                    // Sadece metne ekleme yapacak aksiyonlar için anlık güncelleme yapalım
+                    if (action == AiAssistantAction.PROS_AND_CONS || action == AiAssistantAction.CREATE_TODO_LIST || action == AiAssistantAction.SIMPLIFY) {
+                        val currentText = _noteDescription.value.text
+                        // Basitleştirme için eski metni silip yenisini koymayı düşünebiliriz. Şimdilik hepsi eklesin.
+                        val newText = currentText + chunk
+                        _noteDescription.value = TextFieldValue(text = newText, selection = TextRange(newText.length))
+                    }
+                }
+            // Akış bittiğinde, gelen tam cevabı eyleme göre işle
+            val finalResponse = fullResponse.toString()
+            when (action) {
+                AiAssistantAction.CREATE_TODO_LIST -> {
+                    if (finalResponse.trim() == "NO_TASKS") {
+                        _uiEvent.send("Önce gün içerisinde yapmanız gerekenleri birkaç cümle ile anlatın.")
+                        // Gerekirse nottan "NO_TASKS" metnini sil
+                    }
+                    // (Eğer stream sırasında eklemeseydik, burada ekleyecektik)
+                }
+                AiAssistantAction.SUGGEST_A_TITLE -> {
+                    // Cevabı satırlara bölüp, numaraları temizleyip listeye atalım
+                    val suggestions = finalResponse.lines().mapNotNull {
+                        it.replaceFirst(Regex("^\\d+\\.?\\s*"), "").trim().takeIf { s -> s.isNotEmpty() }
+                    }
+                    _titleSuggestions.value = suggestions
+                }
+                AiAssistantAction.PROS_AND_CONS,
+                AiAssistantAction.SIMPLIFY,
+                AiAssistantAction.GIVE_IDEA,
+                AiAssistantAction.CHANGE_PERSPECTIVE,
+                AiAssistantAction.CONTINUE_WRITING -> {}
             }
         }
     }
@@ -210,6 +238,10 @@ class EditViewModel @Inject constructor(
 
     fun toggleAiAssistantSheet(isVisible: Boolean) {
         _isAiAssistantSheetVisible.value = isVisible
+    }
+
+    fun clearTitleSuggestions() {
+        _titleSuggestions.value = emptyList()
     }
     // --- AI FUNCTIONS | END ---
 
