@@ -115,7 +115,7 @@ class UndoRedoState {
     fun onInput(value: TextFieldValue) {
         if (undoHistory.lastOrNull()?.text != value.text) {
             undoHistory.add(value)
-            redoHistory.clear()  // Yeni bir yazma eylemi, ileri alma geçmişini temizler.
+            redoHistory.clear()  // A new write action clears the fast-forward history.
         }
         input = value
     }

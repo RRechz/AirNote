@@ -61,7 +61,7 @@ class EditViewModel @Inject constructor(
     private val _folderId = mutableStateOf<Long?>(null)
     val folderId: State<Long?> get() = _folderId
 
-    // --- AI STATE'LERİ ---
+    // --- AI'S STATES ---
     private val _isAiActionSheetVisible = mutableStateOf(false)
     val isAiActionSheetVisible: State<Boolean> = _isAiActionSheetVisible
 
@@ -73,14 +73,12 @@ class EditViewModel @Inject constructor(
 
     private val _isAiLoading = mutableStateOf(false)
     val isAiLoading: State<Boolean> = _isAiLoading
-    // --- BİTTİ ---
-
-    // --- UI Olayları için Channel ---
+    private var _lastSelection: TextRange? = null // Tentative texts to be sent to AI
     private val _uiEvent = Channel<String>()
     val uiEvent = _uiEvent.receiveAsFlow()
-    // --- BİTTİ ---
+    // --- AI'S STATES | END---
 
-    // --- AI FONKSİYONLARI ---
+    // --- AI FUNCTIONS ---
     fun toggleAiActionSheet(isVisible: Boolean) {
         _isAiActionSheetVisible.value = isVisible
     }
@@ -91,34 +89,48 @@ class EditViewModel @Inject constructor(
 
     fun clearAiResult() {
         _aiResultText.value = null
+        _lastSelection = null // Reset stored selection
     }
 
     /**
-     * Tüm AI aksiyonlarını çalıştıran merkezi fonksiyon.
+     * Central function that runs all AI actions.
+     * Operates only on the selected text.
      */
     fun executeAiAction(action: AiAction, tone: AiTone? = null) {
-        // Eğer aksiyon "Ton Değiştir" ise ve henüz bir ton seçilmemişse,
-        // sadece ton menüsünü aç ve fonksiyondan çık.
+        toggleAiActionSheet(false)
+        toggleToneActionSheet(false)
+
         if (action == AiAction.CHANGE_TONE && tone == null) {
-            toggleAiActionSheet(false)
             toggleToneActionSheet(true)
             return
         }
 
-        // Üzerinde işlem yapılacak seçili metni al
-        val selectedText = noteDescription.value.text.substring(
-            noteDescription.value.selection.min,
-            noteDescription.value.selection.max
-        )
+        val selection = _lastSelection
 
-        // Seçili metin varsa API isteğini başlat
+        // --->If there is no selection stored or if this selection is collapsed in some way, give an error.
+        if (selection == null || selection.collapsed) {
+            viewModelScope.launch {
+                _uiEvent.send("Lütfen üzerinde işlem yapmak istediğiniz metni seçin.")
+            }
+            return
+        }
+        // <---
+
+        val selectedText = noteDescription.value.text.substring(selection.min, selection.max) // Use the boundaries of the stored selection also when retrieving the selected text.
+
+        // ---> Initiate API request if the selected text actually exists
         if (selectedText.isNotBlank()) {
             viewModelScope.launch {
                 _isAiLoading.value = true
                 try {
+                    // ... fonksiyonun geri kalanı aynı
                     val result = geminiRepository.processAiAction(selectedText, action, tone)
-                    if (result != null) {
-                        _aiResultText.value = result
+                    if (!result.isNullOrBlank()) {
+                        if (result.startsWith("API isteği başarısız oldu") || result.startsWith("Kullanıcı API anahtarı bulunamadı")) {
+                            _uiEvent.send(result)
+                        } else {
+                            _aiResultText.value = result
+                        }
                     } else {
                         _uiEvent.send("Yapay zeka bir yanıt üretemedi.")
                     }
@@ -126,20 +138,18 @@ class EditViewModel @Inject constructor(
                     _uiEvent.send("İşlem başarısız oldu. İnternet bağlantınızı kontrol edin.")
                 } finally {
                     _isAiLoading.value = false
-                    // İşlem bitince açık olabilecek tüm menüleri kapat
-                    toggleAiActionSheet(false)
-                    toggleToneActionSheet(false)
                 }
             }
         }
+        // <---
     }
 
     /**
-     * AI tarafından üretilen metni, seçili metinle değiştirir.
+     * Replaces AI generated text with the selected text.
      */
     fun replaceWithAiResult() {
         val originalText = noteDescription.value.text
-        val selection = noteDescription.value.selection
+        val selection = _lastSelection ?: return // Use stored selection
         val newText = _aiResultText.value ?: return
 
         val updatedText = originalText.replaceRange(selection.start, selection.end, newText)
@@ -152,37 +162,7 @@ class EditViewModel @Inject constructor(
         )
         clearAiResult()
     }
-    // --- BİTTİ ---
-
-    /**
-     * Seçilen AI aksiyonunu çalıştırır ve sonucu state'e yazar.
-     */
-    fun runAiAction(action: AiAction) {
-        // Sadece açıklama alanında seçilen metin üzerinde çalışacak
-        val selectedText = noteDescription.value.text.substring(
-            noteDescription.value.selection.min,
-            noteDescription.value.selection.max
-        )
-        if (selectedText.isNotBlank()) {
-            viewModelScope.launch {
-                _isAiLoading.value = true
-                try { // try-catch bloğunu güncelliyoruz
-                    val result = geminiRepository.processAiAction(selectedText, action)
-                    if (result != null) {
-                        _aiResultText.value = result
-                    } else {
-                        // Eğer sonuç null ise hata mesajı gönder
-                        _uiEvent.send("Yapay zeka bir yanıt üretemedi.")
-                    }
-                } catch (e: Exception) {
-                    // Genel bir hata durumunda mesaj gönder
-                    _uiEvent.send("İşlem başarısız oldu. İnternet bağlantınızı kontrol edin.")
-                } finally {
-                    _isAiLoading.value = false
-                }
-            }
-        }
-    }
+    // --- AI FUNCTIONS | END ---
 
     fun updateFolderId(newFolderId: Long?) {
         _folderId.value = newFolderId
@@ -230,7 +210,6 @@ class EditViewModel @Inject constructor(
         updateFolderId(note.folderId)
     }
 
-    // DÜZELTME: folderIdFromNav parametresine varsayılan null değeri ekleyin
     fun setupNoteData(id : Int, folderIdFromNav: Long? = null) {
         if (id != 0) { // Mevcut bir not ise
             viewModelScope.launch {
@@ -241,7 +220,6 @@ class EditViewModel @Inject constructor(
                 }
             }
         } else { // Yeni bir not ise
-            // Sadece navigasyon ile gelen folderId'yi state'e ata
             updateFolderId(folderIdFromNav)
         }
     }
@@ -287,6 +265,11 @@ class EditViewModel @Inject constructor(
 
     fun updateNoteDescription(newDescription: TextFieldValue) {
         _noteDescription.value = newDescription
+        // ---> If the user has selected a field (not the cursor), keep this selection.
+        if (!newDescription.selection.collapsed) {
+            _lastSelection = newDescription.selection
+        }
+        // <---
         undoRedoState.onInput(newDescription)
     }
 

@@ -112,17 +112,13 @@ fun EditNoteView(
     ObserveLifecycleEvents(viewModel)
 
     val scope = rememberCoroutineScope()
-
-    // --- YENİ: Snackbar için hazırlık ---
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // ViewModel'den gelen tek seferlik UI olaylarını dinle
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { message ->
             snackbarHostState.showSnackbar(message)
         }
     }
-    // --- BİTTİ ---
 
     if (viewModel.isAiActionSheetVisible.value) {
         AiActionSheet(viewModel = viewModel)
@@ -352,28 +348,13 @@ fun MinimalisticMode(
 @Composable
 fun EditScreen(viewModel: EditViewModel, settingsViewModel: SettingsViewModel, pagerState: PagerState, onClickBack: () -> Unit) {
 
-    // --- YENİ EKLENEN KOD ---
-    // AI yükleniyorsa, ekranı kaplayan animasyonu göster.
     if (viewModel.isAiLoading.value) {
         LoadingOverlay()
-    }
-    // --- BİTTİ ---
-
-    // --- YENİ EKLENEN KOD ---
-    if (viewModel.isAiActionSheetVisible.value) {
-        AiActionSheet(viewModel = viewModel)
     }
 
     if (viewModel.aiResultText.value != null) {
         AiResultDialog(viewModel = viewModel)
     }
-    // --- BİTTİ ---
-
-    // --- YENİ EKLENEN KOD ---
-    if (viewModel.isAiLoading.value) {
-        LoadingOverlay()
-    }
-    // --- BİTTİ ---
 
     Column(
         modifier = Modifier
@@ -606,8 +587,6 @@ private fun RenderButton(
         }
     )
 }
-
-// EditScreen.kt dosyasının içinde, diğer Composable'ların dışında bir yere ekleyin
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AiActionSheet(viewModel: EditViewModel) {
@@ -670,8 +649,8 @@ private fun LoadingOverlay() {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.5f))
-            .clickable(enabled = false, onClick = {}) // Arkadaki tıklamaları engeller
-            .zIndex(10f), // Her şeyin üzerinde görünmesi için
+            .clickable(enabled = false, onClick = {}) // Prevents back clicks
+            .zIndex(10f), // To appear above everything
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator()
@@ -691,8 +670,7 @@ private fun ToneActionSheet(viewModel: EditViewModel) {
                 ListItem(
                     headlineContent = { Text(tone.displayName) },
                     modifier = Modifier.clickable {
-                        // executeAiAction'ı bu sefer seçilen ton ile çağırıyoruz
-                        viewModel.executeAiAction(action = AiAction.CHANGE_TONE, tone = tone)
+                        viewModel.executeAiAction(action = AiAction.CHANGE_TONE, tone = tone) // We call executeAiAction, this time with the selected tone
                     }
                 )
             }
