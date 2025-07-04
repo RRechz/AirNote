@@ -195,18 +195,18 @@ fun TopBarActions(pagerState: PagerState, onClickBack: () -> Unit, viewModel: Ed
 
     when (pagerState.currentPage) {
 
-        0 -> { // Düzenleme Modu
-            Row(verticalAlignment = Alignment.CenterVertically) { // Hizalama eklendi
-                actionButtonPlaceholder() // Ortak komponenti çağırıyoruz
+        0 -> { // Edit Mode
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                actionButtonPlaceholder()
                 if (viewModel.isDescriptionInFocus.value) {
                     RedoButton { viewModel.redo() }
                 }
                 SaveButton { onClickBack() }
             }
         }
-        1 -> { // Önizleme Modu
-            Row(verticalAlignment = Alignment.CenterVertically) { // Hizalama eklendi
-                actionButtonPlaceholder() // Ortak komponenti çağırıyoruz
+        1 -> { // Preview Mode
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                actionButtonPlaceholder()
                 MoreButton {
                     viewModel.toggleEditMenuVisibility(true)
                 }
@@ -598,16 +598,15 @@ fun ModeButton(
     }
 }
 
-// YENİ: Başlık Önerileri için AlertDialog
 @Composable
 private fun TitleSuggestionDialog(
     suggestions: List<String>,
     onDismiss: () -> Unit,
-    onSelect: (String) -> Unit // Kullanıcı bir başlık seçtiğinde
+    onSelect: (String) -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("AI Önerisi") },
+        title = { Text(stringResource(R.string.ai_suggestion)) },
         text = {
             LazyColumn {
                 items(suggestions) { suggestion ->
@@ -623,13 +622,12 @@ private fun TitleSuggestionDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Kapat")
+                Text(stringResource(R.string.close))
             }
         }
     )
 }
 
-// YENİ: Her bir komut satırının tasarımı
 @Composable
 private fun CommandMenuItem(
     title: String,
@@ -654,23 +652,17 @@ private fun CommandMenuItem(
     }
 }
 
-
-// YENİ: Notion tarzı Komut Menüsü
 @Composable
 fun AiCommandMenu(
     viewModel: EditViewModel,
     expanded: Boolean,
     onDismiss: () -> Unit
 ) {
-    // Menüyü, onu açan butonun altına konumlandırmak için kullanacağız.
-    // Şimdilik DropdownMenu gibi davranmasını sağlayalım.
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismiss,
-        // Geniş bir menü için offset'leri ve genişliği ayarlayalım
         modifier = Modifier.widthIn(min = 280.dp)
     ) {
-        // Enum'ları ve özel metinleri kullanarak menü elemanlarını oluştur
         CommandMenuItem(
             title = "Artı ve Eksilerini Listele",
             onClick = { viewModel.executeAiAssistantAction(AiAssistantAction.PROS_AND_CONS) }
@@ -719,40 +711,6 @@ private fun RenderButton(
         }
     )
 }
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AiActionSheet(viewModel: EditViewModel) {
-    if (!viewModel.isAiActionSheetVisible.value) return
-
-    // Artık CHANGE_TONE da dahil
-    val actions = AiAction.values()
-
-    ModalBottomSheet(
-        onDismissRequest = { viewModel.toggleAiActionSheet(false) }
-    ) {
-        LazyColumn {
-            items(actions) { action ->
-                ListItem(
-                    headlineContent = { Text(text = action.displayName) },
-                    leadingContent = {
-                        if (action == AiAction.CHANGE_TONE) {
-                            Icon(
-                                imageVector = Icons.Rounded.Tune,
-                                contentDescription = null
-                            )
-                        }
-                    },
-                    modifier = Modifier.clickable {
-                        viewModel.executeAiAction(action = action, tone = null)
-                        viewModel.toggleAiActionSheet(false)
-                    }
-                )
-            }
-        }
-    }
-}
-
-
 
 @Composable
 private fun AiResultDialog(viewModel: EditViewModel) {
@@ -791,6 +749,38 @@ private fun LoadingOverlay() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun AiActionSheet(viewModel: EditViewModel) {
+    if (!viewModel.isAiActionSheetVisible.value) return
+
+    val actions = AiAction.values()
+
+    ModalBottomSheet(
+        onDismissRequest = { viewModel.toggleAiActionSheet(false) }
+    ) {
+        LazyColumn {
+            items(actions) { action ->
+                ListItem(
+                    headlineContent = { Text(text = action.getDisplayName()) },
+                    leadingContent = {
+                        if (action == AiAction.CHANGE_TONE) {
+                            Icon(
+                                imageVector = Icons.Rounded.Tune,
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    modifier = Modifier.clickable {
+                        viewModel.executeAiAction(action = action, tone = null)
+                        viewModel.toggleAiActionSheet(false)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun ToneActionSheet(viewModel: EditViewModel) {
     val tones = AiTone.values().toList()
 
@@ -800,12 +790,32 @@ private fun ToneActionSheet(viewModel: EditViewModel) {
         LazyColumn {
             items(items = tones) { tone ->
                 ListItem(
-                    headlineContent = { Text(tone.displayName) },
+                    headlineContent = { Text(tone.getDisplayName()) },
                     modifier = Modifier.clickable {
                         viewModel.executeAiAction(action = AiAction.CHANGE_TONE, tone = tone) // We call executeAiAction, this time with the selected tone
                     }
                 )
             }
         }
+    }
+}
+
+@Composable
+fun AiAction.getDisplayName(): String {
+    return when (this) {
+        AiAction.IMPROVE_WRITING -> stringResource(id = R.string.ai_action_improve_writing)
+        AiAction.SUMMARIZE -> stringResource(id = R.string.ai_action_summarize)
+        AiAction.MAKE_SHORTER -> stringResource(id = R.string.ai_action_make_shorter)
+        AiAction.MAKE_LONGER -> stringResource(id = R.string.ai_action_make_longer)
+        AiAction.CHANGE_TONE -> stringResource(id = R.string.ai_action_change_tone)
+    }
+}
+
+@Composable
+fun AiTone.getDisplayName(): String {
+    return when (this) {
+        AiTone.FORMAL -> stringResource(id = R.string.ai_tone_formal)
+        AiTone.BALANCED -> stringResource(id = R.string.ai_tone_balanced)
+        AiTone.FRIENDLY -> stringResource(id = R.string.ai_tone_friendly)
     }
 }

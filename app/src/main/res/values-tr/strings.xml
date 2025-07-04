@@ -194,4 +194,38 @@
     <string name="check">Kontrol Et</string>
     <string name="model_to_use">Model Kullan</string>
     <string name="model_choice">Model Seçimi (BETA)</string>
+    <string name="ai_suggestion">AI\'s Suggestion</string>
+    <string name="close">Close</string>
+    <string name="all_notes">All Notes</string>
+
+    <!-- Gemini Repository Strings-->
+    <string name="ai_action_improve_writing">Yazımı İyileştir</string>
+    <string name="ai_action_summarize">Özetle</string>
+    <string name="ai_action_make_shorter">Daha Kısa Yap</string>
+    <string name="ai_action_make_longer">Daha Uzun Yap</string>
+    <string name="ai_action_change_tone">Tonu Değiştir</string>
+
+    <string name="ai_tone_formal">Resmi</string>
+    <string name="ai_tone_balanced">Dengeli</string>
+    <string name="ai_tone_friendly">Samimi</string>
+    <string name="error_no_user_api_key">Kullanıcı API anahtarı bulunamadı. Lütfen ayarlardan kontrol edin.</string>
+    <string name="error_api_request_failed">API isteği başarısız oldu: %1$s</string>
+
+    <string name="prompt_improve_writing">Aşağıdaki metindeki dilbilgisi ve anlatım hatalarını düzelterek daha akıcı hale getir. Sadece düzeltilmiş metni cevap olarak ver:\n\n---\n\n%1$s</string>
+    <string name="prompt_summarize">Aşağıdaki metni ana fikrini koruyarak bir veya iki cümleyle özetle. Sadece özet metnini cevap olarak ver:\n\n---\n\n%1$s</string>
+    <string name="prompt_make_shorter">Aşağıdaki metni anlamını koruyarak önemli ölçüde kısalt. Sadece kısaltılmış metni cevap olarak ver:\n\n---\n\n%1$s</string>
+    <string name="prompt_make_longer">Aşağıdaki metne yaratıcı detaylar ekleyerek daha uzun bir hale getir. Sadece uzatılmış metni cevap olarak ver:\n\n---\n\n%1$s</string>
+
+    <string name="prompt_change_tone_template">%1$s\n\n---\n\n%2$s</string>
+    <string name="prompt_instruction_tone_formal">Aşağıdaki metni profesyonel ve resmi bir dille yeniden yaz. Anlamı koru, sadece tonu değiştir. Sadece sonuç metnini cevap olarak ver:</string>
+    <string name="prompt_instruction_tone_balanced">Aşağıdaki metni ne çok resmi ne de çok samimi, dengeli bir dille yeniden yaz. Anlamı koru. Sadece sonuç metnini cevap olarak ver:</string>
+    <string name="prompt_instruction_tone_friendly">Aşağıdaki metni daha samimi, sıcak ve arkadaşça bir dille yeniden yaz. Anlamı koru. Sadece sonuç metnini cevap olarak ver:</string>
+
+    <string name="prompt_assistant_give_idea">Bir not alma uygulaması kullanıcısı, \"%1$s\" başlıklı bir not üzerinde çalışıyor. Bu başlığa uygun, yaratıcı ve ilham verici birkaç fikir veya başlangıç noktası öner. Cevabın kısa ve liste formatında olsun.</string>
+    <string name="prompt_assistant_continue_writing">Aşağıdaki metni, anlam bütünlüğünü ve yazarın tarzını koruyarak devam ettir. Sadece eklenecek yeni metni cevap olarak ver, mevcut metni tekrarlama:\n\n---\n\nBaşlık: %1$s\n\nİçerik:\n%2$s</string>
+    <string name="prompt_assistant_change_perspective">Aşağıdaki metni analiz et ve bu konuya tamamen farklı bir bakış açısıyla nasıl yaklaşılabileceğine dair bir paragraf yaz. Mevcut metni özetleme, ona alternatif bir perspektif sun:\n\n---\n\nBaşlık: %1$s\n\nİçerik:\n%2$s</string>
+    <string name="prompt_assistant_pros_and_cons">Aşağıdaki metni analiz et ve bir \'### Artılar\' ve bir \'### Eksiler\' başlığı altında, konuyla ilgili olumlu ve olumsuz noktaları madde madde listele. Sadece bu iki başlığı ve maddeleri cevap olarak ver:\n\n---\n\n%1$s</string>
+    <string name="prompt_assistant_create_todo">Aşağıdaki metni analiz et. Eğer metin gün içinde yapılacak görevlerden bahsediyorsa, bu görevleri her satırın başına \'[] \' koyarak bir yapılacaklar listesine dönüştür. Eğer metin görevlerden bahsetmiyorsa, başka hiçbir şey yazmadan SADECE \'NO_TASKS\' kelimesini cevap olarak ver. Metnin dilini algıla ve listeyi o dilde oluştur:\n\n---\n\n%1$s</string>
+    <string name="prompt_assistant_simplify">Aşağıdaki karmaşık metni, herkesin anlayabileceği basit ve akıcı bir dile çevir. Metnin ana fikrini ve önemli detaylarını koru. Sadece basitleştirilmiş metni cevap olarak ver:\n\n---\n\n%1$s</string>
+    <string name="prompt_assistant_suggest_title">Aşağıdaki metnin içeriğine en uygun, yaratıcı ve dikkat çekici 5 adet başlık önerisi sun. Cevabını numaralandırılmış bir liste olarak ver:\n\n---\n\n%1$s</string>
 </resources>

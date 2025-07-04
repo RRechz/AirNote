@@ -188,4 +188,38 @@
     <string name="check">Check</string>
     <string name="model_to_use">Model to Use</string>
     <string name="model_choice">Model Choice (BETA)</string>
+    <string name="ai_suggestion">AI\'s Suggestion</string>
+    <string name="close">Close</string>
+    <string name="all_notes">All Notes</string>
+
+    <!-- Gemini Repository Strings-->
+    <string name="ai_action_improve_writing">Optimize Writing</string>
+    <string name="ai_action_summarize">Summarize</string>
+    <string name="ai_action_make_shorter">Make it Shorter</string>
+    <string name="ai_action_make_longer">Make it longer</string>
+    <string name="ai_action_change_tone">Change Tone</string>
+
+    <string name="ai_tone_formal">Offical (lang)</string>
+    <string name="ai_tone_balanced">Balanced</string>
+    <string name="ai_tone_friendly">Friendly</string>
+    <string name="error_no_user_api_key">User API key not found. Please check in settings.</string>
+    <string name="error_api_request_failed">API request failed: %1$s</string>
+
+    <string name="prompt_improve_writing">Correct the grammar and expression mistakes in the text below to make it more fluent. Answer only the corrected text:\n\n---\n\n%1$s</string>
+    <string name="prompt_summarize">Summarize the text below in one or two sentences, keeping the main idea. Answer only the summary text:\n\n---\n\n%1$s</string>
+    <string name="prompt_make_shorter">Shorten the following text significantly while preserving its meaning. Reply only with the shortened text:\n\n---\n\n%1$s</string>
+    <string name="prompt_make_longer">Add creative details to the text below to make it longer. Only reply with the extended text:\n\n---\n\n%1$s</string>
+
+    <string name="prompt_change_tone_template">%1$s\n\n---\n\n%2$s</string>
+    <string name="prompt_instruction_tone_formal">Rewrite the text below in a professional and formal language. Keep the meaning, only change the tone. Only reply with the final text:</string>
+    <string name="prompt_instruction_tone_balanced">Rewrite the text below in a balanced language, neither too formal nor too sincere. Keep the meaning. Only reply with the conclusion:</string>
+    <string name="prompt_instruction_tone_friendly">Rewrite the text below in a more sincere, warm, conversational and friendly way. Keep the meaning. Only reply with the conclusion:</string>
+
+    <string name="prompt_assistant_give_idea">A note-taking app user is working on a note titled \"%1$s\". Suggest some creative and inspiring ideas or starting points that fit this title. Keep your answer short and in list format.</string>
+    <string name="prompt_assistant_continue_writing">Continue the text below, keeping the integrity of meaning and the author\'s style. Only reply to the new text, do not repeat the existing text:\n\n---\n\n\nTitle: %1$s\n\nContent:\n%2$s</string>
+    <string name="prompt_assistant_change_perspective">Analyze the text below and write a paragraph on how to approach this topic from a completely different perspective. Do not summarize the existing text, offer an alternative perspective:\n\n---\n\n\nTitle: %1$s\n\nContent:\n%2$s</string>
+    <string name="prompt_assistant_pros_and_cons">Analyze the text below and list the positive and negative points under the headings \'### Pros\' and \'### Cons\'. Answer only these two headings and items:\n\n\n---\n\n\n\n%1$s</string>
+    <string name="prompt_assistant_create_todo">Analyze the text below. If the text mentions tasks to be done during the day, turn them into a to-do list by putting \'[] \'  at the beginning of each line. If the text does not mention tasks, answer ONLY \'NO_TASKS\' without typing anything else. Detect the language of the text and create the list in that language:\n\n---\n\n%1$s</string>
+    <string name="prompt_assistant_simplify">Translate the complex text below into simple and fluent language that everyone can understand. Keep the main idea and important details of the text. Answer only the simplified text:\n\n---\n\n%1$s</string>
+    <string name="prompt_assistant_suggest_title">Suggest 5 creative and attention-grabbing titles that best fit the content of the text below. Give your answer as a numbered list:\n\n---\n\n%1$s</string>
 </resources>

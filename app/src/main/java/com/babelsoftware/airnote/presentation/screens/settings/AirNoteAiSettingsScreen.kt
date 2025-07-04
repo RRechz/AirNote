@@ -50,7 +50,6 @@ import kotlinx.coroutines.launch
 fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: SettingsViewModel) {
     val settings = settingsViewModel.settings.value
 
-    // Snackbar için hazırlık
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     LaunchedEffect(key1 = true) {
