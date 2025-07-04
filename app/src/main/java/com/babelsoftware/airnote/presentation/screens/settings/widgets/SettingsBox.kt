@@ -25,13 +25,11 @@ import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -45,10 +43,9 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,20 +56,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsViewModel
-import com.babelsoftware.airnote.presentation.theme.FontUtils
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.presentation.screens.settings.model.IconResource
+import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsViewModel
+import com.babelsoftware.airnote.presentation.theme.FontUtils
 
 enum class ActionType {
     RADIOBUTTON,
@@ -141,27 +136,27 @@ fun SettingsBox(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    // --- 2. DÜZELTME: 'when' bloğu ile doğru görseli gösterme ---
                     CircleWrapper(
-                        size = 12.dp, // Bu size CircleWrapper'a ait, içindeki görselin değil.
+                        size = 12.dp,
                         color = containerColor
                     ) {
-                        // Gelen 'icon' nesnesinin türüne göre davranıyoruz
+                        // Icon according to the type of the incoming ‘icon’ object
                         when (icon) {
                             is IconResource.Vector -> {
-                                // Eğer Vector ise, normal Icon göster
+                                // If Vector, show normal Icon
                                 Icon(
                                     imageVector = icon.imageVector,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
+
                             is IconResource.Url -> {
-                                // Eğer Url ise, Coil ile Image göster
+                                // If Url, show Image with Coil
                                 Image(
                                     painter = rememberAsyncImagePainter(model = icon.url),
                                     contentDescription = title,
-                                    // CircleWrapper'ın içini doldurması için
+                                    // For CircleWrapper to fill in
                                     modifier = Modifier
                                         .size(24.dp)
                                         .clip(CircleShape),
@@ -171,24 +166,21 @@ fun SettingsBox(
                         }
                     }
                     Spacer(modifier = Modifier.width(8.dp))
-                    // --- DÜZELTME SONU ---
-                    if (actionType != ActionType.LINK && !description.isNullOrBlank()) {
-                        MaterialText(
-                            title = title, 
-                            description = description.ifBlank { clipboardText },
-                            settingsViewModel = settingsViewModel
-                        )
-                    } else {
+
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            title,
-                            color = containerColor,
+                            text = title,
                             fontWeight = FontWeight.Bold,
-                            fontSize = settingsViewModel?.let {
-                                FontUtils.getFontSize(it, baseSize = 14)
-                            } ?: MaterialTheme.typography.titleMedium.fontSize,
-                            textAlign = if (isCentered) TextAlign.Center else TextAlign.Start,
-                            modifier = Modifier.fillMaxWidth()
+                            color = MaterialTheme.colorScheme.onSurface, // Visible color
+                            style = MaterialTheme.typography.titleSmall
                         )
+                        if (!description.isNullOrBlank()) {
+                            Text(
+                                text = description,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant, // Visible color
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
                 }
                 RenderActionComponent(actionType, variable, switchEnabled, linkClicked, customText, customButton, settingsViewModel)
