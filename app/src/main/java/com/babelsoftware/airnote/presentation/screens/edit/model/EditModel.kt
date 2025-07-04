@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.babelsoftware.airnote.data.repository.GeminiRepository
 import com.babelsoftware.airnote.data.repository.AiAction
+import com.babelsoftware.airnote.data.repository.AiAssistantAction
 import com.babelsoftware.airnote.data.repository.AiTone
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -76,6 +77,9 @@ class EditViewModel @Inject constructor(
     private var _lastSelection: TextRange? = null // Tentative texts to be sent to AI
     private val _uiEvent = Channel<String>()
     val uiEvent = _uiEvent.receiveAsFlow()
+
+    private val _isAiAssistantSheetVisible = mutableStateOf(false)
+    val isAiAssistantSheetVisible: State<Boolean> = _isAiAssistantSheetVisible
     // --- AI'S STATES | END---
 
     // --- AI FUNCTIONS ---
@@ -144,6 +148,47 @@ class EditViewModel @Inject constructor(
         // <---
     }
 
+    fun executeAiAssistantAction(action: AiAssistantAction) {
+        // Asistan menüsünü hemen kapat
+        toggleAiAssistantSheet(false)
+
+        viewModelScope.launch {
+            _isAiLoading.value = true
+            try {
+                val result = geminiRepository.processAssistantAction(
+                    noteName = noteName.value.text,
+                    noteDescription = noteDescription.value.text,
+                    action = action
+                )
+
+                if (!result.isNullOrBlank()) {
+                    // Hata mesajlarını Snackbar ile göster
+                    if (result.startsWith("API isteği başarısız oldu") || result.startsWith("Kullanıcı API anahtarı bulunamadı")) {
+                        _uiEvent.send(result)
+                    } else {
+                        // Başarılı sonucu mevcut metnin sonuna ekle
+                        val currentText = _noteDescription.value.text
+                        // Daha iyi formatlama için araya boşluk ekleyelim
+                        val separator = if (currentText.isNotBlank()) "\n\n" else ""
+                        val newText = currentText + separator + result
+
+                        // TextFieldValue'yu güncelle ve imleci en sona taşı
+                        _noteDescription.value = TextFieldValue(
+                            text = newText,
+                            selection = TextRange(newText.length)
+                        )
+                    }
+                } else {
+                    _uiEvent.send("Yapay zeka bir yanıt üretemedi.")
+                }
+            } catch (e: Exception) {
+                _uiEvent.send("İşlem başarısız oldu. İnternet bağlantınızı kontrol edin.")
+            } finally {
+                _isAiLoading.value = false
+            }
+        }
+    }
+
     /**
      * Replaces AI generated text with the selected text.
      */
@@ -161,6 +206,10 @@ class EditViewModel @Inject constructor(
             )
         )
         clearAiResult()
+    }
+
+    fun toggleAiAssistantSheet(isVisible: Boolean) {
+        _isAiAssistantSheetVisible.value = isVisible
     }
     // --- AI FUNCTIONS | END ---
 

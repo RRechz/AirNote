@@ -23,6 +23,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
@@ -41,6 +42,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SnackbarHost
@@ -74,6 +76,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.repository.AiAction
+import com.babelsoftware.airnote.data.repository.AiAssistantAction
 import com.babelsoftware.airnote.presentation.components.MoreButton
 import com.babelsoftware.airnote.presentation.components.NavigationIcon
 import com.babelsoftware.airnote.presentation.components.NotesScaffold
@@ -120,6 +123,12 @@ fun EditNoteView(
         }
     }
 
+    //---> AI Asistant Sheet
+    if (viewModel.isAiAssistantSheetVisible.value) {
+        AiAssistantSheet(viewModel = viewModel)
+    }
+    //<---
+
     if (viewModel.isAiActionSheetVisible.value) {
         AiActionSheet(viewModel = viewModel)
     }
@@ -156,6 +165,12 @@ fun TopBarActions(pagerState: PagerState, onClickBack: () -> Unit, viewModel: Ed
 
         0 -> {
             Row {
+                IconButton(onClick = { viewModel.toggleAiAssistantSheet(true) }) {
+                    Icon(
+                        imageVector = Icons.Rounded.AutoAwesome,
+                        contentDescription = "AI Asistant"
+                    )
+                }
                 if (viewModel.isDescriptionInFocus.value) {
                     RedoButton { viewModel.redo() }
                 }
@@ -164,6 +179,12 @@ fun TopBarActions(pagerState: PagerState, onClickBack: () -> Unit, viewModel: Ed
         }
         1 -> {
             Row {
+                IconButton(onClick = { viewModel.toggleAiAssistantSheet(true) }) {
+                    Icon(
+                        imageVector = Icons.Rounded.AutoAwesome,
+                        contentDescription = "AI Asistant"
+                    )
+                }
                 MoreButton {
                     viewModel.toggleEditMenuVisibility(true)
                 }
@@ -675,5 +696,30 @@ private fun ToneActionSheet(viewModel: EditViewModel) {
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AiAssistantSheet(viewModel: EditViewModel) {
+    // Dize listesi yerine doğrudan enum listesi kullanalım
+    val assistantActions = AiAssistantAction.values().toList()
+
+    ModalBottomSheet(
+        onDismissRequest = { viewModel.toggleAiAssistantSheet(false) }
+    ) {
+        LazyColumn {
+            items(assistantActions) { action ->
+                ListItem(
+                    // Enum'daki displayName özelliğini göster
+                    headlineContent = { Text(text = action.displayName) },
+                    modifier = Modifier.clickable {
+                        // Artık doğru eylemle ViewModel fonksiyonunu çağırabiliriz
+                        viewModel.executeAiAssistantAction(action)
+                    }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.imePadding())
     }
 }

@@ -35,6 +35,12 @@ enum class AiTone(val displayName: String, val promptInstruction: String) {
     )
 }
 
+enum class AiAssistantAction(val displayName: String) {
+    GIVE_IDEA("Bana bir fikir ver"),
+    CONTINUE_WRITING("Yazmaya devam et"),
+    CHANGE_PERSPECTIVE("Farklı bir açıdan yaklaş")
+}
+
 class GeminiRepository @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val secureStorageRepository: SecureStorageRepository
@@ -88,6 +94,52 @@ class GeminiRepository @Inject constructor(
             AiAction.MAKE_SHORTER -> "Aşağıdaki metni anlamını koruyarak önemli ölçüde kısalt. Sadece kısaltılmış metni cevap olarak ver:\n\n---\n\n$text"
             AiAction.MAKE_LONGER -> "Aşağıdaki metne yaratıcı detaylar ekleyerek daha uzun bir hale getir. Sadece uzatılmış metni cevap olarak ver:\n\n---\n\n$text"
             AiAction.CHANGE_TONE -> "${tone!!.promptInstruction}\n\n---\n\n$text" // tone'un null olmayacağından emin olduğumuz için !! kullanabiliriz.
+        }
+
+        return try {
+            val response = generativeModel.generateContent(prompt)
+            response.text
+        } catch (e: Exception) {
+            e.printStackTrace()
+            "API isteği başarısız oldu: ${e.message}"
+        }
+    }
+
+    suspend fun processAssistantAction(
+        noteName: String,
+        noteDescription: String,
+        action: AiAssistantAction
+    ): String? {
+        // API Anahtarı yönetimi (processAiAction'dan kopyalanabilir)
+        val currentSettings = settingsRepository.settings.first()
+        val apiKeyToUse = if (currentSettings.useAirNoteApi) {
+            airNoteApiKey
+        } else {
+            secureStorageRepository.getUserApiKey()
+        }
+
+        if (apiKeyToUse.isNullOrBlank()) {
+            return "Kullanıcı API anahtarı bulunamadı. Lütfen ayarlardan kontrol edin."
+        }
+
+        val generativeModel = GenerativeModel(
+            modelName = currentSettings.selectedModelName,
+            apiKey = apiKeyToUse,
+            generationConfig = generationConfig {
+                temperature = 0.8f // İçerik üretiminde biraz daha yaratıcı olması için sıcaklığı artırabiliriz
+            }
+        )
+
+        // Eyleme göre özel prompt oluşturma
+        val prompt = when (action) {
+            AiAssistantAction.GIVE_IDEA ->
+                "Bir not alma uygulaması kullanıcısı, \"$noteName\" başlıklı bir not üzerinde çalışıyor. Bu başlığa uygun, yaratıcı ve ilham verici birkaç fikir veya başlangıç noktası öner. Cevabın kısa ve liste formatında olsun."
+
+            AiAssistantAction.CONTINUE_WRITING ->
+                "Aşağıdaki metni, anlam bütünlüğünü ve yazarın tarzını koruyarak devam ettir. Sadece eklenecek yeni metni cevap olarak ver, mevcut metni tekrarlama:\n\n---\n\nBaşlık: $noteName\n\nİçerik:\n$noteDescription"
+
+            AiAssistantAction.CHANGE_PERSPECTIVE ->
+                "Aşağıdaki metni analiz et ve bu konuya tamamen farklı bir bakış açısıyla nasıl yaklaşılabileceğine dair bir paragraf yaz. Mevcut metni özetleme, ona alternatif bir perspektif sun:\n\n---\n\nBaşlık: $noteName\n\nİçerik:\n$noteDescription"
         }
 
         return try {
