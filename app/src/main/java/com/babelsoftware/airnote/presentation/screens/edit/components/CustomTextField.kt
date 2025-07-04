@@ -101,6 +101,8 @@ fun CustomTextField(
     )
 }
 
+// CustomTextField.kt
+
 class UndoRedoState {
     var input by mutableStateOf(TextFieldValue(""))
     private val undoHistory = ArrayDeque<TextFieldValue>()
@@ -111,22 +113,20 @@ class UndoRedoState {
     }
 
     fun onInput(value: TextFieldValue) {
-        // always set the cursor at the end (selection = text length)
-        val updatedValue = value.copy(value.text, selection = TextRange(value.text.length))
-        undoHistory.add(updatedValue)
-        redoHistory.clear()  // Clear redo history on new input
-        input = updatedValue
+        if (undoHistory.lastOrNull()?.text != value.text) {
+            undoHistory.add(value)
+            redoHistory.clear()  // Yeni bir yazma eylemi, ileri alma geçmişini temizler.
+        }
+        input = value
     }
 
     fun undo() {
         if (undoHistory.size > 1) {
-            // Pop the last
             val lastState = undoHistory.removeLastOrNull()
             lastState?.let {
                 redoHistory.add(it)
             }
 
-            // Peek the last
             val previousState = undoHistory.lastOrNull()
             previousState?.let {
                 input = it
