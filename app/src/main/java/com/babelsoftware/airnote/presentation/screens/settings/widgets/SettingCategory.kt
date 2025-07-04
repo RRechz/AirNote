@@ -48,15 +48,20 @@ fun SettingCategory(
 
     ElevatedCard(
         shape = shape,
-
         modifier = Modifier
             .clip(shape)
             .clickable {
                 showCustomAction = showCustomAction.not()
                 action()
             },
-        colors = if (smallSetting) CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.primary) else CardDefaults.elevatedCardColors(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = if (smallSetting) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.surfaceContainer // Varsayılan yerine belirli bir renk
+            }
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp), // Gölgeyi 1.dp'ye düşürdük
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

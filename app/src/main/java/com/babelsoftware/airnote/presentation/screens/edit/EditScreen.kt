@@ -550,7 +550,6 @@ fun MarkdownBox(
         shape = shape,
         modifier = modifier
             .clip(shape)
-            .heightIn(max = 128.dp, min = 42.dp)
             .then(
                 if (isExtremeAmoled) {
                     Modifier.border(
@@ -560,7 +559,10 @@ fun MarkdownBox(
                     )
                 } else Modifier
             ),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (!isExtremeAmoled) 6.dp else 0.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (!isExtremeAmoled) 1.dp else 0.dp), // Shadow
 
         ) {
         content()

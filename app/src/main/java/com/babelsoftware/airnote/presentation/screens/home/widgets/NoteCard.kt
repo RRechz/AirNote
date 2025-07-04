@@ -70,6 +70,9 @@ fun NoteCard(
                 onLongClick = onLongClick
             )
             .then(borderModifier),
+        colors = CardDefaults.cardColors(
+            containerColor = containerColor
+        ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = if (containerColor != Color.Black) 6.dp else 0.dp
         ),

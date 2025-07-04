@@ -102,6 +102,7 @@ fun ColorStylesScreen(navController: NavController, settingsViewModel: SettingsV
                     icon = IconResource.Vector(Icons.Rounded.HdrAuto),
                     actionType = ActionType.SWITCH,
                     radius = shapeManager(
+                        isFirst = true,
                         isBoth = (!isSystemInDarkTheme() && settingsViewModel.settings.value.automaticTheme),
                         radius = settingsViewModel.settings.value.cornerRadius
                     ),

@@ -1,5 +1,8 @@
 /*
- * Copyright (C) 2024 Vexzure
+ * Copyright (C) 2025 Babel Software
+ *
+ * The AirNote project is based solely on the resources of Kin69's Easy Notes project.
+ * The AirNote project was developed as an alternative to other AI-powered note-taking applications.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +48,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -96,18 +101,18 @@ fun SettingsBox(
     customAction: @Composable (() -> Unit) -> Unit = {},
     customText: String = "",
     clipboardText: String = "",
-    settingsViewModel: SettingsViewModel? = null
+    settingsViewModel: SettingsViewModel? = null,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
 ) {
     val context = LocalContext.current
     var showCustomAction by remember { mutableStateOf(false) }
     if (showCustomAction) customAction { showCustomAction = !showCustomAction }
 
     AnimatedVisibility(visible = isEnabled) {
-        Box(
+        Surface(
             modifier = Modifier
                 .padding(bottom = dimensionResource(id = R.dimen.card_padding_bottom))
                 .clip(radius ?: RoundedCornerShape(13.dp))
-                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp))
                 .clickable {
                     handleAction(
                         context,
@@ -118,7 +123,9 @@ fun SettingsBox(
                         linkClicked,
                         clipboardText
                     )
-                }
+                },
+            color = containerColor,
+            tonalElevation = 1.dp
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -137,7 +144,7 @@ fun SettingsBox(
                     // --- 2. DÜZELTME: 'when' bloğu ile doğru görseli gösterme ---
                     CircleWrapper(
                         size = 12.dp, // Bu size CircleWrapper'a ait, içindeki görselin değil.
-                        color = MaterialTheme.colorScheme.surfaceContainerLow
+                        color = containerColor
                     ) {
                         // Gelen 'icon' nesnesinin türüne göre davranıyoruz
                         when (icon) {
@@ -174,7 +181,7 @@ fun SettingsBox(
                     } else {
                         Text(
                             title,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = containerColor,
                             fontWeight = FontWeight.Bold,
                             fontSize = settingsViewModel?.let {
                                 FontUtils.getFontSize(it, baseSize = 14)
