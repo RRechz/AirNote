@@ -205,6 +205,8 @@
     <string name="ai_tone_friendly">Friendly</string>
     <string name="error_no_user_api_key">User API key not found. Please check in settings.</string>
     <string name="error_api_request_failed">API request failed: %1$s</string>
+    <string name="ai_welcome_message">Hello there! How can I help you?</string>
+    <string name="ai_suggestions_title">SUGGESTED</string>
 
     <string name="ai_prompt_for_draft_topic">Great, what should we create a draft about? Please write the topic.</string>
 

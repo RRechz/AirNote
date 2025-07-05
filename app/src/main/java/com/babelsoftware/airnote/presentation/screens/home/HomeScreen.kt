@@ -5,6 +5,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -73,9 +74,11 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.babelsoftware.airnote.R
+import com.babelsoftware.airnote.domain.model.AiSuggestion
 import com.babelsoftware.airnote.domain.model.ChatMessage
 import com.babelsoftware.airnote.domain.model.Folder
 import com.babelsoftware.airnote.domain.model.Note
@@ -157,21 +160,43 @@ fun HomeView (
                         onRegenerate = { viewModel.regenerateDraft() }
                     )
                 }
-                else -> {
+                chatState.messages.isEmpty() -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 16.dp)
                     ) {
-                        if (!chatState.hasStartedConversation) {
-                            SuggestionBar(
-                                onDraftAnything = { viewModel.onDraftAnythingClicked() }
-                            )
-                        }
-
-                        LazyColumn(modifier = Modifier.weight(1f)) {
+                        LazyColumn(modifier = Modifier.weight(1f),
+                            state = rememberLazyListState(initialFirstVisibleItemIndex = chatState.messages.size - 1)
+                        ) {
                             items(chatState.messages) { message ->
                                 ChatMessageItem(message = message)
+                            }
+                        }
+                        if (chatState.messages.isEmpty() && chatState.latestDraft == null) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.ai_welcome_message),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.padding(bottom = 16.dp)
+                                )
+                                Text(
+                                    text = stringResource(R.string.ai_suggestions_title),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp),
+                                    textAlign = TextAlign.Start
+                                )
+                                viewModel.suggestions.forEach { suggestion ->
+                                    SuggestionItem(suggestion = suggestion)
+                                }
                             }
                         }
 
@@ -301,8 +326,8 @@ fun HomeView (
                         onNoteClicked(0, viewModel.isVaultMode.value, null)
                     }
                     Box(
-                        modifier = Modifier.fillMaxWidth(), // Box'ın tüm genişliği kaplamasını sağlıyoruz
-                        contentAlignment = Alignment.CenterEnd // İçindeki butonu ortalıyoruz
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterEnd
                     ) {
                         AskAiButton(onClick = { viewModel.toggleAiChatSheet(true) })
                     }
@@ -636,12 +661,10 @@ fun ChatMessageItem(message: ChatMessage) {
         modifier = Modifier
             .padding(vertical = 8.dp)
             .fillMaxWidth(),
-        // Align right if the message belongs to the user, left if it belongs to the model
         horizontalArrangement = if (message.participant == Participant.USER) Arrangement.End else Arrangement.Start
     ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            // Adjust colors according to the participant
             color = if (message.participant == Participant.USER) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
@@ -653,7 +676,10 @@ fun ChatMessageItem(message: ChatMessage) {
                 if (message.isLoading) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))
                 } else {
-                    Text(text = message.text)
+                    Text(
+                        text = message.text,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
             }
         }
@@ -734,5 +760,24 @@ fun DraftDisplay(draft: DraftedNote, onSave: () -> Unit, onRegenerate: () -> Uni
                 Text("Yeniden Oluştur")
             }
         }
+    }
+}
+
+@Composable
+fun SuggestionItem(suggestion: AiSuggestion) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = suggestion.action)
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = suggestion.icon,
+            contentDescription = suggestion.title,
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(text = suggestion.title, style = MaterialTheme.typography.bodyLarge)
     }
 }

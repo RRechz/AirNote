@@ -1,6 +1,10 @@
 package com.babelsoftware.airnote.presentation.screens.home.viewmodel
 
 import android.content.Context
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
 import com.babelsoftware.airnote.data.repository.GeminiRepository
+import com.babelsoftware.airnote.domain.model.AiSuggestion
 import com.babelsoftware.airnote.domain.model.ChatMessage
 import com.babelsoftware.airnote.domain.model.Folder
 import com.babelsoftware.airnote.domain.model.Note
@@ -101,6 +106,25 @@ class HomeViewModel @Inject constructor(
 
     private val _chatState = mutableStateOf(ChatState())
     val chatState: State<ChatState> = _chatState
+
+    val suggestions: List<AiSuggestion> = listOf(
+        AiSuggestion(
+            title = "Bir soru sor",
+            icon = Icons.Rounded.Search,
+            action = { /* TODO: Soru sorma mantığı eklenecek */ }
+        ),
+        AiSuggestion(
+            title = "Herhangi bir şey taslağı oluştur",
+            icon = Icons.Rounded.Edit,
+            action = { onDraftAnythingClicked() } // Mevcut fonksiyonumuzu bağlıyoruz
+        ),
+        AiSuggestion(
+            title = "Fikir üret",
+            icon = Icons.Rounded.AutoAwesome,
+            action = { sendMessage("Bana rastgele bir konuda ilginç fikirler üret.") }
+        )
+        // Buraya yeni öneriler eklenebilir...
+    )
 
     // --- Global AI Chat States | END ---
 
