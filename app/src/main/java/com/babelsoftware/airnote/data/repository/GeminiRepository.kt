@@ -51,7 +51,7 @@ class GeminiRepository @Inject constructor(
     private val secureStorageRepository: SecureStorageRepository,
     private val stringProvider: StringProvider
 ) {
-    private val airNoteApiKey = "AIzaSyDwQkPI6M4r3Yx9kM2J8MaSmZF2JfHVwHQ" // Free Gemini API Key
+    private val airNoteApiKey = "YOUR_API_KEY_HERE"
 
     /**
      * Tests if the given API key is valid.

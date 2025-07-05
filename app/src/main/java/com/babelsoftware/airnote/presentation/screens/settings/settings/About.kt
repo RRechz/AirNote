@@ -91,6 +91,18 @@ fun AboutScreen(
             item {
                 SettingsBox(
                     settingsViewModel = settingsViewModel,
+                    title = "AirNote AI Version",
+                    description = "v1.0 build v0.9.0",
+                    icon = IconResource.Vector(Icons.Rounded.Info),
+                    actionType = ActionType.TEXT,
+                    radius = shapeManager(
+                        radius = settingsViewModel.settings.value.cornerRadius
+                    ),
+                )
+            }
+            item {
+                SettingsBox(
+                    settingsViewModel = settingsViewModel,
                     title = stringResource(id = R.string.developer),
                     description = stringResource(id = R.string.info_dev),
                     icon = IconResource.Url("https://avatars.githubusercontent.com/u/178022701?v=4"),
