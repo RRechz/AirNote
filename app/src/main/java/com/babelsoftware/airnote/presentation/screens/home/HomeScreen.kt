@@ -300,13 +300,13 @@ fun HomeView (
                     NewNoteButton {
                         onNoteClicked(0, viewModel.isVaultMode.value, null)
                     }
-                    AskAiButton(
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    Box(
+                        modifier = Modifier.fillMaxWidth(), // Box'ın tüm genişliği kaplamasını sağlıyoruz
+                        contentAlignment = Alignment.CenterEnd // İçindeki butonu ortalıyoruz
                     ) {
-                        viewModel.toggleAiChatSheet(true)
+                        AskAiButton(onClick = { viewModel.toggleAiChatSheet(true) })
                     }
                 }
-                // Todo Move the AI button into a separate column and move it to the center of the screen
             }
         },
         topBar = {
@@ -375,7 +375,6 @@ fun HomeView (
                 ),
                 notes = notes.sortedWith(sorter(settings.sortDescending)),
                 allFolders = allFolders,
-                modifier = Modifier.padding(bottom = 150.dp),
                 onNoteClicked = { noteId ->
                     val clickedNote = viewModel.displayedNotes.value.find { it.id == noteId }
                     if (clickedNote != null) {
@@ -502,7 +501,7 @@ private fun NotesSearchBar(
     SearchBar(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = if (settingsModel.settings.value.makeSearchBarLonger) 16.dp else 36.dp, vertical =  18.dp),
+            .padding(horizontal = if (settingsModel.settings.value.makeSearchBarLonger) 16.dp else 36.dp, vertical =  8.dp),
         query = query,
         placeholder = { Text(stringResource(R.string.search)) },
         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = "Search") },

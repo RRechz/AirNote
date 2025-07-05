@@ -3,6 +3,7 @@ package com.babelsoftware.airnote.presentation.screens.home.widgets
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -80,6 +81,7 @@ fun NotesGrid(
             false -> StaggeredGridCells.Fixed(1)
         },
         horizontalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(bottom = 160.dp),
         content = {
             if (pinnedNotes.isNotEmpty()) {
                 item(span = StaggeredGridItemSpan.FullLine) {
