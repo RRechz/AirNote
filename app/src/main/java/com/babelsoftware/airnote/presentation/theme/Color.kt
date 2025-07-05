@@ -75,3 +75,14 @@ val surfaceContainerHighestDark = Color(0xFF373433)
 
 
 val linkColor = Color(0xFF90D5FF)
+
+// Custom color palette for our AI theme buttons
+object AiButtonColors {
+    val GeminiContainer = Color(0xFF3B3F8C) // A rich navy blue/purple hue for a dark theme
+    val GeminiOnContainer = Color(0xFFE0E0FF) // A readable, vibrant text/icon color on this dark background
+
+    // ---> A more standard but harmonious color for the “New Note” button
+    val SecondaryContainer = Color(0xFF4A4458)
+    val SecondaryOnContainer = Color(0xFFE8DEF8)
+    // <---
+}

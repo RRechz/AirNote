@@ -194,9 +194,10 @@
     <string name="check">Kontrol Et</string>
     <string name="model_to_use">Model Kullan</string>
     <string name="model_choice">Model Seçimi (BETA)</string>
-    <string name="ai_suggestion">AI\'s Suggestion</string>
-    <string name="close">Close</string>
-    <string name="all_notes">All Notes</string>
+    <string name="ai_suggestion">AI\'ın Önerisi</string>
+    <string name="close">Kapat</string>
+    <string name="all_notes">Tüm Notlar</string>
+    <string name="ai_button_texts">Sor, sohbet et, AI ile bul...</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Yazımı İyileştir</string>

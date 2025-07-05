@@ -1,6 +1,8 @@
 package com.babelsoftware.airnote.presentation.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -8,33 +10,54 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,8 +72,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.babelsoftware.airnote.R
+import com.babelsoftware.airnote.domain.model.ChatMessage
 import com.babelsoftware.airnote.domain.model.Folder
 import com.babelsoftware.airnote.domain.model.Note
+import com.babelsoftware.airnote.domain.model.Participant
 import com.babelsoftware.airnote.presentation.components.CloseButton
 import com.babelsoftware.airnote.presentation.components.DeleteButton
 import com.babelsoftware.airnote.presentation.components.NotesButton
@@ -70,11 +95,13 @@ import com.babelsoftware.airnote.presentation.screens.home.widgets.NoteFilter
 import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsViewModel
 import com.babelsoftware.airnote.presentation.screens.settings.settings.PasswordPrompt
 import com.babelsoftware.airnote.presentation.screens.settings.settings.shapeManager
+import com.babelsoftware.airnote.presentation.theme.AiButtonColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView (
     viewModel: HomeViewModel = hiltViewModel(),
@@ -91,6 +118,44 @@ fun HomeView (
         allFolders.find { it.id == selectedFolderId }
     }
     val topBarColor = MaterialTheme.colorScheme.surfaceContainerLow
+    val listState = rememberLazyStaggeredGridState() // LazyListState to listen to the scrolling state of the note list
+
+    // ---> Expansion and reduction of the FAB according to the scrolling situation
+    val isFabExtended by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0
+        }
+    }
+    // <---
+    viewModel.setFabExtended(isFabExtended)
+
+    // AI Chat Window (ModalBottomSheet)
+    if (viewModel.isAiChatSheetVisible.value) {
+        ModalBottomSheet(
+            onDismissRequest = { viewModel.toggleAiChatSheet(false) },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+                    .imePadding()
+            ) {
+                // List showing chat messages
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    // Scroll to the bottom when new message is added
+                    state = rememberLazyListState(initialFirstVisibleItemIndex = viewModel.chatState.value.messages.size - 1)
+                ) {
+                    items(viewModel.chatState.value.messages) { message ->
+                        ChatMessageItem(message = message)
+                    }
+                }
+                // Text input bar
+                ChatInputBar(onSendMessage = { viewModel.sendMessage(it) })
+            }
+        }
+    }
 
     val context = LocalContext.current
     if (viewModel.isPasswordPromptVisible.value) {
@@ -189,10 +254,25 @@ fun HomeView (
     NotesScaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
-            NotesButton(text = stringResource(R.string.new_note)) {
-                viewModel.onAddNewNoteClicked { noteId, isVault, folderId ->
-                    onNoteClicked(noteId, isVault, folderId)
+            AnimatedVisibility(
+                visible = viewModel.isFabExtended.value,
+                enter = slideInVertically(initialOffsetY = { it * 2 }),
+                exit = slideOutVertically(targetOffsetY = { it * 2 })
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(16.dp) // Puts space between buttons
+                ) {
+                    NewNoteButton {
+                        onNoteClicked(0, viewModel.isVaultMode.value, null)
+                    }
+                    AskAiButton(
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        viewModel.toggleAiChatSheet(true)
+                    }
                 }
+                // Todo Move the AI button into a separate column and move it to the center of the screen
             }
         },
         topBar = {
@@ -252,6 +332,7 @@ fun HomeView (
         },
         content = {
             NoteFilter(
+                listState = listState,
                 settingsViewModel = settingsModel,
                 containerColor = containerColor,
                 shape = shapeManager(
@@ -260,6 +341,7 @@ fun HomeView (
                 ),
                 notes = notes.sortedWith(sorter(settings.sortDescending)),
                 allFolders = allFolders,
+                modifier = Modifier.padding(bottom = 150.dp),
                 onNoteClicked = { noteId ->
                     val clickedNote = viewModel.displayedNotes.value.find { it.id == noteId }
                     if (clickedNote != null) {
@@ -294,9 +376,23 @@ fun getContainerColor(settingsModel: SettingsViewModel): Color {
 }
 
 @Composable
-private fun NewNoteButton(onNoteClicked: (Int) -> Unit) {
-    NotesButton(text = stringResource(R.string.new_note)) {
-        onNoteClicked(0)
+private fun NewNoteButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    FloatingActionButton(
+        onClick = onClick,
+        modifier = modifier,
+        // ---> Same with AI button colors
+        containerColor = AiButtonColors.SecondaryContainer,
+        contentColor = AiButtonColors.SecondaryOnContainer
+        // <---
+    ) {
+        Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+            Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.new_note))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(stringResource(R.string.new_note))
+        }
     }
 }
 
@@ -465,6 +561,105 @@ fun FolderBar(
             IconButton(onClick = onAddFolderClicked) {
                 Icon(Icons.Default.Add, contentDescription = "Yeni Klasör Ekle")
             }
+        }
+    }
+}
+@Composable
+private fun AskAiButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        color = AiButtonColors.GeminiContainer,
+        tonalElevation = 4.dp,
+        shadowElevation = 4.dp,
+        modifier = modifier
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.AutoAwesome,
+                contentDescription = "Ask AI",
+                tint = AiButtonColors.GeminiOnContainer
+
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = stringResource(R.string.ai_button_texts),
+                style = MaterialTheme.typography.bodyLarge,
+                color = AiButtonColors.GeminiOnContainer
+            )
+        }
+    }
+}
+
+@Composable
+fun ChatMessageItem(message: ChatMessage) {
+    Row(
+        modifier = Modifier
+            .padding(vertical = 8.dp)
+            .fillMaxWidth(),
+        // Align right if the message belongs to the user, left if it belongs to the model
+        horizontalArrangement = if (message.participant == Participant.USER) Arrangement.End else Arrangement.Start
+    ) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            // Adjust colors according to the participant
+            color = if (message.participant == Participant.USER) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            },
+            tonalElevation = 2.dp
+        ) {
+            Box(modifier = Modifier.padding(12.dp)) {
+                if (message.isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                } else {
+                    Text(text = message.text)
+                }
+            }
+        }
+    }
+}
+
+// Composable with text input field and submit button
+@Composable
+fun ChatInputBar(onSendMessage: (String) -> Unit) {
+    var text by remember { mutableStateOf("") }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextField(
+            value = text,
+            onValueChange = { text = it },
+            modifier = Modifier.weight(1f),
+            placeholder = { Text("Ask anything...") },
+            shape = CircleShape,
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            )
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        IconButton(
+            onClick = {
+                if (text.isNotBlank()) {
+                    onSendMessage(text)
+                    text = "" // Clear the field after sending the message
+                }
+            },
+            enabled = text.isNotBlank()
+        ) {
+            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send message")
         }
     }
 }

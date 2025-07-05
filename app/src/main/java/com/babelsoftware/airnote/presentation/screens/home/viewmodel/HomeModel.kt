@@ -6,8 +6,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.babelsoftware.airnote.data.repository.GeminiRepository
+import com.babelsoftware.airnote.domain.model.ChatMessage
 import com.babelsoftware.airnote.domain.model.Folder
 import com.babelsoftware.airnote.domain.model.Note
+import com.babelsoftware.airnote.domain.model.Participant
 import com.babelsoftware.airnote.domain.usecase.FolderUseCase
 import com.babelsoftware.airnote.domain.usecase.NoteUseCase
 import com.babelsoftware.airnote.presentation.components.DecryptionResult
@@ -25,12 +28,20 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
+// Sohbet arayüzünün tüm durumunu bir arada tutan bir data class
+data class ChatState(
+    val messages: List<ChatMessage> = emptyList()
+    // "Draft Anything" gibi özel durumlar için state'leri daha sonra buraya ekleyeceğiz
+)
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     val encryptionHelper: EncryptionHelper,
     private val noteUseCase: NoteUseCase,
     private val folderUseCase: FolderUseCase,
     @ApplicationContext private val context: Context,
+    private val geminiRepository: GeminiRepository
 ) : ViewModel() {
     var selectedNotes = mutableStateListOf<Note>()
 
@@ -66,6 +77,59 @@ class HomeViewModel @Inject constructor(
 
     private val _uiEvent = Channel<String>()
     val uiEvent = _uiEvent.receiveAsFlow()
+
+    // --- YENİ: Global AI Sohbeti State'leri ---
+
+    // Sohbet penceresinin (BottomSheet) açık olup olmadığını kontrol eder.
+    private val _isAiChatSheetVisible = mutableStateOf(false)
+    val isAiChatSheetVisible: State<Boolean> = _isAiChatSheetVisible
+
+    // Ana ekrandaki FAB (Floating Action Button) butonunun genişletilmiş (extended) olup olmadığını kontrol eder.
+// Varsayılan olarak genişletilmiş başlar.
+    private val _isFabExtended = mutableStateOf(true)
+    val isFabExtended: State<Boolean> = _isFabExtended
+
+    private val _chatState = mutableStateOf(ChatState())
+    val chatState: State<ChatState> = _chatState
+
+    // --- BİTTİ ---
+
+    // --- YENİ: Global AI Sohbeti Fonksiyonları ---
+
+    // Sohbet penceresini açıp kapatan fonksiyon.
+    fun toggleAiChatSheet(isVisible: Boolean) {
+        _isAiChatSheetVisible.value = isVisible
+    }
+
+    // FAB'ın durumunu değiştiren fonksiyon. (Kaydırma durumuna göre çağrılacak)
+    fun setFabExtended(isExtended: Boolean) {
+        _isFabExtended.value = isExtended
+    }
+
+    // YENİ: Mesaj gönderme fonksiyonu
+    fun sendMessage(userMessage: String) {
+        // Kullanıcının mesajını hemen listeye ekle
+        val currentMessages = _chatState.value.messages.toMutableList()
+        currentMessages.add(ChatMessage(text = userMessage, participant = Participant.USER))
+        // AI cevabı için bir yükleme göstergesi ekle
+        currentMessages.add(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true))
+
+        _chatState.value = _chatState.value.copy(messages = currentMessages)
+
+        viewModelScope.launch {
+            // TODO: GeminiRepository'deki yeni sohbet fonksiyonunu burada çağıracağız.
+            // Şimdilik sahte bir cevapla test edelim.
+            kotlinx.coroutines.delay(2000) // 2 saniye bekle
+            val aiResponse = "Bu, '$userMessage' mesajınıza verilmiş bir test cevabıdır."
+
+            // Yükleme göstergesini kaldırıp yerine AI'ın cevabını koy
+            val finalMessages = _chatState.value.messages.dropLast(1).toMutableList() // Yükleniyor... mesajını sil
+            finalMessages.add(ChatMessage(text = aiResponse, participant = Participant.MODEL)) // Gerçek cevabı ekle
+            _chatState.value = _chatState.value.copy(messages = finalMessages)
+        }
+    }
+
+    // --- BİTTİ ---
 
     fun onFolderLongPressed(folder: Folder) {
         _folderForAction.value = folder

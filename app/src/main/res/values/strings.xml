@@ -191,6 +191,7 @@
     <string name="ai_suggestion">AI\'s Suggestion</string>
     <string name="close">Close</string>
     <string name="all_notes">All Notes</string>
+    <string name="ai_button_texts">Ask, chat, find with AI...</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>

@@ -1,6 +1,8 @@
 package com.babelsoftware.airnote.presentation.screens.home.widgets
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Notes
@@ -20,6 +22,8 @@ import com.babelsoftware.airnote.R
 
 @Composable
 fun NoteFilter(
+    modifier: Modifier = Modifier,
+    listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     settingsViewModel: SettingsViewModel,
     containerColor : Color,
     onNoteClicked: (Int) -> Unit,
@@ -36,6 +40,7 @@ fun NoteFilter(
     val filteredNotes = filterNotes(notes, searchText)
     if (filteredNotes.isEmpty()) {
         Placeholder(
+            modifier = modifier,
             placeholderIcon = {
                 Icon(
                     getEmptyIcon(searchText),
@@ -48,6 +53,8 @@ fun NoteFilter(
         )
     } else {
         NotesGrid(
+            modifier = modifier,
+            listState = listState,
             settingsViewModel = settingsViewModel,
             containerColor = containerColor,
             onNoteClicked = onNoteClicked,

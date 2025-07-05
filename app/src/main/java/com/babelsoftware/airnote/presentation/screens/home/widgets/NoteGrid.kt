@@ -4,10 +4,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,6 +30,8 @@ import com.babelsoftware.airnote.domain.model.Folder
 
 @Composable
 fun NotesGrid(
+    modifier: Modifier = Modifier,
+    listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     settingsViewModel: SettingsViewModel,
     containerColor: Color,
     onNoteClicked: (Int) -> Unit,
@@ -69,6 +73,8 @@ fun NotesGrid(
     }
 
     LazyVerticalStaggeredGrid(
+        modifier = modifier.padding(horizontal = 12.dp),
+        state = listState,
         columns = when(viewMode) {
             true -> StaggeredGridCells.Fixed(2)
             false -> StaggeredGridCells.Fixed(1)
@@ -100,7 +106,6 @@ fun NotesGrid(
                 Note(note, otherNotes)
             }
         },
-        modifier = Modifier.padding(horizontal = 12.dp)
     )
 }
 
