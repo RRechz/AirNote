@@ -28,10 +28,10 @@
 <p float="left">
   <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_settings.jpg" width="200" />
   <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_settings_colors_styles.jpg" width="200" />
-  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_api.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_settings_api.jpg" width="200" />
 </p>
 </p float="left">
-  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_about.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_settings_about.jpg" width="200" />
 </p>
 
 ## Clone
