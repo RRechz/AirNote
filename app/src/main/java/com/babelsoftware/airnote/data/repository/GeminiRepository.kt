@@ -6,14 +6,18 @@ package com.babelsoftware.airnote.data.repository
 
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
+import com.babelsoftware.airnote.domain.model.ChatMessage
+import com.babelsoftware.airnote.domain.model.Participant
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.generationConfig
 import com.babelsoftware.airnote.domain.repository.SettingsRepository
+import com.google.ai.client.generativeai.type.content
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -117,12 +121,11 @@ class GeminiRepository @Inject constructor(
         }
     }
 
-    suspend fun processAssistantAction(
+    fun processAssistantAction(
         noteName: String,
         noteDescription: String,
         action: AiAssistantAction
-    ): Flow<String> {
-        // API Key management (can be copied from processAiAction)
+    ): Flow<String> = flow {
         val currentSettings = settingsRepository.settings.first()
         val apiKeyToUse = if (currentSettings.useAirNoteApi) {
             airNoteApiKey
@@ -131,19 +134,18 @@ class GeminiRepository @Inject constructor(
         }
 
         if (apiKeyToUse.isNullOrBlank()) {
-            // In case of error, we emit a single error message with flow.
-            return flowOf("Kullanıcı API anahtarı bulunamadı. Lütfen ayarlardan kontrol edin.")
+            emit(stringProvider.getString(R.string.error_no_user_api_key))
+            return@flow // End stream
         }
 
         val generativeModel = GenerativeModel(
             modelName = currentSettings.selectedModelName,
             apiKey = apiKeyToUse,
             generationConfig = generationConfig {
-                temperature = 0.8f // Temperature level of creativity in content production
+                temperature = 0.8f
             }
         )
 
-        // Custom prompt by action | AI Asistant
         val prompt = when (action) {
             AiAssistantAction.GIVE_IDEA -> stringProvider.getString(R.string.prompt_assistant_give_idea, noteName)
             AiAssistantAction.CONTINUE_WRITING -> stringProvider.getString(R.string.prompt_assistant_continue_writing, noteName, noteDescription)
@@ -154,12 +156,83 @@ class GeminiRepository @Inject constructor(
             AiAssistantAction.SUGGEST_A_TITLE -> stringProvider.getString(R.string.prompt_assistant_suggest_title, noteDescription)
         }
 
-        return generativeModel
-            .generateContentStream(prompt)
-            .map { response ->
-                response.text ?: ""
-            }.catch {
-                emit(stringProvider.getString(R.string.error_api_request_failed, it.message ?: "Unknown error"))
-            }
+        generativeModel.generateContentStream(prompt).collect { chunk ->
+            emit(chunk.text ?: "")
+        }
+    }.catch {
+        emit(stringProvider.getString(R.string.error_api_request_failed, it.message ?: "Unknown error"))
     }
+
+    fun generateChatResponse(history: List<ChatMessage>): Flow<String> = flow {
+        val currentSettings = settingsRepository.settings.first()
+        val apiKeyToUse = if (currentSettings.useAirNoteApi) {
+            airNoteApiKey
+        } else {
+            secureStorageRepository.getUserApiKey()
+        }
+
+        if (apiKeyToUse.isNullOrBlank()) {
+            emit(stringProvider.getString(R.string.error_no_user_api_key))
+            return@flow
+        }
+
+        val generativeModel = GenerativeModel(
+            modelName = currentSettings.selectedModelName,
+            apiKey = apiKeyToUse,
+            generationConfig = generationConfig {
+                temperature = 0.8f
+            }
+        )
+
+        val chatHistoryContent = history
+            .filter { it.participant != Participant.ERROR && !it.isLoading }
+            .map { msg ->
+                content(role = if (msg.participant == Participant.USER) "user" else "model") {
+                    text(msg.text)
+                }
+            }
+
+        val lastMessage = chatHistoryContent.lastOrNull() ?: return@flow
+        val historyWithoutLast = chatHistoryContent.dropLast(1)
+        val chat = generativeModel.startChat(history = historyWithoutLast)
+
+        chat.sendMessageStream(lastMessage).collect { chunk ->
+            emit(chunk.text ?: "")
+        }
+    }.catch {
+        emit(stringProvider.getString(R.string.error_api_request_failed, it.message ?: "Unknown error"))
+    }
+
+    // ---> Function that creates a one-time note outline
+    suspend fun generateDraft(topic: String): String? {
+        val currentSettings = settingsRepository.settings.first()
+        val apiKeyToUse = if (currentSettings.useAirNoteApi) {
+            airNoteApiKey
+        } else {
+            secureStorageRepository.getUserApiKey()
+        }
+
+        if (apiKeyToUse.isNullOrBlank()) {
+            return stringProvider.getString(R.string.error_no_user_api_key)
+        }
+
+        val generativeModel = GenerativeModel(
+            modelName = currentSettings.selectedModelName,
+            apiKey = apiKeyToUse,
+            generationConfig = generationConfig {
+                temperature = 0.8f
+            }
+        )
+
+        val prompt = stringProvider.getString(R.string.prompt_assistant_draft_anything, topic)
+
+        return try {
+            val response = generativeModel.generateContent(prompt)
+            response.text
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+    // <---
 }

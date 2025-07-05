@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -44,6 +45,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -54,6 +56,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -66,6 +69,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -87,6 +91,7 @@ import com.babelsoftware.airnote.presentation.components.TitleText
 import com.babelsoftware.airnote.presentation.components.VaultButton
 import com.babelsoftware.airnote.presentation.components.defaultScreenEnterAnimation
 import com.babelsoftware.airnote.presentation.components.defaultScreenExitAnimation
+import com.babelsoftware.airnote.presentation.screens.home.viewmodel.DraftedNote
 import com.babelsoftware.airnote.presentation.screens.home.viewmodel.HomeViewModel
 import com.babelsoftware.airnote.presentation.screens.home.widgets.AddFolderDialog
 import com.babelsoftware.airnote.presentation.screens.home.widgets.FolderActionBottomSheet
@@ -129,30 +134,59 @@ fun HomeView (
     // <---
     viewModel.setFabExtended(isFabExtended)
 
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+
     // AI Chat Window (ModalBottomSheet)
     if (viewModel.isAiChatSheetVisible.value) {
         ModalBottomSheet(
-            onDismissRequest = { viewModel.toggleAiChatSheet(false) },
+            onDismissRequest = {
+                viewModel.toggleAiChatSheet(false)
+                viewModel.resetChatState() },
+            sheetState = sheetState,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp)
-                    .imePadding()
-            ) {
-                // List showing chat messages
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    // Scroll to the bottom when new message is added
-                    state = rememberLazyListState(initialFirstVisibleItemIndex = viewModel.chatState.value.messages.size - 1)
-                ) {
-                    items(viewModel.chatState.value.messages) { message ->
-                        ChatMessageItem(message = message)
+            val chatState = viewModel.chatState.value
+
+            when {
+                chatState.latestDraft != null -> {
+                    DraftDisplay(
+                        draft = chatState.latestDraft,
+                        onSave = { viewModel.saveDraftedNote() },
+                        onRegenerate = { viewModel.regenerateDraft() }
+                    )
+                }
+                else -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        if (!chatState.hasStartedConversation) {
+                            SuggestionBar(
+                                onDraftAnything = { viewModel.onDraftAnythingClicked() }
+                            )
+                        }
+
+                        LazyColumn(modifier = Modifier.weight(1f)) {
+                            items(chatState.messages) { message ->
+                                ChatMessageItem(message = message)
+                            }
+                        }
+
+                        ChatInputBar(
+                            isAwaitingTopic = chatState.isAwaitingDraftTopic,
+                            onSendMessage = { message ->
+                                if (chatState.isAwaitingDraftTopic) {
+                                    viewModel.generateDraft(message)
+                                } else {
+                                    viewModel.sendMessage(message)
+                                }
+                            }
+                        )
                     }
                 }
-                // Text input bar
-                ChatInputBar(onSendMessage = { viewModel.sendMessage(it) })
             }
         }
     }
@@ -629,7 +663,10 @@ fun ChatMessageItem(message: ChatMessage) {
 
 // Composable with text input field and submit button
 @Composable
-fun ChatInputBar(onSendMessage: (String) -> Unit) {
+fun ChatInputBar(
+    isAwaitingTopic: Boolean,
+    onSendMessage: (String) -> Unit,
+) {
     var text by remember { mutableStateOf("") }
 
     Row(
@@ -641,8 +678,11 @@ fun ChatInputBar(onSendMessage: (String) -> Unit) {
         TextField(
             value = text,
             onValueChange = { text = it },
-            modifier = Modifier.weight(1f),
-            placeholder = { Text("Ask anything...") },
+            modifier = Modifier
+                .weight(1f),
+            placeholder = {
+                Text(if (isAwaitingTopic) "Taslak konusunu yazın..." else "Ask anything...")
+            },
             shape = CircleShape,
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
@@ -660,6 +700,40 @@ fun ChatInputBar(onSendMessage: (String) -> Unit) {
             enabled = text.isNotBlank()
         ) {
             Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send message")
+        }
+    }
+}
+
+@Composable
+fun SuggestionBar(onDraftAnything: () -> Unit) {
+    Row(modifier = Modifier.padding(vertical = 8.dp)) {
+        Button(onClick = onDraftAnything) {
+            Text("Draft Anything")
+        }
+        // TODO New suggestion buttons to be added
+    }
+}
+
+@Composable
+fun DraftDisplay(draft: DraftedNote, onSave: () -> Unit, onRegenerate: () -> Unit) {
+    Column(modifier = Modifier.padding(16.dp).fillMaxSize()) {
+        Text(text = draft.title, style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.height(16.dp))
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            item {
+                Text(text = draft.content, style = MaterialTheme.typography.bodyLarge)
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(onClick = onSave, modifier = Modifier.weight(1f)) {
+                Text("Notu Kaydet")
+            }
+            OutlinedButton(onClick = onRegenerate, modifier = Modifier.weight(1f)) {
+                Text("Yeniden Oluştur")
+            }
         }
     }
 }

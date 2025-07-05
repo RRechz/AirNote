@@ -6,6 +6,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.babelsoftware.airnote.R
+import com.babelsoftware.airnote.data.provider.StringProvider
 import com.babelsoftware.airnote.data.repository.GeminiRepository
 import com.babelsoftware.airnote.domain.model.ChatMessage
 import com.babelsoftware.airnote.domain.model.Folder
@@ -24,19 +26,31 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
-// Sohbet arayüzünün tüm durumunu bir arada tutan bir data class
-data class ChatState(
-    val messages: List<ChatMessage> = emptyList()
-    // "Draft Anything" gibi özel durumlar için state'leri daha sonra buraya ekleyeceğiz
+// ---> Data class to hold the note outline created by AI
+data class DraftedNote(
+    val topic: String,
+    val title: String,
+    val content: String
 )
+// <---
+
+// ---> A data class that keeps all the state of the chat interface together
+data class ChatState(
+    val messages: List<ChatMessage> = emptyList(),
+    val isAwaitingDraftTopic: Boolean = false,
+    val latestDraft: DraftedNote? = null,
+    val hasStartedConversation: Boolean = false
+)
+// <---
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val stringProvider: StringProvider,
     val encryptionHelper: EncryptionHelper,
     private val noteUseCase: NoteUseCase,
     private val folderUseCase: FolderUseCase,
@@ -78,58 +92,134 @@ class HomeViewModel @Inject constructor(
     private val _uiEvent = Channel<String>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    // --- YENİ: Global AI Sohbeti State'leri ---
-
-    // Sohbet penceresinin (BottomSheet) açık olup olmadığını kontrol eder.
+    // --- Global AI Chat States ---
     private val _isAiChatSheetVisible = mutableStateOf(false)
     val isAiChatSheetVisible: State<Boolean> = _isAiChatSheetVisible
 
-    // Ana ekrandaki FAB (Floating Action Button) butonunun genişletilmiş (extended) olup olmadığını kontrol eder.
-// Varsayılan olarak genişletilmiş başlar.
     private val _isFabExtended = mutableStateOf(true)
     val isFabExtended: State<Boolean> = _isFabExtended
 
     private val _chatState = mutableStateOf(ChatState())
     val chatState: State<ChatState> = _chatState
 
-    // --- BİTTİ ---
+    // --- Global AI Chat States | END ---
 
-    // --- YENİ: Global AI Sohbeti Fonksiyonları ---
-
-    // Sohbet penceresini açıp kapatan fonksiyon.
+    // --- Global AI Chat Functions ---
     fun toggleAiChatSheet(isVisible: Boolean) {
         _isAiChatSheetVisible.value = isVisible
     }
 
-    // FAB'ın durumunu değiştiren fonksiyon. (Kaydırma durumuna göre çağrılacak)
     fun setFabExtended(isExtended: Boolean) {
         _isFabExtended.value = isExtended
     }
 
-    // YENİ: Mesaj gönderme fonksiyonu
     fun sendMessage(userMessage: String) {
-        // Kullanıcının mesajını hemen listeye ekle
-        val currentMessages = _chatState.value.messages.toMutableList()
-        currentMessages.add(ChatMessage(text = userMessage, participant = Participant.USER))
-        // AI cevabı için bir yükleme göstergesi ekle
-        currentMessages.add(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true))
+        val currentMessages = _chatState.value.messages.toMutableList() // Create a temporary message list
 
-        _chatState.value = _chatState.value.copy(messages = currentMessages)
+        // ---> Add user's message and loading indicator for AI
+        currentMessages.add(ChatMessage(text = userMessage, participant = Participant.USER))
+        currentMessages.add(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true))
+        // <---
+
+        _chatState.value = _chatState.value.copy(messages = currentMessages, hasStartedConversation = true) // update UI
 
         viewModelScope.launch {
-            // TODO: GeminiRepository'deki yeni sohbet fonksiyonunu burada çağıracağız.
-            // Şimdilik sahte bir cevapla test edelim.
-            kotlinx.coroutines.delay(2000) // 2 saniye bekle
-            val aiResponse = "Bu, '$userMessage' mesajınıza verilmiş bir test cevabıdır."
+            val history = _chatState.value.messages
+            val responseBuilder = StringBuilder()
 
-            // Yükleme göstergesini kaldırıp yerine AI'ın cevabını koy
-            val finalMessages = _chatState.value.messages.dropLast(1).toMutableList() // Yükleniyor... mesajını sil
-            finalMessages.add(ChatMessage(text = aiResponse, participant = Participant.MODEL)) // Gerçek cevabı ekle
-            _chatState.value = _chatState.value.copy(messages = finalMessages)
+            geminiRepository.generateChatResponse(history)
+                .onCompletion {
+                    // Sets the ‘isLoading’ status of the last message to “false” when the flow is finished
+                    val finalMessages = _chatState.value.messages.toMutableList()
+                    val lastMessage = finalMessages.lastOrNull()
+                    if (lastMessage != null && lastMessage.participant == Participant.MODEL) {
+                        finalMessages[finalMessages.size - 1] = lastMessage.copy(isLoading = false)
+                        _chatState.value = _chatState.value.copy(messages = finalMessages)
+                    }
+                }
+                .collect { chunk ->
+                    responseBuilder.append(chunk)
+
+                    val updatedMessages = _chatState.value.messages.toMutableList() // Creates the streaming effect by updating the last message (AI's response)
+                    val lastMessageIndex = updatedMessages.size - 1
+                    if (lastMessageIndex >= 0) {
+                        updatedMessages[lastMessageIndex] = updatedMessages[lastMessageIndex].copy(
+                            text = responseBuilder.toString(),
+                            isLoading = true // Stays “true” as long as the flow continues
+                        )
+                        _chatState.value = _chatState.value.copy(messages = updatedMessages)
+                    }
+                }
         }
     }
 
-    // --- BİTTİ ---
+    fun onDraftAnythingClicked() {
+        val promptMessage = ChatMessage(
+            text = stringProvider.getString(R.string.ai_prompt_for_draft_topic),
+            participant = Participant.MODEL
+        )
+        _chatState.value = _chatState.value.copy(
+            isAwaitingDraftTopic = true,
+            messages = listOf(promptMessage),
+            hasStartedConversation = true
+        )
+    }
+
+    fun generateDraft(topic: String) {
+        val currentMessages = _chatState.value.messages.toMutableList()
+        currentMessages.add(ChatMessage(text = topic, participant = Participant.USER))
+        currentMessages.add(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true))
+
+        _chatState.value = _chatState.value.copy(
+            isAwaitingDraftTopic = false,
+            messages = currentMessages
+        )
+
+        viewModelScope.launch {
+            val result = geminiRepository.generateDraft(topic)
+            if (result != null && result.contains("BAŞLIK:") && result.contains("İÇERİK:")) {
+                val title = result.substringAfter("BAŞLIK:").substringBefore("İÇERİK:").trim()
+                val content = result.substringAfter("İÇERİK:").trim()
+                _chatState.value = _chatState.value.copy(
+                    messages = emptyList(),
+                    latestDraft = DraftedNote(topic, title, content)
+                )
+            } else {
+                val finalMessages = _chatState.value.messages.dropLast(1).toMutableList()
+                finalMessages.add(ChatMessage(text = result ?: "Bir hata oluştu.", participant = Participant.ERROR))
+                _chatState.value = _chatState.value.copy(
+                    messages = finalMessages
+                )
+            }
+        }
+    }
+
+    fun saveDraftedNote() {
+        val draft = _chatState.value.latestDraft ?: return
+        viewModelScope.launch {
+            noteUseCase.addNote(
+                Note(
+                    name = draft.title,
+                    description = draft.content,
+                    // ... other Note properties
+                )
+            )
+            resetChatState()
+            toggleAiChatSheet(false)
+        }
+    }
+
+    fun regenerateDraft() {
+        val topic = _chatState.value.latestDraft?.topic ?: return
+        _chatState.value = _chatState.value.copy(latestDraft = null) // Clear previous draft
+        generateDraft(topic) // Re-create with the same issue
+    }
+
+    fun resetChatState() {
+        _chatState.value = ChatState()
+    }
+
+    // --- Global AI Chat Functions | END ---
 
     fun onFolderLongPressed(folder: Folder) {
         _folderForAction.value = folder
