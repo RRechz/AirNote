@@ -206,6 +206,8 @@
     <string name="error_no_user_api_key">User API key not found. Please check in settings.</string>
     <string name="error_api_request_failed">API request failed: %1$s</string>
 
+    <string name="ai_prompt_for_draft_topic">Great, what should we create a draft about? Please write the topic.</string>
+
     <string name="prompt_improve_writing">Correct the grammar and expression mistakes in the text below to make it more fluent. Answer only the corrected text:\n\n---\n\n%1$s</string>
     <string name="prompt_summarize">Summarize the text below in one or two sentences, keeping the main idea. Answer only the summary text:\n\n---\n\n%1$s</string>
     <string name="prompt_make_shorter">Shorten the following text significantly while preserving its meaning. Reply only with the shortened text:\n\n---\n\n%1$s</string>
@@ -223,4 +225,6 @@
     <string name="prompt_assistant_create_todo">Analyze the text below. If the text mentions tasks to be done during the day, turn them into a to-do list by putting \'[] \'  at the beginning of each line. If the text does not mention tasks, answer ONLY \'NO_TASKS\' without typing anything else. Detect the language of the text and create the list in that language:\n\n---\n\n%1$s</string>
     <string name="prompt_assistant_simplify">Translate the complex text below into simple and fluent language that everyone can understand. Keep the main idea and important details of the text. Answer only the simplified text:\n\n---\n\n%1$s</string>
     <string name="prompt_assistant_suggest_title">Suggest 5 creative and attention-grabbing titles that best fit the content of the text below. Give your answer as a numbered list:\n\n---\n\n%1$s</string>
+
+    <string name="prompt_assistant_draft_anything">A user wants to draft a note about the topic \"%1$s\". You MUST give your answer in the following format: TITLE: [insert title here]\n\nCONTENT: [insert note content here]</string>
 </resources>

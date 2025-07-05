@@ -212,6 +212,8 @@
     <string name="error_no_user_api_key">Kullanıcı API anahtarı bulunamadı. Lütfen ayarlardan kontrol edin.</string>
     <string name="error_api_request_failed">API isteği başarısız oldu: %1$s</string>
 
+    <string name="ai_prompt_for_draft_topic">Harika, ne hakkında bir taslak oluşturalım? Lütfen konuyu yazın.</string>
+
     <string name="prompt_improve_writing">Aşağıdaki metindeki dilbilgisi ve anlatım hatalarını düzelterek daha akıcı hale getir. Sadece düzeltilmiş metni cevap olarak ver:\n\n---\n\n%1$s</string>
     <string name="prompt_summarize">Aşağıdaki metni ana fikrini koruyarak bir veya iki cümleyle özetle. Sadece özet metnini cevap olarak ver:\n\n---\n\n%1$s</string>
     <string name="prompt_make_shorter">Aşağıdaki metni anlamını koruyarak önemli ölçüde kısalt. Sadece kısaltılmış metni cevap olarak ver:\n\n---\n\n%1$s</string>
@@ -229,4 +231,6 @@
     <string name="prompt_assistant_create_todo">Aşağıdaki metni analiz et. Eğer metin gün içinde yapılacak görevlerden bahsediyorsa, bu görevleri her satırın başına \'[] \' koyarak bir yapılacaklar listesine dönüştür. Eğer metin görevlerden bahsetmiyorsa, başka hiçbir şey yazmadan SADECE \'NO_TASKS\' kelimesini cevap olarak ver. Metnin dilini algıla ve listeyi o dilde oluştur:\n\n---\n\n%1$s</string>
     <string name="prompt_assistant_simplify">Aşağıdaki karmaşık metni, herkesin anlayabileceği basit ve akıcı bir dile çevir. Metnin ana fikrini ve önemli detaylarını koru. Sadece basitleştirilmiş metni cevap olarak ver:\n\n---\n\n%1$s</string>
     <string name="prompt_assistant_suggest_title">Aşağıdaki metnin içeriğine en uygun, yaratıcı ve dikkat çekici 5 adet başlık önerisi sun. Cevabını numaralandırılmış bir liste olarak ver:\n\n---\n\n%1$s</string>
+
+    <string name="prompt_assistant_draft_anything">Bir kullanıcı \"%1$s\" konusu hakkında bir not taslağı oluşturmak istiyor. Cevabını MUTLAKA şu formatta ver: BAŞLIK: [buraya başlığı yaz]\n\nİÇERİK: [buraya not içeriğini yaz]</string>
 </resources>
