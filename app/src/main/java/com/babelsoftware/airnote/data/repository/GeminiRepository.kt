@@ -51,7 +51,7 @@ class GeminiRepository @Inject constructor(
     private val secureStorageRepository: SecureStorageRepository,
     private val stringProvider: StringProvider
 ) {
-    private val airNoteApiKey = "YOUR_API_KEY_HERE"
+    private val airNoteApiKey = "YOUR_API_KEY" // Free Gemini API Key
 
     /**
      * Tests if the given API key is valid.
@@ -231,7 +231,7 @@ class GeminiRepository @Inject constructor(
             response.text
         } catch (e: Exception) {
             e.printStackTrace()
-            null
+            stringProvider.getString(R.string.error_api_request_failed, e.message ?: "Bilinmeyen Hata")
         }
     }
     // <---

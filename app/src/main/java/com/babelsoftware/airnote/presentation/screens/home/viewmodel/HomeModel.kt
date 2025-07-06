@@ -210,9 +210,15 @@ class HomeViewModel @Inject constructor(
                 )
             } else {
                 val finalMessages = _chatState.value.messages.dropLast(1).toMutableList()
-                finalMessages.add(ChatMessage(text = result ?: "Bir hata oluştu.", participant = Participant.ERROR))
+                finalMessages.add(
+                    ChatMessage(
+                        text = result ?: "Bilinmeyen bir hata oluştu.",
+                        participant = Participant.ERROR
+                    )
+                )
                 _chatState.value = _chatState.value.copy(
-                    messages = finalMessages
+                    messages = finalMessages,
+                    hasStartedConversation = false
                 )
             }
         }

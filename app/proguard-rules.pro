@@ -12,6 +12,8 @@
 #   public *;
 #}
 
+-dontwarn com.google.errorprone.annotations.**
+
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
 #-keepattributes SourceFile,LineNumberTable

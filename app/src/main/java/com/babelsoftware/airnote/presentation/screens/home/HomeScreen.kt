@@ -12,12 +12,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,7 +37,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -70,7 +66,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -85,7 +80,6 @@ import com.babelsoftware.airnote.domain.model.Note
 import com.babelsoftware.airnote.domain.model.Participant
 import com.babelsoftware.airnote.presentation.components.CloseButton
 import com.babelsoftware.airnote.presentation.components.DeleteButton
-import com.babelsoftware.airnote.presentation.components.NotesButton
 import com.babelsoftware.airnote.presentation.components.NotesScaffold
 import com.babelsoftware.airnote.presentation.components.PinButton
 import com.babelsoftware.airnote.presentation.components.SelectAllButton
@@ -146,71 +140,73 @@ fun HomeView (
         ModalBottomSheet(
             onDismissRequest = {
                 viewModel.toggleAiChatSheet(false)
-                viewModel.resetChatState() },
+                viewModel.resetChatState()
+            },
             sheetState = sheetState,
             modifier = Modifier.fillMaxWidth(),
         ) {
             val chatState = viewModel.chatState.value
 
-            when {
-                chatState.latestDraft != null -> {
-                    DraftDisplay(
-                        draft = chatState.latestDraft,
-                        onSave = { viewModel.saveDraftedNote() },
-                        onRegenerate = { viewModel.regenerateDraft() }
-                    )
-                }
-                chatState.messages.isEmpty() -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp)
+            if (chatState.latestDraft != null) {
+                DraftDisplay(
+                    draft = chatState.latestDraft,
+                    onSave = { viewModel.saveDraftedNote() },
+                    onRegenerate = { viewModel.regenerateDraft() }
+                )
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        state = rememberLazyListState(
+                            initialFirstVisibleItemIndex = if (chatState.messages.isNotEmpty()) chatState.messages.size - 1 else 0
+                        )
                     ) {
-                        LazyColumn(modifier = Modifier.weight(1f),
-                            state = rememberLazyListState(initialFirstVisibleItemIndex = chatState.messages.size - 1)
-                        ) {
-                            items(chatState.messages) { message ->
-                                ChatMessageItem(message = message)
-                            }
+                        items(chatState.messages) { message ->
+                            ChatMessageItem(message = message)
                         }
-                        if (chatState.messages.isEmpty() && chatState.latestDraft == null) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                    }
+
+                    if (chatState.messages.isEmpty()) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.ai_welcome_message),
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+                            Text(
+                                text = stringResource(R.string.ai_suggestions_title),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 16.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.ai_welcome_message),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    modifier = Modifier.padding(bottom = 16.dp)
-                                )
-                                Text(
-                                    text = stringResource(R.string.ai_suggestions_title),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 8.dp),
-                                    textAlign = TextAlign.Start
-                                )
-                                viewModel.suggestions.forEach { suggestion ->
-                                    SuggestionItem(suggestion = suggestion)
-                                }
+                                    .padding(bottom = 8.dp),
+                                textAlign = TextAlign.Start
+                            )
+                            viewModel.suggestions.forEach { suggestion ->
+                                SuggestionItem(suggestion = suggestion)
                             }
                         }
-
-                        ChatInputBar(
-                            isAwaitingTopic = chatState.isAwaitingDraftTopic,
-                            onSendMessage = { message ->
-                                if (chatState.isAwaitingDraftTopic) {
-                                    viewModel.generateDraft(message)
-                                } else {
-                                    viewModel.sendMessage(message)
-                                }
-                            }
-                        )
                     }
+
+                    ChatInputBar(
+                        isAwaitingTopic = chatState.isAwaitingDraftTopic,
+                        onSendMessage = { message ->
+                            if (chatState.isAwaitingDraftTopic) {
+                                viewModel.generateDraft(message)
+                            } else {
+                                viewModel.sendMessage(message)
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -665,10 +661,10 @@ fun ChatMessageItem(message: ChatMessage) {
     ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = if (message.participant == Participant.USER) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
+            color = when (message.participant) {
+                Participant.USER -> MaterialTheme.colorScheme.primaryContainer
+                Participant.MODEL -> MaterialTheme.colorScheme.surfaceVariant
+                Participant.ERROR -> MaterialTheme.colorScheme.errorContainer // Hata için farklı renk
             },
             tonalElevation = 2.dp
         ) {

@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Download
@@ -93,7 +94,7 @@ fun AboutScreen(
                     settingsViewModel = settingsViewModel,
                     title = "AirNote AI Version",
                     description = "v1.0 build v0.9.0",
-                    icon = IconResource.Vector(Icons.Rounded.Info),
+                    icon = IconResource.Vector(Icons.Rounded.AutoAwesome),
                     actionType = ActionType.TEXT,
                     radius = shapeManager(
                         radius = settingsViewModel.settings.value.cornerRadius

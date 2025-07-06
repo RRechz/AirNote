@@ -207,6 +207,11 @@
     <string name="error_api_request_failed">API request failed: %1$s</string>
     <string name="ai_welcome_message">Hello there! How can I help you?</string>
     <string name="ai_suggestions_title">SUGGESTED</string>
+    <string name="ai_command_pros_cons">List the Pros and Cons</string>
+    <string name="ai_command_todo">Create To-Do List</string>
+    <string name="ai_command_simpler">Tell It Simpler</string>
+    <string name="ai_command_simpler_subtitle">Recommended for imported files</string>
+    <string name="ai_command_title">Suggest Title</string>
 
     <string name="ai_prompt_for_draft_topic">Great, what should we create a draft about? Please write the topic.</string>
 

@@ -664,20 +664,20 @@ fun AiCommandMenu(
         modifier = Modifier.widthIn(min = 280.dp)
     ) {
         CommandMenuItem(
-            title = "Artı ve Eksilerini Listele",
+            title = stringResource(R.string.ai_command_pros_cons),
             onClick = { viewModel.executeAiAssistantAction(AiAssistantAction.PROS_AND_CONS) }
         )
         CommandMenuItem(
-            title = "Yapılacaklar Listesi Oluştur",
+            title = stringResource(R.string.ai_command_todo),
             onClick = { viewModel.executeAiAssistantAction(AiAssistantAction.CREATE_TODO_LIST) }
         )
         CommandMenuItem(
-            title = "Daha Basit Anlat",
-            subtitle = "İçe aktarılan dosyalar için önerilir",
+            title = stringResource(R.string.ai_command_simpler),
+            subtitle = stringResource(R.string.ai_command_simpler_subtitle),
             onClick = { viewModel.executeAiAssistantAction(AiAssistantAction.SIMPLIFY) }
         )
         CommandMenuItem(
-            title = "Başlık Öner",
+            title = stringResource(R.string.ai_command_title),
             onClick = { viewModel.executeAiAssistantAction(AiAssistantAction.SUGGEST_A_TITLE) }
         )
     }

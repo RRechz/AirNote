@@ -213,6 +213,11 @@
     <string name="error_api_request_failed">API isteği başarısız oldu: %1$s</string>
     <string name="ai_welcome_message">Merhaba! Size nasıl yardımcı olabilirim?</string>
     <string name="ai_suggestions_title">ÖNERİLEN</string>
+    <string name="ai_command_pros_cons">Artıları ve Eksileri Listele</string>
+    <string name="ai_command_todo">Yapılacaklar listesi oluştur</string>
+    <string name="ai_command_simpler">Daha basit anlat</string>
+    <string name="ai_command_simpler_subtitle">İçe aktarılanlar için önerilri</string>
+    <string name="ai_command_title">Başlık Öner</string>
 
     <string name="ai_prompt_for_draft_topic">Harika, ne hakkında bir taslak oluşturalım? Lütfen konuyu yazın.</string>
 
