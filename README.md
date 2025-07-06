@@ -20,7 +20,19 @@
  * **Modern and Fluent Interface**: Jetpack Compose provides a dynamic and elegant user experience that is completely declarative.
 
 ## Screenshots
-<soon>
+<p float="left">
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_home.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_edit.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_AI_space.jpg" width="200" />
+</p>
+<p float="left">
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_settings.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_settings_colors_styles.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_settings_api.jpg" width="200" />
+</p>
+</p float="left">
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_settings_about.jpg" width="200" />
+</p>
 
 ## Clone
 1. Clone repo
