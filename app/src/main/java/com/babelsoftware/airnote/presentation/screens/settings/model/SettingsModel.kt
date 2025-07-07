@@ -22,6 +22,8 @@ import com.babelsoftware.airnote.BuildConfig
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
 import com.babelsoftware.airnote.data.repository.GeminiRepository
+import com.babelsoftware.airnote.util.checkForUpdates
+import com.babelsoftware.airnote.util.isNewerVersion
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -46,6 +48,43 @@ class SettingsViewModel @Inject constructor(
     private val stringProvider: StringProvider
 ) : ViewModel() {
     var defaultRoute: String? = null
+
+    // ---> Update Check States
+    private val _updateAvailable = mutableStateOf(false)
+    val updateAvailable: State<Boolean> = _updateAvailable
+
+    private val _latestVersion = mutableStateOf("")
+    val latestVersion: State<String> = _latestVersion
+
+    private val _showUpdateDialog = mutableStateOf(false)
+    val showUpdateDialog: State<Boolean> = _showUpdateDialog
+
+    fun checkForNewUpdate(context: Context) {
+        viewModelScope.launch {
+            val latestVersionFromGitHub = checkForUpdates()
+            if (latestVersionFromGitHub != null) {
+                val isNewer = isNewerVersion(latestVersionFromGitHub, version)
+                _updateAvailable.value = isNewer
+                if (isNewer) {
+                    _latestVersion.value = latestVersionFromGitHub
+                    val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                    val lastNotificationTime = sharedPreferences.getLong("last_update_notification_time", 0L)
+                    val currentTime = System.currentTimeMillis()
+                    // --->Show update pop-up every 6 hours
+                    if (currentTime - lastNotificationTime > 6 * 60 * 60 * 1000) {
+                        _showUpdateDialog.value = true
+                        sharedPreferences.edit().putLong("last_update_notification_time", currentTime).apply()
+                    }
+                    // <---
+                }
+            }
+        }
+    }
+
+    fun dismissUpdateDialog() {
+        _showUpdateDialog.value = false
+    }
+    // <---
 
     fun loadDefaultRoute() {
         if (_settings.value.fingerprint == false && _settings.value.passcode == null && _settings.value.pattern == null) {

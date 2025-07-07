@@ -32,7 +32,10 @@ import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -85,6 +88,7 @@ import com.babelsoftware.airnote.presentation.components.PinButton
 import com.babelsoftware.airnote.presentation.components.SelectAllButton
 import com.babelsoftware.airnote.presentation.components.SettingsButton
 import com.babelsoftware.airnote.presentation.components.TitleText
+import com.babelsoftware.airnote.presentation.components.UpdateScreen
 import com.babelsoftware.airnote.presentation.components.VaultButton
 import com.babelsoftware.airnote.presentation.components.defaultScreenEnterAnimation
 import com.babelsoftware.airnote.presentation.components.defaultScreenExitAnimation
@@ -115,6 +119,18 @@ fun HomeView (
     val notes by viewModel.displayedNotes.collectAsState()
     val settings = settingsModel.settings.value
     val selectedFolderId = viewModel.selectedFolderId.value
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = Unit) {
+        settingsModel.checkForNewUpdate(context)
+    }
+
+    if (settingsModel.showUpdateDialog.value) {
+        UpdateScreen(
+            latestVersion = settingsModel.latestVersion.value,
+            onDismiss = { settingsModel.dismissUpdateDialog() }
+        )
+    }
 
     val selectedFolder = remember(selectedFolderId, allFolders) {
         allFolders.find { it.id == selectedFolderId }
@@ -212,7 +228,6 @@ fun HomeView (
         }
     }
 
-    val context = LocalContext.current
     if (viewModel.isPasswordPromptVisible.value) {
         PasswordPrompt(
             context = context,
@@ -527,14 +542,29 @@ private fun NotesSearchBar(
         placeholder = { Text(stringResource(R.string.search)) },
         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = "Search") },
         trailingIcon = {
-            Row {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 if (query.isNotBlank()) {
                     CloseButton(contentDescription = "Clear", onCloseClicked = onClearClick)
                 }
                 if (settingsModel.settings.value.vaultSettingEnabled) {
                     VaultButton(viewModel.isVaultMode.value) { onVaultClicked() }
                 }
-                SettingsButton(onSettingsClicked = onSettingsClick)
+                // ---> Update Check with Settings İcon
+                BadgedBox(
+                    badge = {
+                        if (settingsModel.updateAvailable.value) {
+                            Badge()
+                        }
+                    }
+                ) {
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(
+                            imageVector = Icons.Rounded.Settings,
+                            contentDescription = stringResource(R.string.screen_settings)
+                        )
+                    }
+                }
+                // <---
             }
         },
         onQueryChange = onQueryChange,

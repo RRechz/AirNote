@@ -208,6 +208,12 @@
     <string name="make_note">Make a note about a topic</string>
     <string name="generate_ideas">Generate ideas</string>
     <string name="generate_ideas_prompt">Give me 5 interesting ideas on a random topic</string>
+    <string name="newversion">New Version</string>
+    <string name="update">Update</string>
+    <string name="update_available_description">New update available!</string>
+    <string name="update_app">Update App</string>
+    <string name="changelog_fetch_error">Change log could not be retrieved.</string>
+    <string name="changelog_fetch_error_with_message">Failed to receive changelog: %1$s</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>

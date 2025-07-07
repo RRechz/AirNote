@@ -25,6 +25,7 @@ import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -63,7 +64,26 @@ fun AboutScreen(
         title = stringResource(id = R.string.about),
         onBackNavClicked = { navController.navigateUp() }
     ) {
+        // ---> Update available
         LazyColumn {
+            if (settingsViewModel.updateAvailable.value) {
+                item {
+                    SettingsBox(
+                        settingsViewModel = settingsViewModel,
+                        title = stringResource(id = R.string.update_app),
+                        description = "${stringResource(id = R.string.newversion)} ${settingsViewModel.latestVersion.value}",
+                        icon = IconResource.Vector(Icons.Rounded.SystemUpdate),
+                        actionType = ActionType.LINK,
+                        radius = shapeManager(
+                            isBoth = true,
+                            radius = settingsViewModel.settings.value.cornerRadius
+                        ),
+                        linkClicked = { uriHandler.openUri("https://github.com/RRechz/AirNote/releases/latest") }
+                    )
+                    Spacer(modifier = Modifier.height(18.dp))
+                }
+            }
+            // <---
             item {
                 SettingsBox(
                     settingsViewModel = settingsViewModel,
@@ -154,92 +174,6 @@ fun AboutScreen(
                     ),
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun UserCards(uriHandler: UriHandler) {
-    Column {
-        UserCard(
-            imageUrl = "https://avatars.githubusercontent.com/u/178022701?v=4",
-            name = "Mustafa Burak Özcan",
-            role = stringResource(R.string.info_dev),
-            onClick = { uriHandler.openUri("https://github.com/RRechz") }
-        )
-        // UserCard(
-            // imageUrl = "https://avatars.githubusercontent.com/u/196631623?v=4",
-            // name = "Rescci",
-            // role = stringResource(R.string.info_dev2),
-            // onClick = { uriHandler.openUri("https://github.com/RRechz") }
-        // )
-    }
-}
-
-@Composable
-fun UserCard(
-    imageUrl: String,
-    name: String,
-    role: String,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-            .height(140.dp)
-            .shadow(8.dp, RoundedCornerShape(20.dp))
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(20.dp)
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = rememberAsyncImagePainter(model = imageUrl),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)
-                        .border(1.dp, MaterialTheme.colorScheme.primary, CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column {
-                    Text(
-                        text = name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = role,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                    )
-                }
-            }
-
-            // Decorative element
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(40.dp)
-                    .offset(x = 20.dp, y = (-20).dp)
-                    .background(
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
-                        CircleShape
-                    )
-            )
         }
     }
 }

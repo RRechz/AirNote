@@ -39,9 +39,9 @@ import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsVie
 import com.babelsoftware.airnote.presentation.screens.settings.settings.shapeManager
 import com.babelsoftware.airnote.presentation.screens.settings.widgets.ActionType
 import com.babelsoftware.airnote.presentation.screens.settings.widgets.SettingCategory
-import com.babelsoftware.airnote.presentation.screens.settings.widgets.SettingsBox
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.presentation.screens.settings.model.IconResource
+import com.babelsoftware.airnote.presentation.screens.settings.widgets.SettingsBox
 
 @Composable
 fun SettingsScaffold(
@@ -196,9 +196,14 @@ fun MainSettings(settingsViewModel: SettingsViewModel, navController: NavControl
                 )
             }
             item {
+                val aboutSubtitle = if (settingsViewModel.updateAvailable.value) {
+                    stringResource(R.string.update_available_description)
+                } else {
+                    stringResource(R.string.description_about)
+                }
                 SettingCategory(
                     title = stringResource(id = R.string.about),
-                    subTitle = stringResource(R.string.description_about),
+                    subTitle = aboutSubtitle,
                     icon = Icons.Rounded.Info,
                     shape = shapeManager(
                         radius = settingsViewModel.settings.value.cornerRadius,
