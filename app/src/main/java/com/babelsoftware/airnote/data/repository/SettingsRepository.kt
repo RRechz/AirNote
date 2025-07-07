@@ -26,7 +26,6 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
 
 private object PreferencesKeys {
     val USE_AIRNOTE_API = booleanPreferencesKey("use_airnote_api")
-    val USER_GEMINI_API_KEY = stringPreferencesKey("user_gemini_api_key")
     val SHOW_FOLDER_INDICATOR = booleanPreferencesKey("show_folder_indicator")
     val SELECTED_MODEL_NAME = stringPreferencesKey("selected_model_name")
 }
@@ -38,7 +37,6 @@ class SettingsRepositoryImpl (private val context: Context) : SettingsRepository
             Settings(
                 // Settings.kt içeriğinin hepsi
                 useAirNoteApi = preferences[PreferencesKeys.USE_AIRNOTE_API] ?: true,
-                userGeminiApiKey = preferences[PreferencesKeys.USER_GEMINI_API_KEY] ?: "",
                 selectedModelName = preferences[PreferencesKeys.SELECTED_MODEL_NAME] ?: "gemini-1.5-flash",
                 showFolderIndicator = preferences[PreferencesKeys.SHOW_FOLDER_INDICATOR] ?: false
             )
@@ -47,7 +45,6 @@ class SettingsRepositoryImpl (private val context: Context) : SettingsRepository
     override suspend fun update(settings: Settings) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.USE_AIRNOTE_API] = settings.useAirNoteApi
-            preferences[PreferencesKeys.USER_GEMINI_API_KEY] = settings.userGeminiApiKey
             preferences[PreferencesKeys.SHOW_FOLDER_INDICATOR] = settings.showFolderIndicator
             preferences[PreferencesKeys.SELECTED_MODEL_NAME] = settings.selectedModelName
         }

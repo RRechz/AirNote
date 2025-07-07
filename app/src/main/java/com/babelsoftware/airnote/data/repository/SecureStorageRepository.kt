@@ -33,7 +33,7 @@ class SecureStorageRepository @Inject constructor(
     fun saveUserApiKey(apiKey: String) {
         with(sharedPreferences.edit()) {
             putString(KEY_USER_GEMINI_API, apiKey)
-            apply()
+            commit()
         }
     }
 

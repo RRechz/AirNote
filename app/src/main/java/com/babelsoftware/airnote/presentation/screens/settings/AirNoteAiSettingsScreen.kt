@@ -2,6 +2,7 @@ package com.babelsoftware.airnote.presentation.screens.settings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +36,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -49,6 +51,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: SettingsViewModel) {
     val settings = settingsViewModel.settings.value
+    val userApiKey by settingsViewModel.userApiKey
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -101,7 +104,7 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
                                 style = MaterialTheme.typography.bodyLarge)
                         }
                         OutlinedTextField(
-                            value = settings.userGeminiApiKey,
+                            value = userApiKey,
                             onValueChange = { settingsViewModel.updateUserApiKey(it) },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -123,6 +126,7 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
                             }
                         }
                     }
+                    ApiKeyGuide()
                 }
             }
 
@@ -130,7 +134,7 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
 
             item {
                 var expanded by remember { mutableStateOf(false) }
-                val models = listOf("gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro")
+                val models = listOf("gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-pro-latest")
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     ListItem(
@@ -150,7 +154,6 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false },
-                        modifier = Modifier.size(16.dp)
                     ) {
                         models.forEach { modelName ->
                             DropdownMenuItem(
@@ -164,6 +167,45 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ApiKeyGuide() {
+    val uriHandler = LocalUriHandler.current
+    val geminiStudioUrl = "https://aistudio.google.com/app/apikey"
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.api_key_guide_title),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Text(
+            text = stringResource(id = R.string.api_key_guide_intro),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(id = R.string.api_key_guide_step_1))
+            Button(
+                onClick = { uriHandler.openUri(geminiStudioUrl) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(id = R.string.api_key_guide_button))
+            }
+            Text(stringResource(id = R.string.api_key_guide_step_2))
+            Text(stringResource(id = R.string.api_key_guide_step_3))
+            Text(stringResource(id = R.string.api_key_guide_step_4))
+            Text(stringResource(id = R.string.api_key_guide_step_5))
+            Text(stringResource(id = R.string.api_key_guide_step_6))
         }
     }
 }

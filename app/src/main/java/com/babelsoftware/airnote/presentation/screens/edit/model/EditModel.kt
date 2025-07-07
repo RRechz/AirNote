@@ -21,8 +21,11 @@ import com.babelsoftware.airnote.data.repository.GeminiRepository
 import com.babelsoftware.airnote.data.repository.AiAction
 import com.babelsoftware.airnote.data.repository.AiAssistantAction
 import com.babelsoftware.airnote.data.repository.AiTone
+import com.babelsoftware.airnote.data.repository.SecureStorageRepository
+import com.babelsoftware.airnote.domain.repository.SettingsRepository
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -31,7 +34,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 class EditViewModel @Inject constructor(
     private val noteUseCase: NoteUseCase,
     private val encryption: EncryptionHelper,
-    private val geminiRepository: GeminiRepository
+    private val geminiRepository: GeminiRepository,
+    private val secureStorageRepository: SecureStorageRepository
 ) : ViewModel() {
     private val _noteName = mutableStateOf(TextFieldValue())
     val noteName: State<TextFieldValue> get() = _noteName
@@ -66,6 +70,9 @@ class EditViewModel @Inject constructor(
     val folderId: State<Long?> get() = _folderId
 
     // --- AI'S STATES ---
+    private suspend fun getApiKeyToUse(): String {
+        return secureStorageRepository.getUserApiKey() ?: ""
+    }
     private val _isAiActionSheetVisible = mutableStateOf(false)
     val isAiActionSheetVisible: State<Boolean> = _isAiActionSheetVisible
 
@@ -135,7 +142,8 @@ class EditViewModel @Inject constructor(
             viewModelScope.launch {
                 _isAiLoading.value = true
                 try {
-                    val result = geminiRepository.processAiAction(selectedText, action, tone)
+                    val apiKey = getApiKeyToUse()
+                    val result = geminiRepository.processAiAction(selectedText, action, tone, apiKey)
                     if (!result.isNullOrBlank()) {
                         if (result.startsWith("API isteği başarısız oldu") || result.startsWith("Kullanıcı API anahtarı bulunamadı")) {
                             _uiEvent.send(result)
@@ -160,49 +168,44 @@ class EditViewModel @Inject constructor(
 
         viewModelScope.launch {
             var fullResponse = StringBuilder()
+            val apiKey = getApiKeyToUse()
 
             geminiRepository.processAssistantAction(
                 noteName = noteName.value.text,
                 noteDescription = noteDescription.value.text,
-                action = action
+                action = action,
+                apiKey = apiKey
             )
                 // --->
                 .onStart {
-                    if (action != AiAssistantAction.SUGGEST_A_TITLE) _isAiAssistantStreaming.value = true // Akış başladığında yeni state'imizi true yap
+                    if (action != AiAssistantAction.SUGGEST_A_TITLE) _isAiAssistantStreaming.value = true
                 }
                 .onCompletion {
-                    _isAiAssistantStreaming.value = false // Akış bittiğinde (başarılı veya hatalı) false yap
+                    _isAiAssistantStreaming.value = false
                 }
                 // <---
 
                 .collect { chunk ->
                     if (chunk.startsWith("API isteği başarısız oldu") || chunk.startsWith("Kullanıcı API anahtarı bulunamadı")) {
                         _uiEvent.send(chunk)
-                        // Hata durumunda akışın geri kalanını iptal et. (launch job'ını cancel ederek)
                         this.coroutineContext.cancel()
                         return@collect
                     }
                     fullResponse.append(chunk)
-                    // Sadece metne ekleme yapacak aksiyonlar için anlık güncelleme yapalım
                     if (action == AiAssistantAction.PROS_AND_CONS || action == AiAssistantAction.CREATE_TODO_LIST || action == AiAssistantAction.SIMPLIFY) {
                         val currentText = _noteDescription.value.text
-                        // Basitleştirme için eski metni silip yenisini koymayı düşünebiliriz. Şimdilik hepsi eklesin.
                         val newText = currentText + chunk
                         _noteDescription.value = TextFieldValue(text = newText, selection = TextRange(newText.length))
                     }
                 }
-            // Akış bittiğinde, gelen tam cevabı eyleme göre işle
             val finalResponse = fullResponse.toString()
             when (action) {
                 AiAssistantAction.CREATE_TODO_LIST -> {
                     if (finalResponse.trim() == "NO_TASKS") {
                         _uiEvent.send("Önce gün içerisinde yapmanız gerekenleri birkaç cümle ile anlatın.")
-                        // Gerekirse nottan "NO_TASKS" metnini sil
                     }
-                    // (Eğer stream sırasında eklemeseydik, burada ekleyecektik)
                 }
                 AiAssistantAction.SUGGEST_A_TITLE -> {
-                    // Cevabı satırlara bölüp, numaraları temizleyip listeye atalım
                     val suggestions = finalResponse.lines().mapNotNull {
                         it.replaceFirst(Regex("^\\d+\\.?\\s*"), "").trim().takeIf { s -> s.isNotEmpty() }
                     }
@@ -292,7 +295,7 @@ class EditViewModel @Inject constructor(
     }
 
     fun setupNoteData(id : Int, folderIdFromNav: Long? = null) {
-        if (id != 0) { // Mevcut bir not ise
+        if (id != 0) {
             viewModelScope.launch {
                 noteUseCase.getNoteById(id).collectLatest { note ->
                     if (note != null) {
@@ -300,7 +303,7 @@ class EditViewModel @Inject constructor(
                     }
                 }
             }
-        } else { // Yeni bir not ise
+        } else {
             updateFolderId(folderIdFromNav)
         }
     }

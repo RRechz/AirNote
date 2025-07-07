@@ -8,16 +8,19 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
 import com.babelsoftware.airnote.data.repository.GeminiRepository
+import com.babelsoftware.airnote.data.repository.SecureStorageRepository
 import com.babelsoftware.airnote.domain.model.AiSuggestion
 import com.babelsoftware.airnote.domain.model.ChatMessage
 import com.babelsoftware.airnote.domain.model.Folder
 import com.babelsoftware.airnote.domain.model.Note
 import com.babelsoftware.airnote.domain.model.Participant
+import com.babelsoftware.airnote.domain.repository.SettingsRepository
 import com.babelsoftware.airnote.domain.usecase.FolderUseCase
 import com.babelsoftware.airnote.domain.usecase.NoteUseCase
 import com.babelsoftware.airnote.presentation.components.DecryptionResult
@@ -31,6 +34,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -60,7 +64,9 @@ class HomeViewModel @Inject constructor(
     private val noteUseCase: NoteUseCase,
     private val folderUseCase: FolderUseCase,
     @ApplicationContext private val context: Context,
-    private val geminiRepository: GeminiRepository
+    private val geminiRepository: GeminiRepository,
+    private val settingsRepository: SettingsRepository,
+    private val secureStorageRepository: SecureStorageRepository
 ) : ViewModel() {
     var selectedNotes = mutableStateListOf<Note>()
 
@@ -97,6 +103,10 @@ class HomeViewModel @Inject constructor(
     private val _uiEvent = Channel<String>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
+    private suspend fun getApiKeyToUse(): String {
+        return secureStorageRepository.getUserApiKey() ?: ""
+    }
+
     // --- Global AI Chat States ---
     private val _isAiChatSheetVisible = mutableStateOf(false)
     val isAiChatSheetVisible: State<Boolean> = _isAiChatSheetVisible
@@ -109,21 +119,21 @@ class HomeViewModel @Inject constructor(
 
     val suggestions: List<AiSuggestion> = listOf(
         AiSuggestion(
-            title = "Bir soru sor",
+            title = stringProvider.getString(R.string.ask_ai),
             icon = Icons.Rounded.Search,
-            action = { /* TODO: Soru sorma mantığı eklenecek */ }
+            action = { /* TODO: Question asking logic will be added */ }
         ),
         AiSuggestion(
-            title = "Herhangi bir şey taslağı oluştur",
+            title = stringProvider.getString(R.string.make_note),
             icon = Icons.Rounded.Edit,
-            action = { onDraftAnythingClicked() } // Mevcut fonksiyonumuzu bağlıyoruz
+            action = { onDraftAnythingClicked() }
         ),
         AiSuggestion(
-            title = "Fikir üret",
+            title = stringProvider.getString(R.string.generate_ideas),
             icon = Icons.Rounded.AutoAwesome,
-            action = { sendMessage("Bana rastgele bir konuda ilginç fikirler üret.") }
+            action = { sendMessage(stringProvider.getString(R.string.generate_ideas_prompt)) }
         )
-        // Buraya yeni öneriler eklenebilir...
+        // TODO New suggestions can be added here...
     )
 
     // --- Global AI Chat States | END ---
@@ -150,8 +160,9 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val history = _chatState.value.messages
             val responseBuilder = StringBuilder()
+            val apiKey = getApiKeyToUse()
 
-            geminiRepository.generateChatResponse(history)
+            geminiRepository.generateChatResponse(history, apiKey)
                 .onCompletion {
                     // Sets the ‘isLoading’ status of the last message to “false” when the flow is finished
                     val finalMessages = _chatState.value.messages.toMutableList()
@@ -200,7 +211,8 @@ class HomeViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            val result = geminiRepository.generateDraft(topic)
+            val apiKey = getApiKeyToUse()
+            val result = geminiRepository.generateDraft(topic, apiKey)
             if (result != null && result.contains("BAŞLIK:") && result.contains("İÇERİK:")) {
                 val title = result.substringAfter("BAŞLIK:").substringBefore("İÇERİK:").trim()
                 val content = result.substringAfter("İÇERİK:").trim()

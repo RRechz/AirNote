@@ -198,6 +198,22 @@
     <string name="close">Kapat</string>
     <string name="all_notes">Tüm Notlar</string>
     <string name="ai_button_texts">Sor, sohbet et, AI ile bul...</string>
+    <string name="api_key_guide_title">Kendi API Anahtarınızı Nasıl Alırsınız?</string>
+    <string name="api_key_guide_intro">Google AI Studio\'dan, cömert bir ücretsiz kullanım limitine sahip kişisel bir API anahtarı oluşturabilirsiniz. Bu anahtar sadece size aittir ve tüm kontrol sizde olur.</string>
+    <string name="api_key_guide_step_1">1. Aşağıdaki butona tıklayarak Google AI Studio web sitesine gidin.</string>
+    <string name="api_key_guide_step_2">2. Google hesabınızla giriş yapın.</string>
+    <string name="api_key_guide_step_3">3. Açılan ekranda \"Create API key\" (API anahtarı oluştur) butonuna tıklayın.</string>
+    <string name="api_key_guide_step_4">4. Yeni bir proje oluşturmanız istenebilir, adımları takip ederek projeyi oluşturun.</string>
+    <string name="api_key_guide_step_5">5. Oluşturulan uzun karakter dizisini kopyalayın.</string>
+    <string name="api_key_guide_step_6">6. Kopyaladığınız anahtarı aşağıdaki metin kutusuna yapıştırın ve \"Kontrol Et\" butonuna basın.</string>
+    <string name="api_key_guide_button">Google AI Studio\'ya Git</string>
+    <string name="error_api_key_blank">Lütfen önce bir API anahtarı girin.</string>
+    <string name="api_key_validation_success">API anahtarı geçerli ve başarıyla kaydedildi! ✅</string>
+    <string name="api_key_validation_failure">Geçersiz API anahtarı. Lütfen kontrol edin ve tekrar deneyin.</string>
+    <string name="ask_ai">Bir soru sor (?)</string>
+    <string name="make_note">Bir konu hakkında not oluştur</string>
+    <string name="generate_ideas">Fikir Üret</string>
+    <string name="generate_ideas_prompt">Bana rastgele bir konu hakkında 5 ilginç fikir ver</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Yazımı İyileştir</string>

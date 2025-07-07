@@ -8,18 +8,16 @@ import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
 import com.babelsoftware.airnote.domain.model.ChatMessage
 import com.babelsoftware.airnote.domain.model.Participant
-import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.generationConfig
 import com.babelsoftware.airnote.domain.repository.SettingsRepository
+import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
+import com.google.ai.client.generativeai.type.generationConfig
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 enum class AiAction {
@@ -48,11 +46,8 @@ enum class AiAssistantAction {
 
 class GeminiRepository @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val secureStorageRepository: SecureStorageRepository,
     private val stringProvider: StringProvider
 ) {
-    private val airNoteApiKey = "YOUR_API_KEY" // Free Gemini API Key
-
     /**
      * Tests if the given API key is valid.
      */
@@ -70,25 +65,20 @@ class GeminiRepository @Inject constructor(
     /**
      * Sends a request to the Gemini API based on the given text and AI action.
      */
-    suspend fun processAiAction(text: String, action: AiAction, tone: AiTone? = null): String? {
+    suspend fun processAiAction(text: String, action: AiAction, tone: AiTone? = null, apiKey: String): String? {
         if (action == AiAction.CHANGE_TONE) {
             require(tone != null) { "CHANGE_TONE eylemi için bir ton belirtilmelidir." }
         }
 
         val currentSettings = settingsRepository.settings.first()
-        val apiKeyToUse = if (currentSettings.useAirNoteApi) {
-            airNoteApiKey
-        } else {
-            secureStorageRepository.getUserApiKey()
-        }
 
-        if (apiKeyToUse.isNullOrBlank()) {
+        if (apiKey.isBlank()) {
             return stringProvider.getString(R.string.error_no_user_api_key)
         }
 
         val generativeModel = GenerativeModel(
             modelName = currentSettings.selectedModelName,
-            apiKey = apiKeyToUse,
+            apiKey = apiKey,
             generationConfig = generationConfig {
                 temperature = 0.7f
             }
@@ -124,23 +114,19 @@ class GeminiRepository @Inject constructor(
     fun processAssistantAction(
         noteName: String,
         noteDescription: String,
-        action: AiAssistantAction
+        action: AiAssistantAction,
+        apiKey: String
     ): Flow<String> = flow {
         val currentSettings = settingsRepository.settings.first()
-        val apiKeyToUse = if (currentSettings.useAirNoteApi) {
-            airNoteApiKey
-        } else {
-            secureStorageRepository.getUserApiKey()
-        }
 
-        if (apiKeyToUse.isNullOrBlank()) {
+        if (apiKey.isBlank()) {
             emit(stringProvider.getString(R.string.error_no_user_api_key))
-            return@flow // End stream
+            return@flow
         }
 
         val generativeModel = GenerativeModel(
             modelName = currentSettings.selectedModelName,
-            apiKey = apiKeyToUse,
+            apiKey = apiKey,
             generationConfig = generationConfig {
                 temperature = 0.8f
             }
@@ -163,22 +149,17 @@ class GeminiRepository @Inject constructor(
         emit(stringProvider.getString(R.string.error_api_request_failed, it.message ?: "Unknown error"))
     }
 
-    fun generateChatResponse(history: List<ChatMessage>): Flow<String> = flow {
+    fun generateChatResponse(history: List<ChatMessage>, apiKey: String): Flow<String> = flow {
         val currentSettings = settingsRepository.settings.first()
-        val apiKeyToUse = if (currentSettings.useAirNoteApi) {
-            airNoteApiKey
-        } else {
-            secureStorageRepository.getUserApiKey()
-        }
 
-        if (apiKeyToUse.isNullOrBlank()) {
+        if (apiKey.isBlank()) {
             emit(stringProvider.getString(R.string.error_no_user_api_key))
             return@flow
         }
 
         val generativeModel = GenerativeModel(
             modelName = currentSettings.selectedModelName,
-            apiKey = apiKeyToUse,
+            apiKey = apiKey,
             generationConfig = generationConfig {
                 temperature = 0.8f
             }
@@ -204,21 +185,19 @@ class GeminiRepository @Inject constructor(
     }
 
     // ---> Function that creates a one-time note outline
-    suspend fun generateDraft(topic: String): String? {
+    suspend fun generateDraft(
+        topic: String,
+        apiKey: String
+        ): String? {
         val currentSettings = settingsRepository.settings.first()
-        val apiKeyToUse = if (currentSettings.useAirNoteApi) {
-            airNoteApiKey
-        } else {
-            secureStorageRepository.getUserApiKey()
-        }
 
-        if (apiKeyToUse.isNullOrBlank()) {
+        if (apiKey.isNullOrBlank()) {
             return stringProvider.getString(R.string.error_no_user_api_key)
         }
 
         val generativeModel = GenerativeModel(
             modelName = currentSettings.selectedModelName,
-            apiKey = apiKeyToUse,
+            apiKey = apiKey,
             generationConfig = generationConfig {
                 temperature = 0.8f
             }

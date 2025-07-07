@@ -31,8 +31,7 @@ data class Settings(
     var makeSearchBarLonger: Boolean = false,
     var fontSize: Int = 13,
     val showFolderIndicator: Boolean = false,
-    val useAirNoteApi: Boolean = true,
-    val userGeminiApiKey: String = "",
-    val selectedModelName: String = "gemini-1.5-flash"
+    val useAirNoteApi: Boolean = false, // AirNote API will use your API by default
+    val selectedModelName: String = "gemini-1.5-flash-latest"
 )
 

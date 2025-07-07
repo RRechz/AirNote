@@ -192,6 +192,22 @@
     <string name="close">Close</string>
     <string name="all_notes">All Notes</string>
     <string name="ai_button_texts">Ask, chat, find with AI...</string>
+    <string name="api_key_guide_title">How to Get Your Own API Key?</string>
+    <string name="api_key_guide_intro">From Google AI Studio, you can generate a personal API key with a generous free usage limit. This key belongs only to you and you have full control.</string>
+    <string name="api_key_guide_step_1">1. Go to the Google AI Studio website by clicking the button below.</string>
+    <string name="api_key_guide_step_2">2. Sign in with your Google account.</string>
+    <string name="api_key_guide_step_3">3. On the screen that opens, click the \"Create API key\" button.</string>
+    <string name="api_key_guide_step_4">4. You may be asked to create a new project, follow the steps to create it.</string>
+    <string name="api_key_guide_step_5">5. Copy the generated long character string.</string>
+    <string name="api_key_guide_step_6">6. Paste the copied key into the text box below and press the \“Check\” button.</string>
+    <string name="api_key_guide_button">Go to Google AI Studio</string>
+    <string name="error_api_key_blank">Please enter an API key first.</string>
+    <string name="api_key_validation_success">API key valid and successfully registered! ✅</string>
+    <string name="api_key_validation_failure">Invalid API key. Please check and try again.</string>
+    <string name="ask_ai">Ask a question</string>
+    <string name="make_note">Make a note about a topic</string>
+    <string name="generate_ideas">Generate ideas</string>
+    <string name="generate_ideas_prompt">Give me 5 interesting ideas on a random topic</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>

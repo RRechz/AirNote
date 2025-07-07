@@ -20,6 +20,7 @@ import com.babelsoftware.airnote.presentation.navigation.NavRoutes
 import com.babelsoftware.airnote.data.repository.SecureStorageRepository
 import com.babelsoftware.airnote.BuildConfig
 import com.babelsoftware.airnote.R
+import com.babelsoftware.airnote.data.provider.StringProvider
 import com.babelsoftware.airnote.data.repository.GeminiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +42,8 @@ class SettingsViewModel @Inject constructor(
     val noteUseCase: NoteUseCase,
     private val importExportUseCase: ImportExportUseCase,
     private val secureStorageRepository: SecureStorageRepository,
-    private val geminiRepository: GeminiRepository
+    private val geminiRepository: GeminiRepository,
+    private val stringProvider: StringProvider
 ) : ViewModel() {
     var defaultRoute: String? = null
 
@@ -53,15 +55,15 @@ class SettingsViewModel @Inject constructor(
 
         }
     }
+    private val _userApiKey = mutableStateOf("")
+    val userApiKey: State<String> = _userApiKey
 
     fun updateUserApiKey(newApiKey: String) {
-        secureStorageRepository.saveUserApiKey(newApiKey)
-        update(settings.value.copy(userGeminiApiKey = newApiKey))
+        _userApiKey.value = newApiKey
     }
 
-    fun loadUserApiKey() {
-        val storedKey = secureStorageRepository.getUserApiKey() ?: ""
-        update(settings.value.copy(userGeminiApiKey = storedKey))
+    private fun loadUserApiKey() {
+        _userApiKey.value = secureStorageRepository.getUserApiKey() ?: ""
     }
 
     private val _isVerifyingApiKey = mutableStateOf(false)
@@ -71,9 +73,11 @@ class SettingsViewModel @Inject constructor(
     val uiEvent = _uiEvent.receiveAsFlow()
 
     fun verifyUserApiKey() {
-        val keyToVerify = settings.value.userGeminiApiKey
+        val keyToVerify = _userApiKey.value
+        secureStorageRepository.saveUserApiKey(keyToVerify)
+
         if (keyToVerify.isBlank()) {
-            viewModelScope.launch { _uiEvent.send("Lütfen önce bir API anahtarı girin.") }
+            viewModelScope.launch { _uiEvent.send(stringProvider.getString(R.string.error_api_key_blank)) }
             return
         }
 
@@ -81,9 +85,9 @@ class SettingsViewModel @Inject constructor(
             _isVerifyingApiKey.value = true
             val result = geminiRepository.validateApiKey(keyToVerify)
             val message = if (result.isSuccess) {
-                "API anahtarı geçerli ve kullanıma hazır! ✅"
+                stringProvider.getString(R.string.api_key_validation_success)
             } else {
-                "Geçersiz API anahtarı. Lütfen kontrol edin."
+                stringProvider.getString(R.string.api_key_validation_failure)
             }
             _uiEvent.send(message)
             _isVerifyingApiKey.value = false
@@ -211,5 +215,6 @@ class SettingsViewModel @Inject constructor(
         runBlocking {
             loadSettings()
         }
+        loadUserApiKey()
     }
 }
