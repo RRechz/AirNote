@@ -126,8 +126,8 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
                             }
                         }
                     }
-                    ApiKeyGuide()
                 }
+                ApiKeyGuide()
             }
 
             item { Spacer(modifier = Modifier.height(18.dp)) }
