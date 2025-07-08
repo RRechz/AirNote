@@ -37,7 +37,8 @@ fun AppNavHost(settingsModel: SettingsViewModel, navController: NavHostControlle
                         )
                     )
                 },
-                settingsModel = settingsModel
+                settingsModel = settingsModel,
+                onNavigateToAbout = { navController.navigate(NavRoutes.About.route) }
             )
         }
 

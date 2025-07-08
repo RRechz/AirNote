@@ -224,7 +224,7 @@
     <string name="update_card_install">İnstall</string>
     <string name="update_card_install_icon_description">İnstall</string>
     <string name="update_card_update_failed">Update Failed</string>
-    <string name="update_card_error_icon_description">Erro</string>
+    <string name="update_card_error_icon_description">Error</string>
     <string name="update_card_try_again">Try Again</string>
     <string name="update_card_try_again_icon_description">Try Again</string>
     <string name="update_card_app_up_to_date">Your App is Up to Date</string>
@@ -232,6 +232,8 @@
     <string name="update_card_install_permission_needed">The update requires permission to install from unknown sources.</string>
     <string name="update_card_download_link_not_found">Download link not found.</string>
     <string name="update_card_release_notes_title">Innovations</string>
+    <string name="save_note">Save Note</string>
+    <string name="regenerate_note">Re-Generate</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>

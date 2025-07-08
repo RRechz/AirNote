@@ -31,7 +31,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun UpdateScreen(
     latestVersion: String,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onNavigateToAbout: () -> Unit
 ) {
     val context = LocalContext.current
     var changelog by remember { mutableStateOf("") }
@@ -69,11 +70,7 @@ fun UpdateScreen(
         confirmButton = {
             Button(
                 onClick = {
-                    val intent = Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("https://github.com/RRechz/AirNote/releases/latest")
-                    )
-                    context.startActivity(intent)
+                    onNavigateToAbout()
                     onDismiss()
                 }
             ) {

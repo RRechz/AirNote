@@ -113,7 +113,8 @@ fun HomeView (
     viewModel: HomeViewModel = hiltViewModel(),
     settingsModel: SettingsViewModel,
     onSettingsClicked: () -> Unit,
-    onNoteClicked: (noteId: Int, isVault: Boolean, folderId: Long?) -> Unit
+    onNoteClicked: (noteId: Int, isVault: Boolean, folderId: Long?) -> Unit,
+    onNavigateToAbout: () -> Unit
 ) {
     val allFolders by viewModel.allFolders.collectAsState()
     val notes by viewModel.displayedNotes.collectAsState()
@@ -128,7 +129,8 @@ fun HomeView (
     if (settingsModel.showUpdateDialog.value) {
         UpdateScreen(
             latestVersion = settingsModel.latestVersion.value,
-            onDismiss = { settingsModel.dismissUpdateDialog() }
+            onDismiss = { settingsModel.dismissUpdateDialog() },
+            onNavigateToAbout = onNavigateToAbout
         )
     }
 
@@ -732,7 +734,7 @@ fun ChatInputBar(
             modifier = Modifier
                 .weight(1f),
             placeholder = {
-                Text(if (isAwaitingTopic) "Taslak konusunu yazın..." else "Ask anything...")
+                Text(if (isAwaitingTopic) "Taslak konusunu yazın..." else "Ask AirNote AI...")
             },
             shape = CircleShape,
             colors = TextFieldDefaults.colors(
@@ -756,16 +758,6 @@ fun ChatInputBar(
 }
 
 @Composable
-fun SuggestionBar(onDraftAnything: () -> Unit) {
-    Row(modifier = Modifier.padding(vertical = 8.dp)) {
-        Button(onClick = onDraftAnything) {
-            Text("Draft Anything")
-        }
-        // TODO New suggestion buttons to be added
-    }
-}
-
-@Composable
 fun DraftDisplay(draft: DraftedNote, onSave: () -> Unit, onRegenerate: () -> Unit) {
     Column(modifier = Modifier.padding(16.dp).fillMaxSize()) {
         Text(text = draft.title, style = MaterialTheme.typography.titleLarge)
@@ -780,10 +772,10 @@ fun DraftDisplay(draft: DraftedNote, onSave: () -> Unit, onRegenerate: () -> Uni
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Button(onClick = onSave, modifier = Modifier.weight(1f)) {
-                Text("Notu Kaydet")
+                Text(stringResource(R.string.save_note))
             }
             OutlinedButton(onClick = onRegenerate, modifier = Modifier.weight(1f)) {
-                Text("Yeniden Oluştur")
+                Text(stringResource(R.string.regenerate_note))
             }
         }
     }

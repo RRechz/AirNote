@@ -214,8 +214,11 @@
     <string name="make_note">Bir konu hakkında not oluştur</string>
     <string name="generate_ideas">Fikir Üret</string>
     <string name="generate_ideas_prompt">Bana rastgele bir konu hakkında 5 ilginç fikir ver</string>
+    <string name="save_note">Notu Kaydet</string>
+    <string name="regenerate_note">Yeniden Oluştur</string>
 
     <!-- Gemini Repository Strings-->
+    <string name="update_card_release_notes_title">Yenilikler</string>
     <string name="ai_action_improve_writing">Yazımı İyileştir</string>
     <string name="ai_action_summarize">Özetle</string>
     <string name="ai_action_make_shorter">Daha Kısa Yap</string>
@@ -242,6 +245,7 @@
     <string name="prompt_make_shorter">Aşağıdaki metni anlamını koruyarak önemli ölçüde kısalt. Sadece kısaltılmış metni cevap olarak ver:\n\n---\n\n%1$s</string>
     <string name="prompt_make_longer">Aşağıdaki metne yaratıcı detaylar ekleyerek daha uzun bir hale getir. Sadece uzatılmış metni cevap olarak ver:\n\n---\n\n%1$s</string>
 
+    <string name="error_server_busy_try_again">AI sunucuları şu anda meşgul. Lütfen birkaç dakika içinde tekrar deneyin.</string>
     <string name="prompt_change_tone_template">%1$s\n\n---\n\n%2$s</string>
     <string name="prompt_instruction_tone_formal">Aşağıdaki metni profesyonel ve resmi bir dille yeniden yaz. Anlamı koru, sadece tonu değiştir. Sadece sonuç metnini cevap olarak ver:</string>
     <string name="prompt_instruction_tone_balanced">Aşağıdaki metni ne çok resmi ne de çok samimi, dengeli bir dille yeniden yaz. Anlamı koru. Sadece sonuç metnini cevap olarak ver:</string>
@@ -256,4 +260,27 @@
     <string name="prompt_assistant_suggest_title">Aşağıdaki metnin içeriğine en uygun, yaratıcı ve dikkat çekici 5 adet başlık önerisi sun. Cevabını numaralandırılmış bir liste olarak ver:\n\n---\n\n%1$s</string>
 
     <string name="prompt_assistant_draft_anything">Bir kullanıcı \"%1$s\" konusu hakkında bir not taslağı oluşturmak istiyor. Cevabını MUTLAKA şu formatta ver: BAŞLIK: [buraya başlığı yaz]\n\nİÇERİK: [buraya not içeriğini yaz]</string>
+    <string name="newversion">Yeni Sürüm</string>
+    <string name="update">Güncelle</string>
+    <string name="update_available_description">Yeni güncelleme mevcut!</string>
+    <string name="update_app">Uygulamayı güncelle</string>
+    <string name="changelog_fetch_error">Değişiklik günlüğü alınamadı.</string>
+    <string name="changelog_fetch_error_with_message">Değişiklik günlüğü alınamadı: %1$s</string>
+    <string name="update_card_checking_for_updates">Güncellemeleri kontrol ediyorum...</string>
+    <string name="update_card_update_available_icon_description">Güncelleme Mevcut</string>
+    <string name="update_card_new_version_available">Yeni sürüm Mevcut!</string>
+    <string name="update_card_version_ready_to_download">%1$s sürümü indirilebilir.</string>
+    <string name="update_card_download_now">Şimdi Güncelle</string>
+    <string name="update_card_download_icon_description">İndir</string>
+    <string name="update_card_downloading">İndiriliyor... %1$d%%</string>
+    <string name="update_card_install">Kur</string>
+    <string name="update_card_install_icon_description">Kur</string>
+    <string name="update_card_update_failed">Güncelleme Başarısız</string>
+    <string name="update_card_error_icon_description">Hata</string>
+    <string name="update_card_try_again">Tekrar Dene</string>
+    <string name="update_card_try_again_icon_description">Tekrar Dene</string>
+    <string name="update_card_app_up_to_date">Uygulamanız Güncel</string>
+    <string name="update_card_up_to_date_icon_description">Güncellendi</string>
+    <string name="update_card_install_permission_needed">Güncelleme bilinmeyen kaynaklardan yükleme izni gerektirir.</string>
+    <string name="update_card_download_link_not_found">İndirme linki bulunamadı.</string>
 </resources>
