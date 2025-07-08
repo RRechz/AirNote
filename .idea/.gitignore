@@ -30,12 +30,6 @@ captures/
 *.iml
 *.ipr
 *.iws
-.idea/caches/
-.idea/libraries/
-.idea/modules.xml
-.idea/runConfigurations/
-.idea/workspace.xml
-out/
 
 # Gradle Wrapper files (no need to add the jar)
 # ===================================================
