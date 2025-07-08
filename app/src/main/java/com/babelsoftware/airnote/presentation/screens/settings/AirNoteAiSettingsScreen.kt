@@ -41,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.babelsoftware.airnote.R
+import com.babelsoftware.airnote.data.repository.GeminiModels
 import com.babelsoftware.airnote.presentation.screens.settings.model.IconResource
 import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsViewModel
 import com.babelsoftware.airnote.presentation.screens.settings.settings.shapeManager
@@ -134,7 +135,7 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
 
             item {
                 var expanded by remember { mutableStateOf(false) }
-                val models = listOf("gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-pro-latest")
+                val models = GeminiModels.supportedModels
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     ListItem(

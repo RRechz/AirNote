@@ -76,6 +76,9 @@ class EditViewModel @Inject constructor(
     private val _isAiActionSheetVisible = mutableStateOf(false)
     val isAiActionSheetVisible: State<Boolean> = _isAiActionSheetVisible
 
+    private val _isSheetReadyForInteraction = mutableStateOf(false)
+    val isSheetReadyForInteraction: State<Boolean> = _isSheetReadyForInteraction
+
     private val _isToneActionSheetVisible = mutableStateOf(false)
     val isToneActionSheetVisible: State<Boolean> = _isToneActionSheetVisible
 
@@ -99,8 +102,17 @@ class EditViewModel @Inject constructor(
 
     // --- AI FUNCTIONS ---
     fun toggleAiActionSheet(isVisible: Boolean) {
+        if (isVisible) {
+            _isSheetReadyForInteraction.value = false // Menü her açılacağı zaman, etkileşim durumunu "hazır değil" (false) olarak ayarla.
+        }
         _isAiActionSheetVisible.value = isVisible
     }
+
+    // ---> YENİ FONKSİYON: Menünün artık etkileşime hazır olduğunu işaretler.
+    fun markSheetAsReadyForInteraction() {
+        _isSheetReadyForInteraction.value = true
+    }
+    // <---
 
     fun toggleToneActionSheet(isVisible: Boolean) {
         _isToneActionSheetVisible.value = isVisible

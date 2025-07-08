@@ -98,6 +98,7 @@ import com.babelsoftware.airnote.presentation.screens.settings.widgets.SettingsB
 import com.babelsoftware.airnote.presentation.screens.settings.widgets.copyToClipboard
 import com.babelsoftware.airnote.presentation.theme.FontUtils
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -752,6 +753,17 @@ private fun LoadingOverlay() {
 fun AiActionSheet(viewModel: EditViewModel) {
     if (!viewModel.isAiActionSheetVisible.value) return
 
+    // ---> EKLENECEK KOD: Bu kod, menü görünür olduğunda çalışır.
+    // Animasyonun bitmesi için kısa bir süre bekledikten sonra butonları "tıklanabilir" yapar.
+    LaunchedEffect(viewModel.isAiActionSheetVisible.value) {
+        if (viewModel.isAiActionSheetVisible.value) {
+            // ModalBottomSheet animasyonunun bitmesi için kısa bir gecikme
+            delay(300L)
+            viewModel.markSheetAsReadyForInteraction()
+        }
+    }
+    // <---
+
     val actions = AiAction.values()
 
     ModalBottomSheet(
@@ -769,10 +781,16 @@ fun AiActionSheet(viewModel: EditViewModel) {
                             )
                         }
                     },
-                    modifier = Modifier.clickable {
-                        viewModel.executeAiAction(action = action, tone = null)
-                        viewModel.toggleAiActionSheet(false)
+                    // ---> DEĞİŞECEK KISIM: Butonun tıklanabilirliğini yeni state'e bağlıyoruz.
+                    modifier = Modifier.clickable(
+                        enabled = viewModel.isSheetReadyForInteraction.value
+                    ) {
+                        // Ekstra güvenlik: Sadece etkileşim hazırsa eylemi gerçekleştir.
+                        if (viewModel.isSheetReadyForInteraction.value) {
+                            viewModel.executeAiAction(action = action, tone = null)
+                        }
                     }
+                    // <---
                 )
             }
         }

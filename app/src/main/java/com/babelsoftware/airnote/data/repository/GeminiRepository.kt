@@ -53,7 +53,7 @@ class GeminiRepository @Inject constructor(
      */
     suspend fun validateApiKey(apiKey: String): Result<Unit> = withContext(Dispatchers.IO) {
         return@withContext try {
-            GenerativeModel(modelName = "gemini-1.5-flash-latest", apiKey = apiKey)
+            GenerativeModel(modelName = "gemini-2.0-flash-001", apiKey = apiKey)
                 .countTokens("test")
             Result.success(Unit)
         } catch (e: Exception) {
