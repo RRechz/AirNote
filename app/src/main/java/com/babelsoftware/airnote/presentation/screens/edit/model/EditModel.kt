@@ -103,16 +103,14 @@ class EditViewModel @Inject constructor(
     // --- AI FUNCTIONS ---
     fun toggleAiActionSheet(isVisible: Boolean) {
         if (isVisible) {
-            _isSheetReadyForInteraction.value = false // Menü her açılacağı zaman, etkileşim durumunu "hazır değil" (false) olarak ayarla.
+            _isSheetReadyForInteraction.value = false // Set the interaction status to “not ready” (false) each time the menu is opened.
         }
         _isAiActionSheetVisible.value = isVisible
     }
 
-    // ---> YENİ FONKSİYON: Menünün artık etkileşime hazır olduğunu işaretler.
     fun markSheetAsReadyForInteraction() {
         _isSheetReadyForInteraction.value = true
     }
-    // <---
 
     fun toggleToneActionSheet(isVisible: Boolean) {
         _isToneActionSheetVisible.value = isVisible
@@ -128,6 +126,7 @@ class EditViewModel @Inject constructor(
      * Operates only on the selected text.
      */
     fun executeAiAction(action: AiAction, tone: AiTone? = null) {
+        val selection = _lastSelection ?: noteDescription.value.selection
         toggleAiActionSheet(false)
         toggleToneActionSheet(false)
 
@@ -136,20 +135,15 @@ class EditViewModel @Inject constructor(
             return
         }
 
-        val selection = _lastSelection ?: noteDescription.value.selection
-
-        // --->If there is no selection stored or if this selection is collapsed in some way, give an error.
         if (selection.collapsed) {
             viewModelScope.launch {
                 _uiEvent.send("Lütfen üzerinde işlem yapmak istediğiniz metni seçin.")
             }
             return
         }
-        // <---
 
-        val selectedText = noteDescription.value.text.substring(selection.min, selection.max) // Use the boundaries of the stored selection also when retrieving the selected text.
+        val selectedText = noteDescription.value.text.substring(selection.min, selection.max)
 
-        // ---> Initiate API request if the selected text actually exists
         if (selectedText.isNotBlank()) {
             viewModelScope.launch {
                 _isAiLoading.value = true
@@ -160,6 +154,7 @@ class EditViewModel @Inject constructor(
                         if (result.startsWith("API isteği başarısız oldu") || result.startsWith("Kullanıcı API anahtarı bulunamadı")) {
                             _uiEvent.send(result)
                         } else {
+                            _lastSelection = selection
                             _aiResultText.value = result
                         }
                     } else {
@@ -172,7 +167,6 @@ class EditViewModel @Inject constructor(
                 }
             }
         }
-        // <---
     }
 
     fun executeAiAssistantAction(action: AiAssistantAction) {

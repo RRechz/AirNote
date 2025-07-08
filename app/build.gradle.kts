@@ -34,7 +34,7 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = 1
-        versionName = "v1.1"
+        versionName = "v1.2"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -98,6 +98,7 @@ dependencies {
 
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     implementation("androidx.security:security-crypto:1.1.0-beta01")
+    implementation("com.udojava:EvalEx:2.7")
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.datastore.preferences)

@@ -280,7 +280,7 @@ fun TopBar(pagerState: PagerState,coroutineScope: CoroutineScope, onClickBack: (
                     UndoButton { viewModel.undo() }
                 }
             }
-     },
+        },
         actions = { TopBarActions(pagerState,  onClickBack, viewModel) }
     )
 }
@@ -534,7 +534,7 @@ fun PreviewScreen(viewModel: EditViewModel, settingsViewModel: SettingsViewModel
                         onContentChange = { viewModel.updateNoteDescription(TextFieldValue(text = it)) },
                         settingsViewModel = settingsViewModel
                     )
-                    }
+                }
             }
         )
     }
@@ -565,7 +565,7 @@ fun MarkdownBox(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = if (!isExtremeAmoled) 1.dp else 0.dp), // Shadow
 
-        ) {
+    ) {
         content()
     }
     Spacer(modifier = Modifier.height(3.dp))
@@ -753,11 +753,8 @@ private fun LoadingOverlay() {
 fun AiActionSheet(viewModel: EditViewModel) {
     if (!viewModel.isAiActionSheetVisible.value) return
 
-    // ---> EKLENECEK KOD: Bu kod, menü görünür olduğunda çalışır.
-    // Animasyonun bitmesi için kısa bir süre bekledikten sonra butonları "tıklanabilir" yapar.
     LaunchedEffect(viewModel.isAiActionSheetVisible.value) {
         if (viewModel.isAiActionSheetVisible.value) {
-            // ModalBottomSheet animasyonunun bitmesi için kısa bir gecikme
             delay(300L)
             viewModel.markSheetAsReadyForInteraction()
         }
@@ -781,11 +778,9 @@ fun AiActionSheet(viewModel: EditViewModel) {
                             )
                         }
                     },
-                    // ---> DEĞİŞECEK KISIM: Butonun tıklanabilirliğini yeni state'e bağlıyoruz.
                     modifier = Modifier.clickable(
                         enabled = viewModel.isSheetReadyForInteraction.value
                     ) {
-                        // Ekstra güvenlik: Sadece etkileşim hazırsa eylemi gerçekleştir.
                         if (viewModel.isSheetReadyForInteraction.value) {
                             viewModel.executeAiAction(action = action, tone = null)
                         }

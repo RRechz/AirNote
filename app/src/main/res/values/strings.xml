@@ -259,6 +259,7 @@
     <string name="prompt_summarize">Summarize the text below in one or two sentences, keeping the main idea. Answer only the summary text:\n\n---\n\n%1$s</string>
     <string name="prompt_make_shorter">Shorten the following text significantly while preserving its meaning. Reply only with the shortened text:\n\n---\n\n%1$s</string>
     <string name="prompt_make_longer">Add creative details to the text below to make it longer. Only reply with the extended text:\n\n---\n\n%1$s</string>
+    <string name="error_server_busy_try_again">AI servers are currently busy. Please try again in a few minutes.</string>
 
     <string name="prompt_change_tone_template">%1$s\n\n---\n\n%2$s</string>
     <string name="prompt_instruction_tone_formal">Rewrite the text below in a professional and formal language. Keep the meaning, only change the tone. Only reply with the final text:</string>
