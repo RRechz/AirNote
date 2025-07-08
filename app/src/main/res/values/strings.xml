@@ -214,6 +214,24 @@
     <string name="update_app">Update App</string>
     <string name="changelog_fetch_error">Change log could not be retrieved.</string>
     <string name="changelog_fetch_error_with_message">Failed to receive changelog: %1$s</string>
+    <string name="update_card_checking_for_updates">Checking for updates...</string>
+    <string name="update_card_update_available_icon_description">Update Available</string>
+    <string name="update_card_new_version_available">New Version Available!</string>
+    <string name="update_card_version_ready_to_download">Version %1$s is available for download.</string>
+    <string name="update_card_download_now">Update Now</string>
+    <string name="update_card_download_icon_description">Download</string>
+    <string name="update_card_downloading">Downloading... %1$d%%</string>
+    <string name="update_card_install">İnstall</string>
+    <string name="update_card_install_icon_description">İnstall</string>
+    <string name="update_card_update_failed">Update Failed</string>
+    <string name="update_card_error_icon_description">Erro</string>
+    <string name="update_card_try_again">Try Again</string>
+    <string name="update_card_try_again_icon_description">Try Again</string>
+    <string name="update_card_app_up_to_date">Your App is Up to Date</string>
+    <string name="update_card_up_to_date_icon_description">Updated</string>
+    <string name="update_card_install_permission_needed">The update requires permission to install from unknown sources.</string>
+    <string name="update_card_download_link_not_found">Download link not found.</string>
+    <string name="update_card_release_notes_title">Innovations</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>
