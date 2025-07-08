@@ -19,6 +19,7 @@ local.properties
 .gradle/
 captures/
 .DS_Store
+.html
 
 # Log files
 # =================
@@ -40,6 +41,5 @@ captures/
 
 # HTML Reports (as an extra precaution)
 # ===================================
-*.html
 *.json
 *.xml
