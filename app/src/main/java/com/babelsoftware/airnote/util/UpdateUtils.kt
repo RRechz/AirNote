@@ -6,7 +6,6 @@
 
 package com.babelsoftware.airnote.util
 
-import com.babelsoftware.airnote.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -18,6 +17,13 @@ sealed class ChangelogResult {
     data class Error(val exception: Exception) : ChangelogResult()
 }
 // <---
+
+// Data class that holds version information (changelog, download url, checksum) together
+data class ReleaseInfo(
+    val changelog: String,
+    val apkDownloadUrl: String?,
+    val sha256Checksum: String?
+)
 
 /**
  * Pulls the latest version tag (tag_name) from the GitHub API.
@@ -55,6 +61,33 @@ fun isNewerVersion(remoteVersion: String, currentVersion: String): Boolean {
         if (r < c) return false
     }
     return false
+}
+
+suspend fun getLatestReleaseInfo(): ReleaseInfo? = withContext(Dispatchers.IO) {
+    try {
+        val url = URL("https://api.github.com/repos/RRechz/AirNote/releases/latest")
+        val connection = url.openConnection()
+        connection.connect()
+        val json = connection.getInputStream().bufferedReader().use { it.readText() }
+        val jsonObject = JSONObject(json)
+
+        val changelog = jsonObject.optString("body", "Değişiklik günlüğü alınamadı.")
+        val checksum = changelog.lines().find { it.startsWith("SHA-256:") }?.substringAfter(":")?.trim() // Find and extract the checksum from changelog
+
+        // ---> Find APK download link
+        val assets = jsonObject.getJSONArray("assets")
+        var apkUrl: String? = null
+        if (assets.length() > 0) {
+            val asset = assets.getJSONObject(0) // Genellikle ilk asset APK olur.
+            apkUrl = asset.optString("browser_download_url")
+        }
+        // <---
+
+        ReleaseInfo(changelog, apkUrl, checksum)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }
 
 /**

@@ -1,3 +1,51 @@
-# Default ignored files
-/shelf/
-/workspace.xml
+# =================================================================
+# This file is a standard .gitignore file recommended by Android Studio.
+# The most critical line to solve your problem is the ‘/build/’ line.
+# =================================================================
+
+# Files and folders created
+# =================================
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+/build/
+/app/build/
+
+# Local setting files - Never share these files!
+# =====================================================
+local.properties
+.gradle/
+captures/
+.DS_Store
+
+# Log files
+# =================
+*.log
+
+# IDE files (IntelliJ, Android Studio)
+# ========================================
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/runConfigurations/
+.idea/workspace.xml
+out/
+
+# Gradle Wrapper files (no need to add the jar)
+# ===================================================
+!gradle/wrapper/gradle-wrapper.jar
+!gradle-wrapper.jar
+!gradlew
+!gradlew.bat
+
+# HTML Reports (as an extra precaution)
+# ===================================
+*.html
+*.json
+*.xml
