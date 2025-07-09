@@ -219,6 +219,7 @@
 
     <!-- Gemini Repository Strings-->
     <string name="update_card_release_notes_title">Yenilikler</string>
+    <string name="error_message_image_analysis_failed">Görüntü analizi sırasında bir hata oluştu.</string>
     <string name="ai_action_improve_writing">Yazımı İyileştir</string>
     <string name="ai_action_summarize">Özetle</string>
     <string name="ai_action_make_shorter">Daha Kısa Yap</string>
@@ -238,6 +239,7 @@
     <string name="ai_command_simpler_subtitle">İçe aktarılanlar için önerilri</string>
     <string name="ai_command_title">Başlık Öner</string>
 
+    <string name="create_note_from_object">Resimden Notlar Alın</string>
     <string name="ai_prompt_for_draft_topic">Harika, ne hakkında bir taslak oluşturalım? Lütfen konuyu yazın.</string>
 
     <string name="prompt_improve_writing">Aşağıdaki metindeki dilbilgisi ve anlatım hatalarını düzelterek daha akıcı hale getir. Sadece düzeltilmiş metni cevap olarak ver:\n\n---\n\n%1$s</string>
@@ -283,4 +285,5 @@
     <string name="update_card_up_to_date_icon_description">Güncellendi</string>
     <string name="update_card_install_permission_needed">Güncelleme bilinmeyen kaynaklardan yükleme izni gerektirir.</string>
     <string name="update_card_download_link_not_found">İndirme linki bulunamadı.</string>
+    <string name="prompt_airnote_ai_analyzeimage">Bu ekteki resmi Sherlock Holmes gibi analiz edin ve içeriğini açıklayan bir not oluşturun. Cevabınız, başlık ve içerik arasında net bir ayrım yaparak ‘BAŞLIK:’ ve ‘İÇERİK:’ içermelidir.</string>
 </resources>
