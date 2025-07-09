@@ -4,6 +4,7 @@
 
 package com.babelsoftware.airnote.data.repository
 
+import android.graphics.Bitmap
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
 import com.babelsoftware.airnote.domain.model.ChatMessage
@@ -214,4 +215,40 @@ class GeminiRepository @Inject constructor(
         }
     }
     // <---
+
+    /**
+     * Creates a note draft from Gemini using a given image and command.
+     */
+    suspend fun generateDraftFromImage(
+        prompt: String,
+        image: Bitmap,
+        apiKey: String
+    ): String? {
+        val currentSettings = settingsRepository.settings.first()
+
+        if (apiKey.isBlank()) {
+            return stringProvider.getString(R.string.error_no_user_api_key)
+        }
+
+        val generativeModel = GenerativeModel(
+            modelName = currentSettings.selectedModelName,
+            apiKey = apiKey,
+            generationConfig = generationConfig {
+                temperature = 0.7f
+            }
+        )
+
+        val inputContent = content {
+            image(image)
+            text(prompt)
+        }
+
+        return try {
+            val response = generativeModel.generateContent(inputContent)
+            response.text
+        } catch (e: Exception) {
+            e.printStackTrace()
+            stringProvider.getString(R.string.error_api_request_failed, e.message ?: "Bilinmeyen Hata")
+        }
+    }
 }

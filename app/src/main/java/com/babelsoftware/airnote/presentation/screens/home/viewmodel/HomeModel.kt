@@ -1,9 +1,14 @@
 package com.babelsoftware.airnote.presentation.screens.home.viewmodel
 
 import android.content.Context
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.ImageSearch
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
@@ -27,16 +32,15 @@ import com.babelsoftware.airnote.presentation.components.DecryptionResult
 import com.babelsoftware.airnote.presentation.components.EncryptionHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,7 +48,8 @@ import javax.inject.Inject
 data class DraftedNote(
     val topic: String,
     val title: String,
-    val content: String
+    val content: String,
+    val sourceImageUri: Uri? = null
 )
 // <---
 
@@ -68,6 +73,9 @@ class HomeViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val secureStorageRepository: SecureStorageRepository
 ) : ViewModel() {
+    sealed class UiAction {
+        object RequestImageForAnalysis : UiAction()
+    }
     var selectedNotes = mutableStateListOf<Note>()
 
     private var _isDeleteMode = mutableStateOf(false)
@@ -117,6 +125,9 @@ class HomeViewModel @Inject constructor(
     private val _chatState = mutableStateOf(ChatState())
     val chatState: State<ChatState> = _chatState
 
+    private val _uiActionChannel = Channel<UiAction>()
+    val uiActionChannel = _uiActionChannel.receiveAsFlow()
+
     val suggestions: List<AiSuggestion> = listOf(
         AiSuggestion(
             title = stringProvider.getString(R.string.ask_ai),
@@ -132,6 +143,11 @@ class HomeViewModel @Inject constructor(
             title = stringProvider.getString(R.string.generate_ideas),
             icon = Icons.Rounded.AutoAwesome,
             action = { sendMessage(stringProvider.getString(R.string.generate_ideas_prompt)) }
+        ),
+        AiSuggestion(
+            title = stringProvider.getString(R.string.create_note_from_object),
+            icon = Icons.Rounded.ImageSearch,
+            action = { requestImageForAnalysis() },
         )
         // TODO New suggestions can be added here...
     )
@@ -251,10 +267,92 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    // This function sends a “open visual selector” command to the UI
+    fun requestImageForAnalysis() {
+        viewModelScope.launch {
+            _uiActionChannel.send(UiAction.RequestImageForAnalysis)
+        }
+    }
+
+    // This function is called after selecting the image from the UI
+    fun analyzeImageAndCreateDraft(imageUri: Uri) {
+        val prompt = stringProvider.getString(R.string.prompt_airnote_ai_analyzeimage)
+
+        // Yükleme arayüzünü başlat
+        _chatState.value = _chatState.value.copy(
+            latestDraft = null,
+            messages = listOf(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true))
+        )
+
+        viewModelScope.launch {
+            val apiKey = getApiKeyToUse()
+
+            // Convert URI to Bitmap
+            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, imageUri))
+            } else {
+                @Suppress("DEPRECATION")
+                MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
+            }
+
+            val result = geminiRepository.generateDraftFromImage(prompt, bitmap, apiKey)
+
+            if (result != null) {
+                var title = ""
+                var content = ""
+
+                // ---> Extract header and content with Regex or simple string operations
+                val titleRegex = """(TİTLE:|\*\*TİTLE:\*\*)\s*(.*)""".toRegex(RegexOption.IGNORE_CASE)
+                val contentRegex = """(CONTENT:|\*\*CONTENT:\*\*)\s*(.*)""".toRegex(RegexOption.IGNORE_CASE)
+                // <---
+
+                val titleMatch = titleRegex.find(result)
+                val contentMatch = contentRegex.find(result)
+
+                if (titleMatch != null && contentMatch != null) {
+                    // If both title and content are found clearly
+                    title = titleMatch.groupValues[2].trim()
+                    content = result.substring(contentMatch.range.first + contentMatch.value.length).trim()
+                } else {
+                    // If the format cannot be found exactly, divide the answer wisely
+                    val lines = result.lines()
+                    title = lines.firstOrNull() ?: "İsimsiz Not"
+                    content = lines.drop(1).joinToString("\n").trim()
+                }
+
+                _chatState.value = _chatState.value.copy(
+                    messages = emptyList(),
+                    latestDraft = DraftedNote(
+                        topic = prompt,
+                        title = title.cleanMarkdown(),
+                        content = content.cleanMarkdown(),
+                        sourceImageUri = imageUri
+                    )
+                )
+            } else {
+                // Hata durumunu yönet
+                val finalMessages = listOf(
+                    ChatMessage(
+                        text = stringProvider.getString(R.string.error_message_image_analysis_failed),
+                        participant = Participant.ERROR
+                    )
+                )
+                _chatState.value = _chatState.value.copy(messages = finalMessages)
+            }
+        }
+    }
+
     fun regenerateDraft() {
-        val topic = _chatState.value.latestDraft?.topic ?: return
-        _chatState.value = _chatState.value.copy(latestDraft = null) // Clear previous draft
-        generateDraft(topic) // Re-create with the same issue
+        val draft = _chatState.value.latestDraft ?: return
+        _chatState.value = _chatState.value.copy(latestDraft = null)
+
+        if (draft.sourceImageUri != null) {
+            // If the draft was created from an image, analyze it again with the same image
+            analyzeImageAndCreateDraft(draft.sourceImageUri)
+        } else {
+            // Otherwise, re-create text-based
+            generateDraft(draft.topic)
+        }
     }
 
     fun resetChatState() {
@@ -413,4 +511,8 @@ class HomeViewModel @Inject constructor(
     fun observeNotes() {
         noteUseCase.observe()
     }
+}
+
+private fun String.cleanMarkdown(): String {
+    return this.replace(Regex("[*#]"), "").trim()
 }

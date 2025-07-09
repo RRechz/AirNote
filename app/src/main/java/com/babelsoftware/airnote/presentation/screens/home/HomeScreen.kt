@@ -1,5 +1,8 @@
 package com.babelsoftware.airnote.presentation.screens.home
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -20,7 +23,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -48,12 +50,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Alarm
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Checklist
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.FolderOpen
-import androidx.compose.material.icons.filled.SettingsRemote
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Search
@@ -72,7 +70,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -110,6 +107,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.domain.model.AiSuggestion
 import com.babelsoftware.airnote.domain.model.ChatMessage
@@ -156,6 +154,26 @@ fun HomeView (
     val settings = settingsModel.settings.value
     val selectedFolderId = viewModel.selectedFolderId.value
     val context = LocalContext.current
+    // ---> Image Picker (Photo Picker)
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            if (uri != null) {
+                viewModel.analyzeImageAndCreateDraft(uri)
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.uiActionChannel.collect { action ->
+            when (action) {
+                is HomeViewModel.UiAction.RequestImageForAnalysis -> {
+                    imagePickerLauncher.launch("image/*")
+                }
+            }
+        }
+    }
+    // <---
 
     LaunchedEffect(key1 = Unit) {
         settingsModel.checkForNewUpdate(context)
@@ -276,6 +294,7 @@ fun HomeView (
                                     text = ""
                                 }
                             },
+                            onImagePickerClicked = { viewModel.requestImageForAnalysis() },
                             enabled = !isLoading
                         )
                     }
@@ -290,7 +309,8 @@ fun HomeView (
                                 viewModel.sendMessage(message)
                             }
                         },
-                        suggestions = viewModel.suggestions
+                        suggestions = viewModel.suggestions,
+                        viewModel = viewModel
                     )
                 }
             }
@@ -606,7 +626,10 @@ private fun NotesSearchBar(
     SearchBar(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = if (settingsModel.settings.value.makeSearchBarLonger) 16.dp else 36.dp, vertical =  8.dp),
+            .padding(
+                horizontal = if (settingsModel.settings.value.makeSearchBarLonger) 16.dp else 36.dp,
+                vertical = 8.dp
+            ),
         query = query,
         placeholder = { Text(stringResource(R.string.search)) },
         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = "Search") },
@@ -772,7 +795,8 @@ fun ChatMessageItem(message: ChatMessage) {
                     TypingIndicator()
                 } else {
                     Text(
-                        text = message.text,
+                        // DEĞİŞİKLİK: Gelen metin ekrana basılmadan önce temizleniyor
+                        text = message.text.cleanMarkdown(),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -788,6 +812,7 @@ fun ChatInputBar(
     onValueChange: (String) -> Unit,
     isAwaitingTopic: Boolean,
     onSendMessage: () -> Unit,
+    onImagePickerClicked: () -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier,
     onFocusChanged: (isFocused: Boolean) -> Unit = {}
@@ -801,6 +826,14 @@ fun ChatInputBar(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Add image button
+        IconButton(onClick = onImagePickerClicked, enabled = enabled) {
+            Icon(
+                Icons.Default.Image,
+                contentDescription = "Add İmage",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         TextField(
             value = text,
             onValueChange = onValueChange,
@@ -850,7 +883,9 @@ fun ChatInputBar(
 
 @Composable
 fun DraftDisplay(draft: DraftedNote, onSave: () -> Unit, onRegenerate: () -> Unit) {
-    Column(modifier = Modifier.padding(16.dp).fillMaxSize()) {
+    Column(modifier = Modifier
+        .padding(16.dp)
+        .fillMaxSize()) {
         Text(text = draft.title, style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(modifier = Modifier.weight(1f)) {
@@ -886,7 +921,8 @@ fun NewAiScreen(
     isAwaitingTopic: Boolean,
     isLoading: Boolean,
     onSendMessage: (String) -> Unit,
-    suggestions: List<AiSuggestion>
+    suggestions: List<AiSuggestion>,
+    viewModel: HomeViewModel
 ) {
     var isFocused by remember { mutableStateOf(false) }
     var text by remember { mutableStateOf("") }
@@ -965,6 +1001,8 @@ fun NewAiScreen(
                 onSendMessage(text)
                 text = ""
             },
+            // DEĞİŞİKLİK: Tıklandığında ViewModel'deki fonksiyonu çağırmasını söylüyoruz
+            onImagePickerClicked = { viewModel.requestImageForAnalysis() },
             enabled = !isLoading,
             onFocusChanged = { focused ->
                 isFocused = focused
@@ -1134,4 +1172,8 @@ private fun TypingIndicator() {
         Dot(offsetY = yOffset2)
         Dot(offsetY = yOffset3)
     }
+}
+
+private fun String.cleanMarkdown(): String {
+    return this.replace(Regex("[*#]"), "").trim()
 }
