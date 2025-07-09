@@ -1,12 +1,28 @@
 package com.babelsoftware.airnote.presentation.screens.home
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,11 +31,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
@@ -28,7 +48,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Checklist
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.SettingsRemote
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Search
@@ -47,6 +72,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -69,8 +95,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -86,7 +121,6 @@ import com.babelsoftware.airnote.presentation.components.DeleteButton
 import com.babelsoftware.airnote.presentation.components.NotesScaffold
 import com.babelsoftware.airnote.presentation.components.PinButton
 import com.babelsoftware.airnote.presentation.components.SelectAllButton
-import com.babelsoftware.airnote.presentation.components.SettingsButton
 import com.babelsoftware.airnote.presentation.components.TitleText
 import com.babelsoftware.airnote.presentation.components.UpdateScreen
 import com.babelsoftware.airnote.presentation.components.VaultButton
@@ -104,6 +138,7 @@ import com.babelsoftware.airnote.presentation.screens.settings.settings.shapeMan
 import com.babelsoftware.airnote.presentation.theme.AiButtonColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -162,68 +197,100 @@ fun HomeView (
             },
             sheetState = sheetState,
             modifier = Modifier.fillMaxWidth(),
+            containerColor = Color.Transparent // Variable color for the AI window
         ) {
-            val chatState = viewModel.chatState.value
+            val isDark = isSystemInDarkTheme()
+            val gradientBrush = Brush.verticalGradient(
+                colors = if (isDark) {
+                    listOf(Color(0xFF282322), Color(0xFF121011))
+                } else {
+                    listOf(
+                        MaterialTheme.colorScheme.surfaceContainer,
+                        MaterialTheme.colorScheme.surfaceContainerLowest
+                    )
+                }
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(gradientBrush)
+            ) {
+                val chatState = viewModel.chatState.value
 
-            if (chatState.latestDraft != null) {
-                DraftDisplay(
-                    draft = chatState.latestDraft,
-                    onSave = { viewModel.saveDraftedNote() },
-                    onRegenerate = { viewModel.regenerateDraft() }
-                )
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    LazyColumn(
-                        modifier = Modifier.weight(1f),
-                        state = rememberLazyListState(
-                            initialFirstVisibleItemIndex = if (chatState.messages.isNotEmpty()) chatState.messages.size - 1 else 0
-                        )
-                    ) {
-                        items(chatState.messages) { message ->
-                            ChatMessageItem(message = message)
-                        }
-                    }
+                if (chatState.latestDraft != null) {
+                    DraftDisplay(
+                        draft = chatState.latestDraft,
+                        onSave = { viewModel.saveDraftedNote() },
+                        onRegenerate = { viewModel.regenerateDraft() }
+                    )
+                } else if (chatState.messages.isNotEmpty()) {
+                    var text by remember { mutableStateOf("") }
+                    val isLoading = chatState.messages.lastOrNull()?.isLoading == true
+                    val haptic = LocalHapticFeedback.current
+                    val listState = rememberLazyListState()
+                    val scope = rememberCoroutineScope()
 
-                    if (chatState.messages.isEmpty()) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 16.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.ai_welcome_message),
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.padding(bottom = 16.dp)
-                            )
-                            Text(
-                                text = stringResource(R.string.ai_suggestions_title),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 8.dp),
-                                textAlign = TextAlign.Start
-                            )
-                            viewModel.suggestions.forEach { suggestion ->
-                                SuggestionItem(suggestion = suggestion)
+                    LaunchedEffect(chatState.messages.size) {
+                        if (chatState.messages.isNotEmpty()) {
+                            scope.launch {
+                                listState.animateScrollToItem(chatState.messages.size - 1)
+                            }
+                            if (chatState.messages.last().participant == Participant.MODEL) {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             }
                         }
                     }
 
-                    ChatInputBar(
+                    Column(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = 8.dp),
+                            state = listState
+                        ) {
+                            items(chatState.messages) { message ->
+                                AnimatedVisibility(
+                                    visible = true,
+                                    enter = slideInHorizontally { fullWidth ->
+                                        if (message.participant == Participant.USER) fullWidth else -fullWidth
+                                    } + fadeIn()
+                                ) {
+                                    ChatMessageItem(message = message)
+                                }
+                            }
+                        }
+                        ChatInputBar(
+                            text = text,
+                            onValueChange = { text = it },
+                            isAwaitingTopic = chatState.isAwaitingDraftTopic,
+                            onSendMessage = {
+                                val messageToSend = text
+                                if (messageToSend.isNotBlank()) {
+                                    if (chatState.isAwaitingDraftTopic) {
+                                        viewModel.generateDraft(messageToSend)
+                                    } else {
+                                        viewModel.sendMessage(messageToSend)
+                                    }
+                                    text = ""
+                                }
+                            },
+                            enabled = !isLoading
+                        )
+                    }
+                } else {
+                    NewAiScreen(
                         isAwaitingTopic = chatState.isAwaitingDraftTopic,
+                        isLoading = chatState.messages.lastOrNull()?.isLoading == true,
                         onSendMessage = { message ->
                             if (chatState.isAwaitingDraftTopic) {
                                 viewModel.generateDraft(message)
                             } else {
                                 viewModel.sendMessage(message)
                             }
-                        }
+                        },
+                        suggestions = viewModel.suggestions
                     )
                 }
             }
@@ -687,7 +754,7 @@ private fun AskAiButton(
 fun ChatMessageItem(message: ChatMessage) {
     Row(
         modifier = Modifier
-            .padding(vertical = 8.dp)
+            .padding(vertical = 4.dp, horizontal = 8.dp)
             .fillMaxWidth(),
         horizontalArrangement = if (message.participant == Participant.USER) Arrangement.End else Arrangement.Start
     ) {
@@ -696,13 +763,13 @@ fun ChatMessageItem(message: ChatMessage) {
             color = when (message.participant) {
                 Participant.USER -> MaterialTheme.colorScheme.primaryContainer
                 Participant.MODEL -> MaterialTheme.colorScheme.surfaceVariant
-                Participant.ERROR -> MaterialTheme.colorScheme.errorContainer // Hata için farklı renk
+                Participant.ERROR -> MaterialTheme.colorScheme.errorContainer
             },
-            tonalElevation = 2.dp
+            tonalElevation = 1.dp
         ) {
             Box(modifier = Modifier.padding(12.dp)) {
                 if (message.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    TypingIndicator()
                 } else {
                     Text(
                         text = message.text,
@@ -717,22 +784,32 @@ fun ChatMessageItem(message: ChatMessage) {
 // Composable with text input field and submit button
 @Composable
 fun ChatInputBar(
+    text: String,
+    onValueChange: (String) -> Unit,
     isAwaitingTopic: Boolean,
-    onSendMessage: (String) -> Unit,
+    onSendMessage: () -> Unit,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    onFocusChanged: (isFocused: Boolean) -> Unit = {}
 ) {
     var text by remember { mutableStateOf("") }
+    val haptic = LocalHapticFeedback.current // HapticFeedback
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(
             value = text,
-            onValueChange = { text = it },
+            onValueChange = onValueChange,
             modifier = Modifier
-                .weight(1f),
+                .weight(1f)
+                .onFocusChanged { focusState ->
+                    onFocusChanged(focusState.isFocused)
+                },
+            enabled = enabled,
             placeholder = {
                 Text(if (isAwaitingTopic) "Taslak konusunu yazın..." else "Ask AirNote AI...")
             },
@@ -743,16 +820,30 @@ fun ChatInputBar(
             )
         )
         Spacer(modifier = Modifier.width(8.dp))
-        IconButton(
-            onClick = {
-                if (text.isNotBlank()) {
-                    onSendMessage(text)
-                    text = "" // Clear the field after sending the message
-                }
+        AnimatedContent(
+            targetState = enabled,
+            transitionSpec = {
+                (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                        scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+                    .togetherWith(fadeOut(animationSpec = tween(90)))
             },
-            enabled = text.isNotBlank()
-        ) {
-            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send message")
+            label = "send_button_animation"
+        ) { isEnabled ->
+            if (!isEnabled) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+            } else {
+                IconButton(
+                    onClick = {
+                        if (text.isNotBlank()) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onSendMessage()
+                        }
+                    },
+                    enabled = text.isNotBlank()
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send message")
+                }
+            }
         }
     }
 }
@@ -781,21 +872,266 @@ fun DraftDisplay(draft: DraftedNote, onSave: () -> Unit, onRegenerate: () -> Uni
     }
 }
 
+// =================================================================
+// === New AI Window Design ========================================
+// =================================================================
+
+/**
+ * Modern, theme compatible AI start screen with text input.
+ * @param isAwaitingTopic Information from ViewModel whether a draft topic is waiting.
+ * @param onSendMessage Lambda function to be triggered when the user sends a message.
+ */
 @Composable
-fun SuggestionItem(suggestion: AiSuggestion) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = suggestion.action)
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+fun NewAiScreen(
+    isAwaitingTopic: Boolean,
+    isLoading: Boolean,
+    onSendMessage: (String) -> Unit,
+    suggestions: List<AiSuggestion>
+) {
+    var isFocused by remember { mutableStateOf(false) }
+    var text by remember { mutableStateOf("") }
+    val suggestionAnimatables = List(6) { remember { mutableStateOf(false) } }
+
+    LaunchedEffect(Unit) {
+        suggestionAnimatables.forEachIndexed { index, state ->
+            delay(80L * index)
+            state.value = true
+        }
+    }
+
+    val backgroundAlpha by animateFloatAsState(
+        targetValue = if (isFocused) 0.4f else 1.0f,
+        animationSpec = tween(durationMillis = 400),
+        label = "background_alpha"
+    )
+    val backgroundScale by animateFloatAsState(
+        targetValue = if (isFocused) 0.95f else 1.0f,
+        animationSpec = tween(durationMillis = 400),
+        label = "background_scale"
+    )
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Icon(
-            imageVector = suggestion.icon,
-            contentDescription = suggestion.title,
-            tint = MaterialTheme.colorScheme.primary
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .graphicsLayer {
+                    alpha = backgroundAlpha
+                    scaleX = backgroundScale
+                    scaleY = backgroundScale
+                },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            WavyGraphic(isLoading = isLoading)
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Bugün size nasıl yardımcı olabilirim?",
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 32.dp)
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.padding(horizontal = 24.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp)
+            ) {
+                itemsIndexed(suggestions) { index, suggestion ->
+                    AnimatedVisibility(
+                        visible = suggestionAnimatables.getOrElse(index) { mutableStateOf(false) }.value,
+                        enter = slideInVertically { it / 2 } + fadeIn(),
+                    ) {
+                        ModernSuggestionChip(
+                            text = suggestion.title,
+                            icon = suggestion.icon,
+                            onClick = { onSendMessage(suggestion.title) }
+                        )
+                    }
+                }
+            }
+        }
+        ChatInputBar(
+            text = text,
+            onValueChange = { text = it },
+            isAwaitingTopic = isAwaitingTopic,
+            onSendMessage = {
+                onSendMessage(text)
+                text = ""
+            },
+            enabled = !isLoading,
+            onFocusChanged = { focused ->
+                isFocused = focused
+            }
         )
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(text = suggestion.title, style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
+/**
+ * Draws a static graph representing the wavy animation in the design.
+ * A more advanced Canvas implementation is required for a performant animation.
+ */
+@Composable
+fun WavyGraphic(isLoading: Boolean) {
+    val infiniteTransition = rememberInfiniteTransition(label = "rgb_wave_transition")
+    val animatedHue by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 10000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ), label = "hue_animation"
+    )
+
+    val pulsingAlpha = if (isLoading) {
+        val pulseTransition = rememberInfiniteTransition(label = "pulse_alpha_transition")
+        pulseTransition.animateFloat(
+            initialValue = 0.6f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(tween(1200), RepeatMode.Reverse),
+            label = "pulse_alpha"
+        ).value
+    } else {
+        1.0f
+    }
+
+    val animatedColor = Color.hsl(hue = animatedHue, saturation = 0.7f, lightness = 0.6f)
+
+    Box(
+        modifier = Modifier
+            .height(150.dp)
+            .fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val strokeWidth = 4.dp.toPx()
+            val path = Path().apply {
+                moveTo(0f, size.height * 0.7f)
+                quadraticBezierTo(size.width * 0.25f, size.height * 0.2f, size.width * 0.5f, size.height * 0.6f)
+                quadraticBezierTo(size.width * 0.75f, size.height * 1.0f, size.width, size.height * 0.5f)
+            }
+            drawPath(
+                path = path,
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        animatedColor.copy(alpha = 0.3f * pulsingAlpha),
+                        animatedColor.copy(alpha = 1.0f * pulsingAlpha),
+                        animatedColor.copy(alpha = 0.3f * pulsingAlpha)
+                    )
+                ),
+                style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+            )
+
+            val path2 = Path().apply {
+                moveTo(0f, size.height * 0.5f)
+                quadraticBezierTo(size.width * 0.25f, size.height * 1.0f, size.width * 0.5f, size.height * 0.6f)
+                quadraticBezierTo(size.width * 0.75f, size.height * 0.2f, size.width, size.height * 0.7f)
+            }
+            drawPath(
+                path = path2,
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        animatedColor.copy(alpha = 1.0f * pulsingAlpha),
+                        animatedColor.copy(alpha = 0.4f * pulsingAlpha),
+                        animatedColor.copy(alpha = 1.0f * pulsingAlpha)
+                    )
+                ),
+                style = Stroke(width = strokeWidth + 2.dp.toPx(), cap = StrokeCap.Round)
+            )
+        }
+    }
+}
+
+
+/**
+ * Modern suggestion button (chip) with icon and text, suitable for design.
+ */
+@Composable
+fun ModernSuggestionChip(text: String, icon: ImageVector, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = text,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = text,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
+
+/**
+ * Shows a “typing...” animation with three dots jumping in sequence.
+ */
+@Composable
+private fun TypingIndicator() {
+    val transition = rememberInfiniteTransition(label = "typing_indicator_transition")
+    val dotSize = 8.dp
+    val dotSpacing = 12.dp
+
+    @Composable
+    fun Dot(offsetY: Float) {
+        Box(
+            modifier = Modifier
+                .size(dotSize)
+                .offset(y = offsetY.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    shape = CircleShape
+                )
+        )
+    }
+
+    val yOffset1 by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = -10f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(400, easing = LinearOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ), label = "dot1_offset"
+    )
+    val yOffset2 by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = -10f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(400, easing = LinearOutSlowInEasing, delayMillis = 150),
+            repeatMode = RepeatMode.Reverse
+        ), label = "dot2_offset"
+    )
+    val yOffset3 by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = -10f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(400, easing = LinearOutSlowInEasing, delayMillis = 300),
+            repeatMode = RepeatMode.Reverse
+        ), label = "dot3_offset"
+    )
+
+    Row(
+        modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(dotSpacing)
+    ) {
+        Dot(offsetY = yOffset1)
+        Dot(offsetY = yOffset2)
+        Dot(offsetY = yOffset3)
     }
 }
