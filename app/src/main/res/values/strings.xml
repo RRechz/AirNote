@@ -234,6 +234,7 @@
     <string name="update_card_release_notes_title">Innovations</string>
     <string name="save_note">Save Note</string>
     <string name="regenerate_note">Re-Generate</string>
+    <string name="error_message_image_analysis_failed">An error occurred during image analysis.</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>
@@ -254,6 +255,7 @@
     <string name="ai_command_simpler">Tell It Simpler</string>
     <string name="ai_command_simpler_subtitle">Recommended for imported files</string>
     <string name="ai_command_title">Suggest Title</string>
+    <string name="create_note_from_object">Take Notes from the Image</string>
 
     <string name="ai_prompt_for_draft_topic">Great, what should we create a draft about? Please write the topic.</string>
 
@@ -277,4 +279,5 @@
     <string name="prompt_assistant_suggest_title">Suggest 5 creative and attention-grabbing titles that best fit the content of the text below. Give your answer as a numbered list:\n\n---\n\n%1$s</string>
 
     <string name="prompt_assistant_draft_anything">A user wants to draft a note about the topic \"%1$s\". You MUST give your answer in the following format: TITLE: [insert title here]\n\nCONTENT: [insert note content here]</string>
+    <string name="prompt_airnote_ai_analyzeimage">Analyze the image in this attachment like Sherlock Holmes and create a note describing its content. Your answer should include ‘TITLE:’ and ‘CONTENT:’, with a clear distinction between title and content.</string>
 </resources>
