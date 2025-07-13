@@ -32,6 +32,8 @@ data class Settings(
     var fontSize: Int = 13,
     val showFolderIndicator: Boolean = false,
     val useAirNoteApi: Boolean = false, // AirNote API will use your API by default
-    val selectedModelName: String = "gemini-2.0-flash-001"
+    val selectedModelName: String = "gemini-2.0-flash-001",
+    val desktopModeEnabled: Boolean = true,
+    val desktopModeAiEnabled: Boolean = true
 )
 

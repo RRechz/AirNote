@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.DesktopWindows
 import androidx.compose.material.icons.rounded.TextFields
 import androidx.compose.material.icons.rounded.Work
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -119,6 +120,16 @@ fun MainSettings(settingsViewModel: SettingsViewModel, navController: NavControl
                         isFirst = true
                     ),
                     action = { navController.navigate(NavRoutes.ColorStyles.route) },
+                    settingsViewModel = settingsViewModel
+                )
+            }
+            item {
+                SettingCategory(
+                    title = "Desktop Mode (BETA)",
+                    subTitle = "Change UI · Desktop AI control",
+                    icon = Icons.Rounded.DesktopWindows,
+                    shape = shapeManager(radius = settingsViewModel.settings.value.cornerRadius),
+                    action = { navController.navigate(NavRoutes.DesktopModeSettings.route) },
                     settingsViewModel = settingsViewModel
                 )
             }

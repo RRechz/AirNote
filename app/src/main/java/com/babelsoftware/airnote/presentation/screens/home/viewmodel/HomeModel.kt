@@ -13,11 +13,12 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
+import com.babelsoftware.airnote.data.repository.AiAction
+import com.babelsoftware.airnote.data.repository.AiTone
 import com.babelsoftware.airnote.data.repository.GeminiRepository
 import com.babelsoftware.airnote.data.repository.SecureStorageRepository
 import com.babelsoftware.airnote.domain.model.AiSuggestion
@@ -38,6 +39,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -93,8 +95,8 @@ class HomeViewModel @Inject constructor(
     private val _isMoveToFolderDialogVisible = mutableStateOf(false)
     val isMoveToFolderDialogVisible: State<Boolean> = _isMoveToFolderDialogVisible
 
-    private var _searchQuery = mutableStateOf("")
-    val searchQuery: State<String> = _searchQuery
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     private val _selectedFolderId = MutableStateFlow<Long?>(null)
     val selectedFolderId: StateFlow<Long?> = _selectedFolderId.asStateFlow()
@@ -108,12 +110,24 @@ class HomeViewModel @Inject constructor(
     private val _folderToEdit = mutableStateOf<Folder?>(null)
     val folderToEdit: State<Folder?> = _folderToEdit
 
+    private val _noteForAction = mutableStateOf<Note?>(null)
+    val noteForAction: State<Note?> = _noteForAction
+
     private val _uiEvent = Channel<String>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private suspend fun getApiKeyToUse(): String {
         return secureStorageRepository.getUserApiKey() ?: ""
     }
+
+    // ---> Desktop Mode State
+    private val _selectedNote = MutableStateFlow<Note?>(null)
+    val selectedNote: StateFlow<Note?> = _selectedNote.asStateFlow()
+
+    fun selectNote(note: Note?) {
+        _selectedNote.value = note
+    }
+    // <---
 
     // --- Global AI Chat States ---
     private val _isAiChatSheetVisible = mutableStateOf(false)
@@ -128,29 +142,30 @@ class HomeViewModel @Inject constructor(
     private val _uiActionChannel = Channel<UiAction>()
     val uiActionChannel = _uiActionChannel.receiveAsFlow()
 
-    val suggestions: List<AiSuggestion> = listOf(
-        AiSuggestion(
-            title = stringProvider.getString(R.string.ask_ai),
-            icon = Icons.Rounded.Search,
-            action = { /* TODO: Question asking logic will be added */ }
-        ),
-        AiSuggestion(
-            title = stringProvider.getString(R.string.make_note),
-            icon = Icons.Rounded.Edit,
-            action = { onDraftAnythingClicked() }
-        ),
-        AiSuggestion(
-            title = stringProvider.getString(R.string.generate_ideas),
-            icon = Icons.Rounded.AutoAwesome,
-            action = { sendMessage(stringProvider.getString(R.string.generate_ideas_prompt)) }
-        ),
-        AiSuggestion(
-            title = stringProvider.getString(R.string.create_note_from_object),
-            icon = Icons.Rounded.ImageSearch,
-            action = { requestImageForAnalysis() },
+    val suggestions: List<AiSuggestion> by lazy {
+        listOf(
+            AiSuggestion(
+                title = stringProvider.getString(R.string.ask_ai),
+                icon = Icons.Rounded.Search,
+                action = { /* TODO */ }
+            ),
+            AiSuggestion(
+                title = stringProvider.getString(R.string.make_note),
+                icon = Icons.Rounded.Edit,
+                action = { onDraftAnythingClicked() }
+            ),
+            AiSuggestion(
+                title = stringProvider.getString(R.string.generate_ideas),
+                icon = Icons.Rounded.AutoAwesome,
+                action = { sendMessage(stringProvider.getString(R.string.generate_ideas_prompt)) }
+            ),
+            AiSuggestion(
+                title = stringProvider.getString(R.string.create_note_from_object),
+                icon = Icons.Rounded.ImageSearch,
+                action = { requestImageForAnalysis() },
+            )
         )
-        // TODO New suggestions can be added here...
-    )
+    }
 
     // --- Global AI Chat States | END ---
 
@@ -399,14 +414,24 @@ class HomeViewModel @Inject constructor(
         combine(
             noteUseCase.getAllNotes(),
             selectedFolderId,
-            isVaultMode
-        ) { allNotes, folderId, isVault ->
+            isVaultMode,
+            searchQuery
+        ) { allNotes: List<Note>, folderId: Long?, isVault: Boolean, query: String ->
             val notesAfterFolderFilter = if (folderId == null) {
                 allNotes
             } else {
                 allNotes.filter { it.folderId == folderId }
             }
-            notesAfterFolderFilter.filter { it.encrypted == isVault }
+            val notesAfterVaultFilter = notesAfterFolderFilter.filter { it.encrypted == isVault }
+
+            if (query.isBlank()) {
+                notesAfterVaultFilter
+            } else {
+                notesAfterVaultFilter.filter { note ->
+                    note.name.contains(query, ignoreCase = true) ||
+                            note.description.contains(query, ignoreCase = true)
+                }
+            }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     init {
@@ -435,6 +460,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun changeSearchQuery(newValue: String) {
+        selectNote(null)
         _searchQuery.value = newValue
     }
 
@@ -455,9 +481,9 @@ class HomeViewModel @Inject constructor(
     }
 
     fun selectFolder(folderId: Long?) {
+        selectNote(null)
         _selectedFolderId.value = folderId
     }
-
     fun addFolder(name: String, color: String) {
         viewModelScope.launch {
             folderUseCase.addFolder(Folder(name = name, color = color))
@@ -492,6 +518,37 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun updateNoteDetails(noteToUpdate: Note, newName: String, newDescription: String) {
+        viewModelScope.launch {
+            val updatedNote = noteToUpdate.copy(name = newName, description = newDescription)
+            noteUseCase.addNote(updatedNote)
+        }
+    }
+
+    fun onNoteLongPressed(note: Note) {
+        _noteForAction.value = note
+    }
+
+    fun onDismissNoteAction() {
+        _noteForAction.value = null
+    }
+
+    fun deleteNoteAction() {
+        _noteForAction.value?.let { noteToDelete ->
+            deleteNoteById(noteToDelete.id)
+        }
+        onDismissNoteAction()
+    }
+
+    fun requestMoveNoteAction() {
+        _noteForAction.value?.let { noteToMove ->
+            selectedNotes.clear()
+            selectedNotes.add(noteToMove)
+            setMoveToFolderDialogVisibility(true)
+        }
+        onDismissNoteAction()
+    }
+
     fun updateFolder(name: String, color: String) {
         _folderToEdit.value?.let { folder ->
             viewModelScope.launch {
@@ -510,6 +567,48 @@ class HomeViewModel @Inject constructor(
 
     fun observeNotes() {
         noteUseCase.observe()
+    }
+
+    /**
+     * Creates a new, blank note for Desktop mode and instantly makes it selected.
+     */
+    fun createNewNoteForDesktop() {
+        viewModelScope.launch {
+            val targetFolderId = _selectedFolderId.value
+            val newNote = Note(
+                name = "Untitled Note",
+                description = "",
+                folderId = targetFolderId,
+                encrypted = isVaultMode.value
+            )
+            noteUseCase.addNote(newNote)
+
+            val latestNote = noteUseCase.getAllNotes().first().maxByOrNull { it.createdAt }
+            if (latestNote != null) {
+                selectNote(latestNote)
+            }
+        }
+    }
+
+    /**
+     * In Desktop mode, runs AI actions on the selected note.
+     */
+    fun executeDesktopAiAction(action: AiAction, tone: AiTone? = null) {
+        val currentNote = _selectedNote.value ?: return
+        val currentDescription = currentNote.description
+
+        viewModelScope.launch {
+            val result = geminiRepository.processAiAction(
+                action = action,
+                text = currentDescription,
+                tone = tone,
+                apiKey = getApiKeyToUse()
+            )
+
+            if (result != null) {
+                updateNoteDetails(currentNote, currentNote.name, result)
+            }
+        }
     }
 }
 

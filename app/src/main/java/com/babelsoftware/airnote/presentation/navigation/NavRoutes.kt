@@ -12,6 +12,7 @@ import com.babelsoftware.airnote.presentation.screens.settings.settings.Markdown
 import com.babelsoftware.airnote.presentation.screens.settings.settings.PrivacyScreen
 import com.babelsoftware.airnote.presentation.screens.settings.settings.SupportScreen
 import com.babelsoftware.airnote.presentation.screens.settings.AirNoteAiSettingsScreen
+import com.babelsoftware.airnote.presentation.screens.settings.settings.DesktopModeSettingsScreen
 import com.babelsoftware.airnote.presentation.screens.settings.settings.ToolsScreen
 
 enum class ActionType {
@@ -25,7 +26,6 @@ sealed class NavRoutes(val route: String) {
     data object Edit : NavRoutes("edit_note_screen/{id}/{encrypted}?folderId={folderId}") {
         fun createRoute(id: Int, encrypted: Boolean, folderId: Long? = null): String {
             val baseRoute = "edit_note_screen/$id/$encrypted"
-            // folderId null değilse, onu rotaya bir sorgu parametresi olarak ekle
             return if (folderId != null) {
                 "$baseRoute?folderId=$folderId"
             } else {
@@ -46,6 +46,8 @@ sealed class NavRoutes(val route: String) {
     data object About : NavRoutes("settings/about")
     data object Support : NavRoutes("settings/support")
     data object AirNoteAiSettings : NavRoutes("settings/ai_settings")
+    data object DesktopMode : NavRoutes("settings/desktop_mode")
+    data object DesktopModeSettings : NavRoutes("settings/desktop_mode_settings")
     data object LockScreen : NavRoutes("settings/lock/{type}") {
         fun createRoute(action: ActionType?) = "settings/lock/$action"
     }
@@ -78,5 +80,8 @@ val settingScreens = mapOf<String, @Composable (settingsViewModel: SettingsViewM
     NavRoutes.Support.route to { settings, navController -> SupportScreen(navController, settings) },
     NavRoutes.AirNoteAiSettings.route to { settings, navController ->
         AirNoteAiSettingsScreen(navController, settings)
+    },
+    NavRoutes.DesktopModeSettings.route to { settings, navController ->
+        DesktopModeSettingsScreen(navController, settings)
     }
 )

@@ -2,6 +2,7 @@ package com.babelsoftware.airnote.presentation.navigation
 
 import android.app.Activity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -11,7 +12,6 @@ import androidx.navigation.navArgument
 import com.babelsoftware.airnote.presentation.screens.edit.EditNoteView
 import com.babelsoftware.airnote.presentation.screens.home.HomeView
 import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsViewModel
-import com.babelsoftware.airnote.presentation.screens.settings.settings.lock.LockScreen
 import com.babelsoftware.airnote.presentation.screens.terms.TermsScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -22,6 +22,7 @@ import kotlinx.coroutines.runBlocking
 fun AppNavHost(settingsModel: SettingsViewModel, navController: NavHostController = rememberNavController(), noteId: Int, defaultRoute: String) {
 
     val activity = (LocalContext.current as? Activity)
+    val settings by settingsModel.settings
     val startRoute = if (defaultRoute != NavRoutes.LockScreen.route && noteId != -1) NavRoutes.Edit.route else defaultRoute
 
     NavHost(navController, startDestination = startRoute) {
@@ -38,7 +39,8 @@ fun AppNavHost(settingsModel: SettingsViewModel, navController: NavHostControlle
                     )
                 },
                 settingsModel = settingsModel,
-                onNavigateToAbout = { navController.navigate(NavRoutes.About.route) }
+                settings = settings,
+                onNavigateToAbout = { navController.navigate(NavRoutes.About.route) },
             )
         }
 

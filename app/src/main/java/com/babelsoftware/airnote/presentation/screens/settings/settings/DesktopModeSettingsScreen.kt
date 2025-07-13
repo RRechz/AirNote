@@ -14,7 +14,6 @@ import com.babelsoftware.airnote.presentation.screens.settings.widgets.SettingsB
 
 @Composable
 fun DesktopModeSettingsScreen(navController: NavController, settingsViewModel: SettingsViewModel) {
-    // Mevcut `SettingsScaffold` yapınızı kullanarak tutarlı bir görünüm elde ediyoruz.
     SettingsScaffold(
         settingsViewModel = settingsViewModel,
         title = "Desktop Mode",
@@ -22,11 +21,10 @@ fun DesktopModeSettingsScreen(navController: NavController, settingsViewModel: S
     ) {
         LazyColumn {
             item {
-                // Bu, masaüstü modunu tamamen açıp kapatan anahtar
                 SettingsBox(
                     settingsViewModel = settingsViewModel,
-                    title = "Masaüstü Modunu Etkinleştir",
-                    description = "Geniş ekranlarda yatay modda masaüstü arayüzünü kullan.",
+                    title = "Desktop UI Mode",
+                    description = "Use the desktop interface in landscape mode on large screens.",
                     icon = IconResource.Vector(Icons.Rounded.DesktopWindows),
                     radius = shapeManager(
                         radius = settingsViewModel.settings.value.cornerRadius,
@@ -44,11 +42,10 @@ fun DesktopModeSettingsScreen(navController: NavController, settingsViewModel: S
                 )
             }
             item {
-                // Bu, sadece masaüstü modundaki AI özelliklerini kontrol eden anahtar
                 SettingsBox(
                     settingsViewModel = settingsViewModel,
-                    title = "Yapay Zeka Özellikleri",
-                    description = "Masaüstü modunda yapay zeka asistanını ve özelliklerini etkinleştir.",
+                    title = "Desktop AI Features",
+                    description = "Activate the AI assistant and its features in desktop mode.",
                     icon = IconResource.Vector(Icons.Rounded.AutoAwesome),
                     radius = shapeManager(
                         radius = settingsViewModel.settings.value.cornerRadius,
