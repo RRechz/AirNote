@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.InstallMobile
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Build
+import androidx.compose.material.icons.rounded.DesktopWindows
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Info
@@ -118,8 +119,20 @@ fun AboutScreen(
                 SettingsBox(
                     settingsViewModel = settingsViewModel,
                     title = "AirNote AI Version",
-                    description = "v1.1.2 build v0.9.0",
+                    description = "v1.1.3 build v0.9.0",
                     icon = IconResource.Vector(Icons.Rounded.AutoAwesome),
+                    actionType = ActionType.TEXT,
+                    radius = shapeManager(
+                        radius = settingsViewModel.settings.value.cornerRadius
+                    ),
+                )
+            }
+            item {
+                SettingsBox(
+                    settingsViewModel = settingsViewModel,
+                    title = "Desktop UI Version",
+                    description = "v0.1.0-beta",
+                    icon = IconResource.Vector(Icons.Rounded.DesktopWindows),
                     actionType = ActionType.TEXT,
                     radius = shapeManager(
                         radius = settingsViewModel.settings.value.cornerRadius
