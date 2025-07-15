@@ -235,6 +235,8 @@
     <string name="save_note">Save Note</string>
     <string name="regenerate_note">Re-Generate</string>
     <string name="error_message_image_analysis_failed">An error occurred during image analysis.</string>
+    <string name="about_update_news">What\'s New</string>
+    <string name="about_latest_changes">Latest changes</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>
