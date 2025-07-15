@@ -78,7 +78,7 @@ suspend fun getLatestReleaseInfo(): ReleaseInfo? = withContext(Dispatchers.IO) {
         val assets = jsonObject.getJSONArray("assets")
         var apkUrl: String? = null
         if (assets.length() > 0) {
-            val asset = assets.getJSONObject(0) // Genellikle ilk asset APK olur.
+            val asset = assets.getJSONObject(0)
             apkUrl = asset.optString("browser_download_url")
         }
         // <---
@@ -103,7 +103,16 @@ suspend fun getChangelogFromGitHub(): ChangelogResult {
             val json = connection.getInputStream().bufferedReader().use { it.readText() }
             val jsonObject = JSONObject(json)
             val body = jsonObject.optString("body", "")
-            ChangelogResult.Success(body)
+
+            // ---> Find the section starting with “## Changelog” and get the text after this section. Also, remove the special characters (** and ##).
+            val cleanChangelog = body.substringAfter("## Changelog", "")
+                .substringAfter("\n") // Skip the title line itself
+                .replace("**", "")
+                .replace("##", "")
+                .trim()
+
+            ChangelogResult.Success(cleanChangelog)
+            // <---
         } catch (e: Exception) {
             ChangelogResult.Error(e)
         }
