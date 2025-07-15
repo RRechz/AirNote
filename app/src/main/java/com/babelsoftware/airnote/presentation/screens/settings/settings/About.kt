@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,6 +42,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -60,6 +62,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.constant.ConnectionConst
+import com.babelsoftware.airnote.presentation.components.UpdateScreen
 import com.babelsoftware.airnote.presentation.screens.settings.SettingsScaffold
 import com.babelsoftware.airnote.presentation.screens.settings.model.AppUpdateViewModel
 import com.babelsoftware.airnote.presentation.screens.settings.model.IconResource
@@ -206,10 +209,27 @@ fun UpdateCard(
 
     var latestReleaseInfo by remember { mutableStateOf<ReleaseInfo?>(null) }
     var isLoading by remember { mutableStateOf(true) }
+    var showChangelog by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = true) {
-        latestReleaseInfo = getLatestReleaseInfo()
-        isLoading = false
+        if (latestReleaseInfo == null) {
+            isLoading = true
+            latestReleaseInfo = getLatestReleaseInfo()
+            isLoading = false
+        }
+    }
+
+    if (showChangelog) {
+        val versionForChangelog = if (settingsViewModel.updateAvailable.value) {
+            settingsViewModel.latestVersion.value
+        } else {
+            settingsViewModel.version
+        }
+        UpdateScreen(
+            latestVersion = versionForChangelog,
+            onDismiss = { showChangelog = false },
+            onNavigateToAbout = { /* Zaten bu ekranda olduğumuz için boş bırakıldı */ }
+        )
     }
 
     val installPermissionLauncher = rememberLauncherForActivityResult(
@@ -237,10 +257,10 @@ fun UpdateCard(
     ) {
         Column(
             modifier = Modifier
-                .padding(6.dp)
+                .padding(16.dp)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             if (isLoading) {
                 CircularProgressIndicator(modifier = Modifier.padding(vertical = 8.dp))
@@ -271,42 +291,35 @@ fun UpdateCard(
                     textAlign = TextAlign.Center
                 )
 
-                // Optional release notes
-                // info.releaseNotes?.takeIf { it.isNotBlank() }?.let { notes ->
-                //    Text(
-                //        text = stringResource(id = R.string.update_card_release_notes_title),
-                //        style = MaterialTheme.typography.titleMedium,
-                //        modifier = Modifier.padding(top = 8.dp)
-                //    )
-                //    Text(
-                //        text = notes,
-                //        style = MaterialTheme.typography.bodyMedium,
-                //        modifier = Modifier.padding(bottom = 8.dp)
-                //    )
-                // }
-
-
                 Spacer(modifier = Modifier.height(8.dp))
 
                 when (val state = updateState) {
                     is UpdateState.Idle -> {
-                        Button(
-                            onClick = {
-                                if (info.apkDownloadUrl != null) {
-                                    updateViewModel.downloadAndInstallApk(info.apkDownloadUrl)
-                                } else {
-                                    Toast.makeText(context, context.getString(R.string.update_card_download_link_not_found), Toast.LENGTH_SHORT).show()
-                                }
-                            },
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 5.dp)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                Icons.Filled.ArrowDownward,
-                                contentDescription = stringResource(id = R.string.update_card_download_icon_description),
-                                modifier = Modifier.size(ButtonDefaults.IconSize)
-                            )
-                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                            Text(stringResource(id = R.string.update_card_download_now))
+                            Button(
+                                onClick = {
+                                    if (info.apkDownloadUrl != null) {
+                                        updateViewModel.downloadAndInstallApk(info.apkDownloadUrl)
+                                    } else {
+                                        Toast.makeText(context, context.getString(R.string.update_card_download_link_not_found), Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                                elevation = ButtonDefaults.buttonElevation(defaultElevation = 5.dp)
+                            ) {
+                                Icon(
+                                    Icons.Filled.ArrowDownward,
+                                    contentDescription = stringResource(id = R.string.update_card_download_icon_description),
+                                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                                )
+                                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                Text(stringResource(id = R.string.update_card_download_now))
+                            }
+                            OutlinedButton(onClick = { showChangelog = true }) {
+                                Text(stringResource(R.string.about_update_news))
+                            }
                         }
                     }
                     is UpdateState.Downloading -> {
@@ -391,6 +404,15 @@ fun UpdateCard(
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
+                TextButton(onClick = {
+                    if (latestReleaseInfo != null) {
+                        showChangelog = true
+                    } else {
+                        Toast.makeText(context, "Değişiklik günlüğü bilgisi alınamadı.", Toast.LENGTH_SHORT).show()
+                    }
+                }) {
+                    Text(stringResource(R.string.about_latest_changes))
+                }
             }
         }
     }
