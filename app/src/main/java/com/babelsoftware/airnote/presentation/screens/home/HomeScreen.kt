@@ -654,7 +654,7 @@ private fun SelectedNotesTopAppBar(
         actions = {
             Row {
                 IconButton(onClick = onMoveToFolderClick) {
-                    Icon(Icons.Default.FolderOpen, contentDescription = "Klasöre Taşı")
+                    Icon(Icons.Default.FolderOpen, contentDescription = "Move to Folder")
                 }
                 PinButton(isPinned = selectedNotes.all { it.pinned }, onClick = onPinClick)
                 DeleteButton(onClick = { deletelaert = true })
@@ -790,7 +790,7 @@ fun FolderBar(
         }
         item {
             IconButton(onClick = onAddFolderClicked) {
-                Icon(Icons.Default.Add, contentDescription = "Yeni Klasör Ekle")
+                Icon(Icons.Default.Add, contentDescription = "Add New Folder")
             }
         }
     }
@@ -850,7 +850,6 @@ fun ChatMessageItem(message: ChatMessage) {
                     TypingIndicator()
                 } else {
                     Text(
-                        // DEĞİŞİKLİK: Gelen metin ekrana basılmadan önce temizleniyor
                         text = message.text.cleanMarkdown(),
                         style = MaterialTheme.typography.bodyLarge
                     )
@@ -872,8 +871,7 @@ fun ChatInputBar(
     modifier: Modifier = Modifier,
     onFocusChanged: (isFocused: Boolean) -> Unit = {}
 ) {
-    var text by remember { mutableStateOf("") }
-    val haptic = LocalHapticFeedback.current // HapticFeedback
+    val haptic = LocalHapticFeedback.current
 
     Row(
         modifier = modifier
@@ -899,7 +897,7 @@ fun ChatInputBar(
                 },
             enabled = enabled,
             placeholder = {
-                Text(if (isAwaitingTopic) "Taslak konusunu yazın..." else "Ask AirNote AI...")
+                Text(if (isAwaitingTopic) "Write the draft topic..." else "Ask AirNote AI...")
             },
             shape = CircleShape,
             colors = TextFieldDefaults.colors(
