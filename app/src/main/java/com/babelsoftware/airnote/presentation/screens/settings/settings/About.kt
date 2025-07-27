@@ -122,7 +122,7 @@ fun AboutScreen(
                 SettingsBox(
                     settingsViewModel = settingsViewModel,
                     title = "AirNote AI Version",
-                    description = "v1.1.3 build v0.9.0",
+                    description = "v1.1.4 build v0.9.0",
                     icon = IconResource.Vector(Icons.Rounded.AutoAwesome),
                     actionType = ActionType.TEXT,
                     radius = shapeManager(
