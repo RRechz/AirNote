@@ -495,9 +495,10 @@ fun HomeView (
                                     Column(
                                         modifier = Modifier.background(topBarColor)
                                     ) {
+                                        val query by viewModel.searchQuery.collectAsState()
                                         NotesSearchBar(
                                             settingsModel = settingsModel,
-                                            query = viewModel.searchQuery.value,
+                                            query = query,
                                             onQueryChange = { viewModel.changeSearchQuery(it) },
                                             onSettingsClick = onSettingsClicked,
                                             onClearClick = { viewModel.changeSearchQuery("") },
