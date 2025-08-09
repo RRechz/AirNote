@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,7 +33,6 @@ import androidx.compose.material.icons.rounded.Numbers
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.RemoveRedEye
 import androidx.compose.material.icons.rounded.Tune
-import com.babelsoftware.airnote.data.repository.AiTone
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -45,13 +43,15 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -64,7 +64,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -79,6 +79,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.repository.AiAction
 import com.babelsoftware.airnote.data.repository.AiAssistantAction
+import com.babelsoftware.airnote.data.repository.AiTone
 import com.babelsoftware.airnote.presentation.components.MoreButton
 import com.babelsoftware.airnote.presentation.components.NavigationIcon
 import com.babelsoftware.airnote.presentation.components.NotesScaffold
@@ -86,7 +87,6 @@ import com.babelsoftware.airnote.presentation.components.RedoButton
 import com.babelsoftware.airnote.presentation.components.SaveButton
 import com.babelsoftware.airnote.presentation.components.UndoButton
 import com.babelsoftware.airnote.presentation.components.markdown.MarkdownText
-import com.babelsoftware.airnote.presentation.screens.edit.components.CustomIconButton
 import com.babelsoftware.airnote.presentation.screens.edit.components.CustomTextField
 import com.babelsoftware.airnote.presentation.screens.edit.components.TextFormattingToolbar
 import com.babelsoftware.airnote.presentation.screens.edit.model.EditViewModel
@@ -199,9 +199,6 @@ fun TopBarActions(pagerState: PagerState, onClickBack: () -> Unit, viewModel: Ed
         0 -> { // Edit Mode
             Row(verticalAlignment = Alignment.CenterVertically) {
                 actionButtonPlaceholder()
-                if (viewModel.isDescriptionInFocus.value) {
-                    RedoButton { viewModel.redo() }
-                }
                 SaveButton { onClickBack() }
             }
         }
@@ -272,7 +269,13 @@ fun PagerContent(pagerState: PagerState, viewModel: EditViewModel, settingsViewM
 fun TopBar(pagerState: PagerState,coroutineScope: CoroutineScope, onClickBack: () -> Unit, viewModel: EditViewModel) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-        title = { ModeButton(pagerState, coroutineScope) },
+        title = {
+            ModeButton(
+                pagerState = pagerState,
+                coroutineScope = coroutineScope,
+                isUndoRedoVisible = viewModel.isDescriptionInFocus.value
+            )
+        },
         navigationIcon = {
             Row {
                 NavigationIcon(onClickBack)
@@ -281,7 +284,14 @@ fun TopBar(pagerState: PagerState,coroutineScope: CoroutineScope, onClickBack: (
                 }
             }
         },
-        actions = { TopBarActions(pagerState,  onClickBack, viewModel) }
+        actions = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (pagerState.currentPage == 0 && viewModel.isDescriptionInFocus.value) {
+                    RedoButton { viewModel.redo() }
+                }
+                TopBarActions(pagerState,  onClickBack, viewModel)
+            }
+        }
     )
 }
 
@@ -370,14 +380,14 @@ fun MinimalisticMode(
             if (isEnabled && viewModel.isDescriptionInFocus.value) UndoButton { viewModel.undo() }
             content()
             if (isEnabled) TopBarActions(pagerState,  onClickBack, viewModel)
-            if (isEnabled) ModeButton(pagerState, coroutineScope, isMinimalistic = true, isExtremeAmoled = isExtremeAmoled) } else {
+            if (isEnabled) ModeButton(pagerState, coroutineScope, isUndoRedoVisible = viewModel.isDescriptionInFocus.value ) } else {
             Column {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (isEnabled) NavigationIcon(onClickBack)
                     Spacer(modifier = Modifier.weight(1f))
-                    if (isEnabled) ModeButton(pagerState, coroutineScope, isMinimalistic = true, isExtremeAmoled = isExtremeAmoled)
+                    if (isEnabled) ModeButton(pagerState, coroutineScope, isUndoRedoVisible = viewModel.isDescriptionInFocus.value )
                     if (isEnabled) TopBarActions(pagerState,  onClickBack, viewModel)
                 }
                 content()
@@ -571,31 +581,50 @@ fun MarkdownBox(
     Spacer(modifier = Modifier.height(3.dp))
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ModeButton(
     pagerState: PagerState,
     coroutineScope: CoroutineScope,
-    isMinimalistic: Boolean = false,
-    isExtremeAmoled: Boolean = false
+    isUndoRedoVisible: Boolean
 ) {
-    Row {
-        RenderButton(
-            pagerState = pagerState,
-            coroutineScope = coroutineScope,
-            pageIndex = 0,
-            icon = Icons.Rounded.Edit,
-            isMinimalistic = isMinimalistic,
-            isExtremeAmoled = isExtremeAmoled
-        )
-        RenderButton(
-            pagerState = pagerState,
-            coroutineScope = coroutineScope,
-            pageIndex = 1,
-            icon = Icons.Rounded.RemoveRedEye,
-            isMinimalistic = isMinimalistic,
-            isExtremeAmoled = isExtremeAmoled
-        )
+    val options = listOf(
+        stringResource(R.string.edit) to Icons.Rounded.Edit,
+        stringResource(R.string.preview) to Icons.Rounded.RemoveRedEye
+    )
+
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier.height(40.dp)
+    ) {
+        options.forEachIndexed { index, item ->
+            val shape = when (index) {
+                0 -> RoundedCornerShape(topStartPercent = 100, bottomStartPercent = 100)
+                options.lastIndex -> RoundedCornerShape(topEndPercent = 100, bottomEndPercent = 100)
+                else -> RectangleShape
+            }
+
+            SegmentedButton(
+                shape = shape,
+                onClick = {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(index)
+                    }
+                },
+                selected = pagerState.currentPage == index,
+                icon = {
+                    Icon(
+                        imageVector = item.second,
+                        contentDescription = item.first,
+                        modifier = Modifier.size(20.dp)
+                    )
+                },
+                label = {
+                    Text(
+                        text = if (!isUndoRedoVisible) item.first else ""
+                    )
+                }
+            )
+        }
     }
 }
 
@@ -682,35 +711,6 @@ fun AiCommandMenu(
             onClick = { viewModel.executeAiAssistantAction(AiAssistantAction.SUGGEST_A_TITLE) }
         )
     }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun RenderButton(
-    pagerState: PagerState,
-    coroutineScope: CoroutineScope,
-    pageIndex: Int,
-    icon: ImageVector,
-    isMinimalistic: Boolean,
-    isExtremeAmoled: Boolean
-) {
-    CustomIconButton(
-        shape = if (isMinimalistic) RoundedCornerShape(100) else if (pageIndex == 0) RoundedCornerShape(
-            topStart = 32.dp,
-            bottomStart = 32.dp
-        ) else RoundedCornerShape(bottomEnd = 32.dp, topEnd = 32.dp),
-        onClick = {
-            coroutineScope.launch {
-                pagerState.animateScrollToPage(pageIndex)
-            }
-        },
-        icon = icon,
-        elevation = when {
-            isExtremeAmoled || isMinimalistic -> 0.dp
-            pagerState.currentPage != pageIndex -> 6.dp
-            else -> 12.dp
-        }
-    )
 }
 
 @Composable
