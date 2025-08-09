@@ -26,6 +26,8 @@ import androidx.compose.material.icons.rounded.HMobiledata
 import androidx.compose.material.icons.rounded.Highlight
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.StrikethroughS
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -137,43 +139,44 @@ fun TextFormattingToolbar(viewModel: EditViewModel) {
         )
     }
 
-    // ANA YAPI: Tüm butonları içeren tek bir satır
-    Row(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) {
-        // YENİ AI BUTONU (solda)
-        val isTextSelected = viewModel.noteDescription.value.selection.collapsed.not()
-        IconButton(
-            onClick = { viewModel.toggleAiActionSheet(true) },
-            enabled = isTextSelected
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Rounded.AutoAwesome,
-                contentDescription = "AI ile Düzenle",
-                modifier = Modifier.size(20.dp),
-                tint = if (isTextSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
-            )
-        }
-
-        // Araya bir boşluk koyarak diğer butonları sağa yaslıyoruz
-        Spacer(modifier = Modifier.weight(1f))
-
-        // MEVCUT ARAÇ-GEREÇLERİNİZ (sağda)
-        // Mevcut kodunuzu bir Row içine alarak grupluyoruz
-        Row {
-            toolbarSets.getOrNull(currentIndex)?.forEach { item ->
-                IconButton(
-                    onClick = { item.onClickAction.invoke() },
-                ) {
-                    Icon(
-                        item.icon,
-                        contentDescription = item.contentDescription,
-                        modifier = Modifier.size(20.dp),
-                        tint = item.color,
-                    )
+            val isTextSelected = viewModel.noteDescription.value.selection.collapsed.not()
+            IconButton(
+                onClick = { viewModel.toggleAiActionSheet(true) },
+                enabled = isTextSelected
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.AutoAwesome,
+                    contentDescription = "Edit with AI",
+                    modifier = Modifier.size(20.dp),
+                    tint = if (isTextSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            Row {
+                toolbarSets.getOrNull(currentIndex)?.forEach { item ->
+                    IconButton(
+                        onClick = { item.onClickAction.invoke() },
+                    ) {
+                        Icon(
+                            item.icon,
+                            contentDescription = item.contentDescription,
+                            modifier = Modifier.size(20.dp),
+                            tint = item.color,
+                        )
+                    }
                 }
             }
         }
