@@ -176,399 +176,399 @@ fun HomeView (
                 onSettingsClicked = onSettingsClicked
             )
         } else {
-                        val allFolders by viewModel.allFolders.collectAsState()
-                        val notes by viewModel.displayedNotes.collectAsState()
-                        val settings = settingsModel.settings.value
-                        val selectedFolderId = viewModel.selectedFolderId.value
-                        val context = LocalContext.current
-                        // ---> Image Picker (Photo Picker)
-                        val imagePickerLauncher = rememberLauncherForActivityResult(
-                            contract = ActivityResultContracts.GetContent(),
-                            onResult = { uri: Uri? ->
-                                if (uri != null) {
-                                    viewModel.analyzeImageAndCreateDraft(uri)
-                                }
-                            }
-                        )
+            val allFolders by viewModel.allFolders.collectAsState()
+            val notes by viewModel.displayedNotes.collectAsState()
+            val settings = settingsModel.settings.value
+            val selectedFolderId = viewModel.selectedFolderId.value
+            val context = LocalContext.current
+            // ---> Image Picker (Photo Picker)
+            val imagePickerLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent(),
+                onResult = { uri: Uri? ->
+                    if (uri != null) {
+                        viewModel.analyzeImageAndCreateDraft(uri)
+                    }
+                }
+            )
 
-                        LaunchedEffect(Unit) {
-                            viewModel.uiActionChannel.collect { action ->
-                                when (action) {
-                                    is HomeViewModel.UiAction.RequestImageForAnalysis -> {
-                                        imagePickerLauncher.launch("image/*")
+            LaunchedEffect(Unit) {
+                viewModel.uiActionChannel.collect { action ->
+                    when (action) {
+                        is HomeViewModel.UiAction.RequestImageForAnalysis -> {
+                            imagePickerLauncher.launch("image/*")
+                        }
+                    }
+                }
+            }
+            // <---
+
+            LaunchedEffect(key1 = Unit) {
+                settingsModel.checkForNewUpdate(context)
+            }
+
+            if (settingsModel.showUpdateDialog.value) {
+                UpdateScreen(
+                    latestVersion = settingsModel.latestVersion.value,
+                    onDismiss = { settingsModel.dismissUpdateDialog() },
+                    onNavigateToAbout = onNavigateToAbout
+                )
+            }
+
+            val selectedFolder = remember(selectedFolderId, allFolders) {
+                allFolders.find { it.id == selectedFolderId }
+            }
+            val topBarColor = MaterialTheme.colorScheme.surfaceContainerLow
+            val listState =
+                rememberLazyStaggeredGridState() // LazyListState to listen to the scrolling state of the note list
+
+            // ---> Expansion and reduction of the FAB according to the scrolling situation
+            val isFabExtended by remember {
+                derivedStateOf {
+                    listState.firstVisibleItemIndex == 0
+                }
+            }
+            // <---
+            viewModel.setFabExtended(isFabExtended)
+
+            val sheetState = rememberModalBottomSheetState(
+                skipPartiallyExpanded = true
+            )
+
+            // AI Chat Window (ModalBottomSheet)
+            if (viewModel.isAiChatSheetVisible.value) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        viewModel.toggleAiChatSheet(false)
+                        viewModel.resetChatState()
+                    },
+                    sheetState = sheetState,
+                    modifier = Modifier.fillMaxWidth(),
+                    containerColor = Color.Transparent // Variable color for the AI window
+                ) {
+                    val isDark = isSystemInDarkTheme()
+                    val gradientBrush = Brush.verticalGradient(
+                        colors = if (isDark) {
+                            listOf(Color(0xFF282322), Color(0xFF121011))
+                        } else {
+                            listOf(
+                                MaterialTheme.colorScheme.surfaceContainer,
+                                MaterialTheme.colorScheme.surfaceContainerLowest
+                            )
+                        }
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(gradientBrush)
+                    ) {
+                        val chatState = viewModel.chatState.value
+
+                        if (chatState.latestDraft != null) {
+                            DraftDisplay(
+                                draft = chatState.latestDraft,
+                                onSave = { viewModel.saveDraftedNote() },
+                                onRegenerate = { viewModel.regenerateDraft() }
+                            )
+                        } else if (chatState.messages.isNotEmpty()) {
+                            var text by remember { mutableStateOf("") }
+                            val isLoading =
+                                chatState.messages.lastOrNull()?.isLoading == true
+                            val haptic = LocalHapticFeedback.current
+                            val listState = rememberLazyListState()
+                            val scope = rememberCoroutineScope()
+
+                            LaunchedEffect(chatState.messages.size) {
+                                if (chatState.messages.isNotEmpty()) {
+                                    scope.launch {
+                                        listState.animateScrollToItem(chatState.messages.size - 1)
+                                    }
+                                    if (chatState.messages.last().participant == Participant.MODEL) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     }
                                 }
                             }
-                        }
-                        // <---
 
-                        LaunchedEffect(key1 = Unit) {
-                            settingsModel.checkForNewUpdate(context)
-                        }
-
-                        if (settingsModel.showUpdateDialog.value) {
-                            UpdateScreen(
-                                latestVersion = settingsModel.latestVersion.value,
-                                onDismiss = { settingsModel.dismissUpdateDialog() },
-                                onNavigateToAbout = onNavigateToAbout
-                            )
-                        }
-
-                        val selectedFolder = remember(selectedFolderId, allFolders) {
-                            allFolders.find { it.id == selectedFolderId }
-                        }
-                        val topBarColor = MaterialTheme.colorScheme.surfaceContainerLow
-                        val listState =
-                            rememberLazyStaggeredGridState() // LazyListState to listen to the scrolling state of the note list
-
-                        // ---> Expansion and reduction of the FAB according to the scrolling situation
-                        val isFabExtended by remember {
-                            derivedStateOf {
-                                listState.firstVisibleItemIndex == 0
-                            }
-                        }
-                        // <---
-                        viewModel.setFabExtended(isFabExtended)
-
-                        val sheetState = rememberModalBottomSheetState(
-                            skipPartiallyExpanded = true
-                        )
-
-                        // AI Chat Window (ModalBottomSheet)
-                        if (viewModel.isAiChatSheetVisible.value) {
-                            ModalBottomSheet(
-                                onDismissRequest = {
-                                    viewModel.toggleAiChatSheet(false)
-                                    viewModel.resetChatState()
-                                },
-                                sheetState = sheetState,
-                                modifier = Modifier.fillMaxWidth(),
-                                containerColor = Color.Transparent // Variable color for the AI window
+                            Column(
+                                modifier = Modifier.fillMaxSize()
                             ) {
-                                val isDark = isSystemInDarkTheme()
-                                val gradientBrush = Brush.verticalGradient(
-                                    colors = if (isDark) {
-                                        listOf(Color(0xFF282322), Color(0xFF121011))
-                                    } else {
-                                        listOf(
-                                            MaterialTheme.colorScheme.surfaceContainer,
-                                            MaterialTheme.colorScheme.surfaceContainerLowest
-                                        )
-                                    }
-                                )
-                                Box(
+                                LazyColumn(
                                     modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(gradientBrush)
+                                        .weight(1f)
+                                        .padding(horizontal = 8.dp),
+                                    state = listState
                                 ) {
-                                    val chatState = viewModel.chatState.value
-
-                                    if (chatState.latestDraft != null) {
-                                        DraftDisplay(
-                                            draft = chatState.latestDraft,
-                                            onSave = { viewModel.saveDraftedNote() },
-                                            onRegenerate = { viewModel.regenerateDraft() }
-                                        )
-                                    } else if (chatState.messages.isNotEmpty()) {
-                                        var text by remember { mutableStateOf("") }
-                                        val isLoading =
-                                            chatState.messages.lastOrNull()?.isLoading == true
-                                        val haptic = LocalHapticFeedback.current
-                                        val listState = rememberLazyListState()
-                                        val scope = rememberCoroutineScope()
-
-                                        LaunchedEffect(chatState.messages.size) {
-                                            if (chatState.messages.isNotEmpty()) {
-                                                scope.launch {
-                                                    listState.animateScrollToItem(chatState.messages.size - 1)
-                                                }
-                                                if (chatState.messages.last().participant == Participant.MODEL) {
-                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                }
-                                            }
-                                        }
-
-                                        Column(
-                                            modifier = Modifier.fillMaxSize()
+                                    items(chatState.messages) { message ->
+                                        AnimatedVisibility(
+                                            visible = true,
+                                            enter = slideInHorizontally { fullWidth ->
+                                                if (message.participant == Participant.USER) fullWidth else -fullWidth
+                                            } + fadeIn()
                                         ) {
-                                            LazyColumn(
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .padding(horizontal = 8.dp),
-                                                state = listState
-                                            ) {
-                                                items(chatState.messages) { message ->
-                                                    AnimatedVisibility(
-                                                        visible = true,
-                                                        enter = slideInHorizontally { fullWidth ->
-                                                            if (message.participant == Participant.USER) fullWidth else -fullWidth
-                                                        } + fadeIn()
-                                                    ) {
-                                                        ChatMessageItem(message = message)
-                                                    }
-                                                }
-                                            }
-                                            ChatInputBar(
-                                                text = text,
-                                                onValueChange = { text = it },
-                                                isAwaitingTopic = chatState.isAwaitingDraftTopic,
-                                                onSendMessage = {
-                                                    val messageToSend = text
-                                                    if (messageToSend.isNotBlank()) {
-                                                        if (chatState.isAwaitingDraftTopic) {
-                                                            viewModel.generateDraft(messageToSend)
-                                                        } else {
-                                                            viewModel.sendMessage(messageToSend)
-                                                        }
-                                                        text = ""
-                                                    }
-                                                },
-                                                onImagePickerClicked = { viewModel.requestImageForAnalysis() },
-                                                enabled = !isLoading
-                                            )
+                                            ChatMessageItem(message = message)
                                         }
+                                    }
+                                }
+                                ChatInputBar(
+                                    text = text,
+                                    onValueChange = { text = it },
+                                    isAwaitingTopic = chatState.isAwaitingDraftTopic,
+                                    onSendMessage = {
+                                        val messageToSend = text
+                                        if (messageToSend.isNotBlank()) {
+                                            if (chatState.isAwaitingDraftTopic) {
+                                                viewModel.generateDraft(messageToSend)
+                                            } else {
+                                                viewModel.sendMessage(messageToSend)
+                                            }
+                                            text = ""
+                                        }
+                                    },
+                                    onImagePickerClicked = { viewModel.requestImageForAnalysis() },
+                                    enabled = !isLoading
+                                )
+                            }
+                        } else {
+                            NewAiScreen(
+                                isAwaitingTopic = chatState.isAwaitingDraftTopic,
+                                isLoading = chatState.messages.lastOrNull()?.isLoading == true,
+                                onSendMessage = { message ->
+                                    if (chatState.isAwaitingDraftTopic) {
+                                        viewModel.generateDraft(message)
                                     } else {
-                                        NewAiScreen(
-                                            isAwaitingTopic = chatState.isAwaitingDraftTopic,
-                                            isLoading = chatState.messages.lastOrNull()?.isLoading == true,
-                                            onSendMessage = { message ->
-                                                if (chatState.isAwaitingDraftTopic) {
-                                                    viewModel.generateDraft(message)
-                                                } else {
-                                                    viewModel.sendMessage(message)
-                                                }
-                                            },
-                                            suggestions = viewModel.suggestions,
-                                            viewModel = viewModel
-                                        )
+                                        viewModel.sendMessage(message)
                                     }
-                                }
-                            }
-                        }
-
-                        if (viewModel.isPasswordPromptVisible.value) {
-                            PasswordPrompt(
-                                context = context,
-                                text = stringResource(id = R.string.password_continue),
-                                settingsViewModel = settingsModel,
-                                onExit = { password ->
-                                    if (password != null) {
-                                        if (password.text.isNotBlank()) {
-                                            viewModel.encryptionHelper.setPassword(password.text)
-                                            viewModel.observeNotes()
-                                        }
-                                    }
-                                    viewModel.toggleIsPasswordPromptVisible(false)
-                                }
-                            )
-                        }
-
-                        if (viewModel.isAddFolderDialogVisible.value) {
-                            AddFolderDialog(
-                                onDismiss = { viewModel.setAddFolderDialogVisibility(false) },
-                                onConfirm = { name, color ->
-                                    viewModel.addFolder(name, color)
-                                }
-                            )
-                        }
-
-                        viewModel.folderForAction.value?.let { folder ->
-                            if (!viewModel.showDeleteConfirmDialog.value) {
-                                FolderActionBottomSheet(
-                                    folder = folder,
-                                    onDismiss = { viewModel.onDismissFolderAction() },
-                                    onEditClick = { viewModel.onEditFolderRequest() },
-                                    onDeleteClick = {
-                                        viewModel.onDeleteFolderRequest()
-                                    }
-                                )
-                            }
-                        }
-
-                        viewModel.folderToEdit.value?.let { folder ->
-                            AddFolderDialog(
-                                onDismiss = { viewModel.onDismissEditFolderDialog() },
-                                onConfirm = { name, color ->
-                                    viewModel.updateFolder(name, color)
                                 },
-                                folderToEdit = folder
+                                suggestions = viewModel.suggestions,
+                                viewModel = viewModel
                             )
                         }
+                    }
+                }
+            }
 
-                        if (viewModel.isMoveToFolderDialogVisible.value) {
-                            val folders by viewModel.allFolders.collectAsState()
-                            MoveToFolderDialog(
-                                folders = folders,
-                                onDismiss = { viewModel.setMoveToFolderDialogVisibility(false) },
-                                onFolderSelected = { folderId ->
-                                    viewModel.moveSelectedNotesToFolder(folderId)
-                                }
+            if (viewModel.isPasswordPromptVisible.value) {
+                PasswordPrompt(
+                    context = context,
+                    text = stringResource(id = R.string.password_continue),
+                    settingsViewModel = settingsModel,
+                    onExit = { password ->
+                        if (password != null) {
+                            if (password.text.isNotBlank()) {
+                                viewModel.encryptionHelper.setPassword(password.text)
+                                viewModel.observeNotes()
+                            }
+                        }
+                        viewModel.toggleIsPasswordPromptVisible(false)
+                    }
+                )
+            }
+
+            if (viewModel.isAddFolderDialogVisible.value) {
+                AddFolderDialog(
+                    onDismiss = { viewModel.setAddFolderDialogVisibility(false) },
+                    onConfirm = { name, color ->
+                        viewModel.addFolder(name, color)
+                    }
+                )
+            }
+
+            viewModel.folderForAction.value?.let { folder ->
+                if (!viewModel.showDeleteConfirmDialog.value) {
+                    FolderActionBottomSheet(
+                        folder = folder,
+                        onDismiss = { viewModel.onDismissFolderAction() },
+                        onEditClick = { viewModel.onEditFolderRequest() },
+                        onDeleteClick = {
+                            viewModel.onDeleteFolderRequest()
+                        }
+                    )
+                }
+            }
+
+            viewModel.folderToEdit.value?.let { folder ->
+                AddFolderDialog(
+                    onDismiss = { viewModel.onDismissEditFolderDialog() },
+                    onConfirm = { name, color ->
+                        viewModel.updateFolder(name, color)
+                    },
+                    folderToEdit = folder
+                )
+            }
+
+            if (viewModel.isMoveToFolderDialogVisible.value) {
+                val folders by viewModel.allFolders.collectAsState()
+                MoveToFolderDialog(
+                    folders = folders,
+                    onDismiss = { viewModel.setMoveToFolderDialogVisibility(false) },
+                    onFolderSelected = { folderId ->
+                        viewModel.moveSelectedNotesToFolder(folderId)
+                    }
+                )
+            }
+
+            if (viewModel.showDeleteConfirmDialog.value) {
+                viewModel.folderForAction.value?.let { folder ->
+                    AlertDialog(
+                        onDismissRequest = { viewModel.onDismissFolderAction() },
+                        title = { Text(stringResource(R.string.delete_folder)) },
+                        text = {
+                            Text(
+                                stringResource(
+                                    R.string.delete_folder_confirmation,
+                                    folder.name
+                                )
                             )
-                        }
-
-                        if (viewModel.showDeleteConfirmDialog.value) {
-                            viewModel.folderForAction.value?.let { folder ->
-                                AlertDialog(
-                                    onDismissRequest = { viewModel.onDismissFolderAction() },
-                                    title = { Text(stringResource(R.string.delete_folder)) },
-                                    text = {
-                                        Text(
-                                            stringResource(
-                                                R.string.delete_folder_confirmation,
-                                                folder.name
-                                            )
-                                        )
-                                    },
-                                    confirmButton = {
-                                        TextButton(onClick = { viewModel.confirmFolderDeletion() }) {
-                                            Text(
-                                                stringResource(R.string.delete),
-                                                color = MaterialTheme.colorScheme.error
-                                            )
-                                        }
-                                    },
-                                    dismissButton = {
-                                        TextButton(onClick = { viewModel.onDismissFolderAction() }) {
-                                            Text(stringResource(R.string.cancel))
-                                        }
-                                    }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = { viewModel.confirmFolderDeletion() }) {
+                                Text(
+                                    stringResource(R.string.delete),
+                                    color = MaterialTheme.colorScheme.error
                                 )
                             }
-                        }
-
-                        val snackbarHostState = remember { SnackbarHostState() }
-                        val scope = rememberCoroutineScope()
-
-                        LaunchedEffect(key1 = true) {
-                            viewModel.uiEvent.collect { message ->
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(message)
-                                }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { viewModel.onDismissFolderAction() }) {
+                                Text(stringResource(R.string.cancel))
                             }
                         }
+                    )
+                }
+            }
 
-                        if (settingsModel.databaseUpdate.value) viewModel.observeNotes()
-                        val containerColor = getContainerColor(settingsModel)
-                        NotesScaffold(
-                            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-                            floatingActionButton = {
-                                AnimatedVisibility(
-                                    visible = viewModel.isFabExtended.value,
-                                    enter = slideInVertically(initialOffsetY = { it * 2 }),
-                                    exit = slideOutVertically(targetOffsetY = { it * 2 })
-                                ) {
-                                    MultiActionFloatingActionButton(
-                                        onNewNoteClicked = { onNoteClicked(0, viewModel.isVaultMode.value, null) },
-                                        onAskAiClicked = { viewModel.toggleAiChatSheet(true) }
-                                    )
-                                }
-                            },
-                            topBar = {
-                                AnimatedVisibility(
-                                    visible = viewModel.selectedNotes.isNotEmpty(),
-                                    enter = defaultScreenEnterAnimation(),
-                                    exit = defaultScreenExitAnimation()
-                                ) {
-                                    val notes by viewModel.displayedNotes.collectAsState()
-                                    SelectedNotesTopAppBar(
-                                        containerColor = topBarColor,
-                                        selectedNotes = viewModel.selectedNotes,
-                                        allNotes = notes,
-                                        settingsModel = settingsModel,
-                                        onPinClick = { viewModel.pinOrUnpinNotes() },
-                                        onDeleteClick = { viewModel.toggleIsDeleteMode(true) },
-                                        onSelectAllClick = { selectAllNotes(viewModel, notes) },
-                                        onMoveToFolderClick = {
-                                            viewModel.setMoveToFolderDialogVisibility(
-                                                true
-                                            )
-                                        },
-                                        onCloseClick = { viewModel.selectedNotes.clear() }
-                                    )
-                                }
+            val snackbarHostState = remember { SnackbarHostState() }
+            val scope = rememberCoroutineScope()
 
-                                AnimatedVisibility(
-                                    visible = viewModel.selectedNotes.isEmpty(),
-                                    enter = defaultScreenEnterAnimation(),
-                                    exit = defaultScreenExitAnimation()
-                                ) {
-                                    Column(
-                                        modifier = Modifier.background(topBarColor)
-                                    ) {
-                                        val query by viewModel.searchQuery.collectAsState()
-                                        NotesSearchBar(
-                                            settingsModel = settingsModel,
-                                            query = query,
-                                            onQueryChange = { viewModel.changeSearchQuery(it) },
-                                            onSettingsClick = onSettingsClicked,
-                                            onClearClick = { viewModel.changeSearchQuery("") },
-                                            viewModel = viewModel,
-                                            onVaultClicked = {
-                                                if (!viewModel.isVaultMode.value) {
-                                                    viewModel.toggleIsPasswordPromptVisible(true)
-                                                } else {
-                                                    viewModel.toggleIsVaultMode(false)
-                                                    viewModel.encryptionHelper.removePassword()
-                                                }
-                                            }
-                                        )
-                                        val folders by viewModel.allFolders.collectAsState()
-                                        FolderBar(
-                                            folders = folders,
-                                            selectedFolderId = viewModel.selectedFolderId.value,
-                                            onFolderSelected = { viewModel.selectFolder(it) },
-                                            onAddFolderClicked = {
-                                                viewModel.setAddFolderDialogVisibility(
-                                                    true
-                                                )
-                                            },
-                                            onFolderLongClick = { folder ->
-                                                viewModel.onFolderLongPressed(
-                                                    folder
-                                                )
-                                            }
-                                        )
-                                    }
-                                }
-                            },
-                            content = {
-                                NoteFilter(
-                                    listState = listState,
-                                    settingsViewModel = settingsModel,
-                                    containerColor = containerColor,
-                                    shape = shapeManager(
-                                        radius = settingsModel.settings.value.cornerRadius / 2,
-                                        isBoth = true
-                                    ),
-                                    notes = notes.sortedWith(sorter(settings.sortDescending)),
-                                    allFolders = allFolders,
-                                    onNoteClicked = { noteId ->
-                                        val clickedNote =
-                                            viewModel.displayedNotes.value.find { it.id == noteId }
-                                        if (clickedNote != null) {
-                                            onNoteClicked(
-                                                clickedNote.id,
-                                                clickedNote.encrypted,
-                                                clickedNote.folderId
-                                            )
-                                        }
-                                    },
-                                    selectedNotes = viewModel.selectedNotes,
-                                    viewMode = settingsModel.settings.value.viewMode,
-                                    searchText = viewModel.searchQuery.value.ifBlank { null },
-                                    isDeleteMode = viewModel.isDeleteMode.value,
-                                    onNoteUpdate = { note ->
-                                        CoroutineScope(Dispatchers.IO).launch {
-                                            viewModel.updateNote(note)
-                                        }
-                                    },
-                                    onDeleteNote = {
-                                        viewModel.toggleIsDeleteMode(false)
-                                        viewModel.deleteNoteById(it)
-                                    },
-                                )
-                            }
+            LaunchedEffect(key1 = true) {
+                viewModel.uiEvent.collect { message ->
+                    scope.launch {
+                        snackbarHostState.showSnackbar(message)
+                    }
+                }
+            }
+
+            if (settingsModel.databaseUpdate.value) viewModel.observeNotes()
+            val containerColor = getContainerColor(settingsModel)
+            NotesScaffold(
+                snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+                floatingActionButton = {
+                    AnimatedVisibility(
+                        visible = viewModel.isFabExtended.value,
+                        enter = slideInVertically(initialOffsetY = { it * 2 }),
+                        exit = slideOutVertically(targetOffsetY = { it * 2 })
+                    ) {
+                        MultiActionFloatingActionButton(
+                            onNewNoteClicked = { onNoteClicked(0, viewModel.isVaultMode.value, null) },
+                            onAskAiClicked = { viewModel.toggleAiChatSheet(true) }
                         )
+                    }
+                },
+                topBar = {
+                    AnimatedVisibility(
+                        visible = viewModel.selectedNotes.isNotEmpty(),
+                        enter = defaultScreenEnterAnimation(),
+                        exit = defaultScreenExitAnimation()
+                    ) {
+                        val notes by viewModel.displayedNotes.collectAsState()
+                        SelectedNotesTopAppBar(
+                            containerColor = topBarColor,
+                            selectedNotes = viewModel.selectedNotes,
+                            allNotes = notes,
+                            settingsModel = settingsModel,
+                            onPinClick = { viewModel.pinOrUnpinNotes() },
+                            onDeleteClick = { viewModel.toggleIsDeleteMode(true) },
+                            onSelectAllClick = { selectAllNotes(viewModel, notes) },
+                            onMoveToFolderClick = {
+                                viewModel.setMoveToFolderDialogVisibility(
+                                    true
+                                )
+                            },
+                            onCloseClick = { viewModel.selectedNotes.clear() }
+                        )
+                    }
+
+                    AnimatedVisibility(
+                        visible = viewModel.selectedNotes.isEmpty(),
+                        enter = defaultScreenEnterAnimation(),
+                        exit = defaultScreenExitAnimation()
+                    ) {
+                        Column(
+                            modifier = Modifier.background(topBarColor)
+                        ) {
+                            val query by viewModel.searchQuery.collectAsState()
+                            NotesSearchBar(
+                                settingsModel = settingsModel,
+                                query = query,
+                                onQueryChange = { viewModel.changeSearchQuery(it) },
+                                onSettingsClick = onSettingsClicked,
+                                onClearClick = { viewModel.changeSearchQuery("") },
+                                viewModel = viewModel,
+                                onVaultClicked = {
+                                    if (!viewModel.isVaultMode.value) {
+                                        viewModel.toggleIsPasswordPromptVisible(true)
+                                    } else {
+                                        viewModel.toggleIsVaultMode(false)
+                                        viewModel.encryptionHelper.removePassword()
+                                    }
+                                }
+                            )
+                            val folders by viewModel.allFolders.collectAsState()
+                            FolderBar(
+                                folders = folders,
+                                selectedFolderId = viewModel.selectedFolderId.value,
+                                onFolderSelected = { viewModel.selectFolder(it) },
+                                onAddFolderClicked = {
+                                    viewModel.setAddFolderDialogVisibility(
+                                        true
+                                    )
+                                },
+                                onFolderLongClick = { folder ->
+                                    viewModel.onFolderLongPressed(
+                                        folder
+                                    )
+                                }
+                            )
+                        }
+                    }
+                },
+                content = {
+                    NoteFilter(
+                        listState = listState,
+                        settingsViewModel = settingsModel,
+                        containerColor = containerColor,
+                        shape = shapeManager(
+                            radius = settingsModel.settings.value.cornerRadius / 2,
+                            isBoth = true
+                        ),
+                        notes = notes.sortedWith(sorter(settings.sortDescending)),
+                        allFolders = allFolders,
+                        onNoteClicked = { noteId ->
+                            val clickedNote =
+                                viewModel.displayedNotes.value.find { it.id == noteId }
+                            if (clickedNote != null) {
+                                onNoteClicked(
+                                    clickedNote.id,
+                                    clickedNote.encrypted,
+                                    clickedNote.folderId
+                                )
+                            }
+                        },
+                        selectedNotes = viewModel.selectedNotes,
+                        viewMode = settingsModel.settings.value.viewMode,
+                        searchText = viewModel.searchQuery.value.ifBlank { null },
+                        isDeleteMode = viewModel.isDeleteMode.value,
+                        onNoteUpdate = { note ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                viewModel.updateNote(note)
+                            }
+                        },
+                        onDeleteNote = {
+                            viewModel.toggleIsDeleteMode(false)
+                            viewModel.deleteNoteById(it)
+                        },
+                    )
+                }
+            )
         }
     } else {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
