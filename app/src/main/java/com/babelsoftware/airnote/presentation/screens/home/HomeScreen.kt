@@ -14,6 +14,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -71,6 +72,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -96,6 +98,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -454,20 +457,10 @@ fun HomeView (
                                     enter = slideInVertically(initialOffsetY = { it * 2 }),
                                     exit = slideOutVertically(targetOffsetY = { it * 2 })
                                 ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.End,
-                                        verticalArrangement = Arrangement.spacedBy(16.dp) // Puts space between buttons
-                                    ) {
-                                        NewNoteButton {
-                                            onNoteClicked(0, viewModel.isVaultMode.value, null)
-                                        }
-                                        Box(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            contentAlignment = Alignment.CenterEnd
-                                        ) {
-                                            AskAiButton(onClick = { viewModel.toggleAiChatSheet(true) })
-                                        }
-                                    }
+                                    MultiActionFloatingActionButton(
+                                        onNewNoteClicked = { onNoteClicked(0, viewModel.isVaultMode.value, null) },
+                                        onAskAiClicked = { viewModel.toggleAiChatSheet(true) }
+                                    )
                                 }
                             },
                             topBar = {
@@ -589,22 +582,87 @@ fun getContainerColor(settingsModel: SettingsViewModel): Color {
 }
 
 @Composable
-private fun NewNoteButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
+private fun MultiActionFloatingActionButton(
+    onNewNoteClicked: () -> Unit,
+    onAskAiClicked: () -> Unit
 ) {
-    FloatingActionButton(
-        onClick = onClick,
-        modifier = modifier,
-        // ---> Same with AI button colors
-        containerColor = AiButtonColors.SecondaryContainer,
-        contentColor = AiButtonColors.SecondaryOnContainer
-        // <---
+    var isExpanded by remember { mutableStateOf(false) }
+    val transition = updateTransition(targetState = isExpanded, label = "fab_transition")
+    val mainButtonRotation by transition.animateFloat(label = "fab_rotation") { expanded ->
+        if (expanded) 45f else 0f
+    }
+
+    val secondaryButtonAlpha by transition.animateFloat(
+        label = "fab_alpha",
+        transitionSpec = { tween(durationMillis = 200) }
+    ) { expanded ->
+        if (expanded) 1f else 0f
+    }
+
+    val secondaryButtonScale by transition.animateFloat(
+        label = "fab_scale",
+        transitionSpec = { tween(durationMillis = 200) }
+    ) { expanded ->
+        if (expanded) 1f else 0.5f
+    }
+
+    Column(
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Row(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.new_note))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(stringResource(R.string.new_note))
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                SmallFloatingActionButton(
+                    onClick = {
+                        onAskAiClicked()
+                        isExpanded = false
+                    },
+                    containerColor = AiButtonColors.GeminiContainer,
+                    modifier = Modifier.graphicsLayer {
+                        alpha = secondaryButtonAlpha
+                        scaleX = secondaryButtonScale
+                        scaleY = secondaryButtonScale
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.AutoAwesome,
+                        contentDescription = stringResource(R.string.ai_button_texts),
+                        tint = AiButtonColors.GeminiOnContainer
+                    )
+                }
+                SmallFloatingActionButton(
+                    onClick = {
+                        onNewNoteClicked()
+                        isExpanded = false
+                    },
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    modifier = Modifier.graphicsLayer {
+                        alpha = secondaryButtonAlpha
+                        scaleX = secondaryButtonScale
+                        scaleY = secondaryButtonScale
+                    }
+                ) {
+                    Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.new_note))
+                }
+            }
+        }
+
+        FloatingActionButton(
+            onClick = { isExpanded = !isExpanded },
+            containerColor = MaterialTheme.colorScheme.primary,
+        ) {
+            Icon(
+                Icons.Default.Add,
+                contentDescription = "Add",
+                modifier = Modifier.rotate(mainButtonRotation)
+            )
         }
     }
 }
@@ -792,38 +850,6 @@ fun FolderBar(
             IconButton(onClick = onAddFolderClicked) {
                 Icon(Icons.Default.Add, contentDescription = "Add New Folder")
             }
-        }
-    }
-}
-@Composable
-private fun AskAiButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    Surface(
-        onClick = onClick,
-        shape = CircleShape,
-        color = AiButtonColors.GeminiContainer,
-        tonalElevation = 4.dp,
-        shadowElevation = 4.dp,
-        modifier = modifier
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.AutoAwesome,
-                contentDescription = "Ask AI",
-                tint = AiButtonColors.GeminiOnContainer
-
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = stringResource(R.string.ai_button_texts),
-                style = MaterialTheme.typography.bodyLarge,
-                color = AiButtonColors.GeminiOnContainer
-            )
         }
     }
 }
