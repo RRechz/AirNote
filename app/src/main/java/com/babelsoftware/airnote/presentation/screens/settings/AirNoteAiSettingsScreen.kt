@@ -1,6 +1,10 @@
 package com.babelsoftware.airnote.presentation.screens.settings
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,20 +17,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.Key
-import androidx.compose.material.icons.rounded.Lan
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,29 +45,43 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.repository.GeminiModels
-import com.babelsoftware.airnote.presentation.screens.settings.model.IconResource
 import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsViewModel
-import com.babelsoftware.airnote.presentation.screens.settings.settings.shapeManager
-import com.babelsoftware.airnote.presentation.screens.settings.widgets.ActionType
-import com.babelsoftware.airnote.presentation.screens.settings.widgets.SettingsBox
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: SettingsViewModel) {
     val settings = settingsViewModel.settings.value
     val userApiKey by settingsViewModel.userApiKey
+    val isApiKeyVerified by settingsViewModel.isApiKeyVerified
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = true) {
         settingsViewModel.uiEvent.collect { message ->
             scope.launch { snackbarHostState.showSnackbar(message) }
+        }
+    }
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = sheetState
+        ) {
+            ApiKeyGuide()
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 
@@ -68,57 +91,54 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         onBackNavClicked = { navController.navigateUp() }
     ) {
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier.padding(top = 16.dp)
+        ) {
+            // --- API Key Entry Field ---
             item {
-                SettingsBox(
-                    settingsViewModel = settingsViewModel,
-                    title = stringResource(R.string.use_airnote_api),
-                    description = stringResource(R.string.use_airnote_api_description),
-                    icon = IconResource.Vector(Icons.Rounded.Lan),
-                    radius = shapeManager(
-                        radius = settings.cornerRadius,
-                        isBoth = true
-                    ),
-                    actionType = ActionType.SWITCH,
-                    variable = settings.useAirNoteApi,
-                    switchEnabled = { useAirNoteApi ->
-                        settingsViewModel.update(
-                            settings.copy(useAirNoteApi = useAirNoteApi)
+                Row(
+                    modifier = Modifier.padding(start = 16.dp, end = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.your_api_key),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(onClick = { showBottomSheet = true }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
+                            contentDescription = stringResource(R.string.api_key_guide_title)
                         )
                     }
-                )
+                }
             }
+
             item {
-                AnimatedVisibility(visible = !settings.useAirNoteApi) {
-                    Column(
-                        modifier = Modifier
-                            .padding(top = 2.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(imageVector = Icons.Rounded.Key, contentDescription = "API Key Icon")
-                            Spacer(modifier = Modifier.size(16.dp))
-                            Text(text = stringResource(R.string.your_api_key),
-                                style = MaterialTheme.typography.bodyLarge)
-                        }
+                ListItem(
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    headlineContent = {
                         OutlinedTextField(
                             value = userApiKey,
                             onValueChange = { settingsViewModel.updateUserApiKey(it) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                            label = { Text("API Key") },
-                            singleLine = true
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Gemini API Key") },
+                            placeholder = { Text("Enter Your API...") },
+                            singleLine = true,
                         )
+                    },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Rounded.Key,
+                            contentDescription = "API Key Icon",
+                            modifier = Modifier.size(32.dp)
+                        )
+                    },
+                    trailingContent = {
                         Button(
                             onClick = { settingsViewModel.verifyUserApiKey() },
-                            modifier = Modifier
-                                .align(Alignment.End)
-                                .padding(end = 16.dp, bottom = 8.dp),
-                            enabled = !settingsViewModel.isVerifyingApiKey.value
+                            enabled = !settingsViewModel.isVerifyingApiKey.value && userApiKey.isNotBlank()
                         ) {
                             if (settingsViewModel.isVerifyingApiKey.value) {
                                 CircularProgressIndicator(modifier = Modifier.size(24.dp))
@@ -127,43 +147,62 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
                             }
                         }
                     }
-                }
-                ApiKeyGuide()
+                )
             }
 
-            item { Spacer(modifier = Modifier.height(18.dp)) }
+            item { Spacer(modifier = Modifier.height(24.dp)) }
 
+            // --- Model Selection (Only visible if API Key is verified) ---
             item {
-                var expanded by remember { mutableStateOf(false) }
-                val models = GeminiModels.supportedModels
+                AnimatedVisibility(
+                    visible = isApiKeyVerified,
+                    enter = slideInVertically { it } + fadeIn(),
+                    exit = slideOutVertically { it } + fadeOut()
+                ) {
+                    Column {
+                        var expanded by remember { mutableStateOf(false) }
+                        val models = GeminiModels.supportedModels
 
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    ListItem(
-                        headlineContent = { Text(stringResource(R.string.model_to_use)) },
-                        supportingContent = { Text(settings.selectedModelName) },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Rounded.Memory,
-                                contentDescription = stringResource(R.string.model_choice)
-                            )
-                        },
-                        modifier = Modifier
+                        Text(
+                            text = stringResource(id = R.string.model_choice),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+
+                        Box(modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { expanded = true }
-                    )
-
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                    ) {
-                        models.forEach { modelName ->
-                            DropdownMenuItem(
-                                text = { Text(modelName) },
-                                onClick = {
-                                    settingsViewModel.updateSelectedModel(modelName)
-                                    expanded = false
-                                }
+                            .padding(top = 8.dp)) {
+                            ListItem(
+                                headlineContent = { Text(stringResource(R.string.model_to_use)) },
+                                supportingContent = { Text(settings.selectedModelName) },
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Memory,
+                                        contentDescription = stringResource(R.string.model_choice),
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { expanded = true }
                             )
+
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                                modifier = Modifier.fillMaxWidth(0.8f)
+                            ) {
+                                models.forEach { modelName ->
+                                    DropdownMenuItem(
+                                        text = { Text(modelName) },
+                                        onClick = {
+                                            settingsViewModel.updateSelectedModel(modelName)
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -180,21 +219,21 @@ private fun ApiKeyGuide() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 24.dp, vertical = 8.dp)
     ) {
         Text(
             text = stringResource(id = R.string.api_key_guide_title),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 16.dp)
         )
         Text(
             text = stringResource(id = R.string.api_key_guide_intro),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(stringResource(id = R.string.api_key_guide_step_1))
             Button(
                 onClick = { uriHandler.openUri(geminiStudioUrl) },
