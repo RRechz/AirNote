@@ -247,6 +247,9 @@ class SettingsViewModel @Inject constructor(
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
+    private val _isApiKeyVerified = mutableStateOf(false)
+    val isApiKeyVerified: State<Boolean> = _isApiKeyVerified
+
     val version: String = BuildConfig.VERSION_NAME
     val build: String = BuildConfig.BUILD_TYPE
 
