@@ -239,6 +239,9 @@
     <string name="about_latest_changes">Latest changes</string>
     <string name="edit">Edit</string>
     <string name="preview">Preview</string>
+    <string name="search_folders">Search Folders...</string>
+    <string name="new_folder">New Folder</string>
+    <string name="choose_icon">Choose Icon</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>

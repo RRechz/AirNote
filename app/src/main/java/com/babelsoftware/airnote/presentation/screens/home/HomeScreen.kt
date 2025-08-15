@@ -20,29 +20,36 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -50,10 +57,64 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.Apartment
+import androidx.compose.material.icons.filled.Assessment
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Cake
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.CardGiftcard
+import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.ContentCut
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.Eco
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Flight
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Headset
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Spa
+import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Work
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Search
@@ -63,14 +124,18 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHost
@@ -97,7 +162,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
@@ -111,6 +175,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -134,7 +199,6 @@ import com.babelsoftware.airnote.presentation.components.defaultScreenExitAnimat
 import com.babelsoftware.airnote.presentation.screens.home.desktop.DesktopHomeScreen
 import com.babelsoftware.airnote.presentation.screens.home.viewmodel.DraftedNote
 import com.babelsoftware.airnote.presentation.screens.home.viewmodel.HomeViewModel
-import com.babelsoftware.airnote.presentation.screens.home.widgets.AddFolderDialog
 import com.babelsoftware.airnote.presentation.screens.home.widgets.FolderActionBottomSheet
 import com.babelsoftware.airnote.presentation.screens.home.widgets.MoveToFolderDialog
 import com.babelsoftware.airnote.presentation.screens.home.widgets.NoteFilter
@@ -180,6 +244,10 @@ fun HomeView (
             val notes by viewModel.displayedNotes.collectAsState()
             val settings = settingsModel.settings.value
             val selectedFolderId = viewModel.selectedFolderId.value
+            var showFolderSheet by remember { mutableStateOf(false) }
+            val selectedFolder = remember(selectedFolderId, allFolders) {
+                allFolders.find { it.id == selectedFolderId }
+            }
             val context = LocalContext.current
             // ---> Image Picker (Photo Picker)
             val imagePickerLauncher = rememberLauncherForActivityResult(
@@ -206,16 +274,30 @@ fun HomeView (
                 settingsModel.checkForNewUpdate(context)
             }
 
+            if (showFolderSheet) {
+                FolderSelectionBottomSheet(
+                    allFolders = allFolders,
+                    selectedFolderId = selectedFolderId,
+                    onDismiss = { showFolderSheet = false },
+                    onFolderSelected = { folderId ->
+                        viewModel.selectFolder(folderId)
+                        showFolderSheet = false
+                    },
+                    onAddFolderClicked = {
+                        viewModel.setAddFolderDialogVisibility(true)
+                    },
+                    onFolderLongClick = { folder ->
+                        viewModel.onFolderLongPressed(folder)
+                    }
+                )
+            }
+
             if (settingsModel.showUpdateDialog.value) {
                 UpdateScreen(
                     latestVersion = settingsModel.latestVersion.value,
                     onDismiss = { settingsModel.dismissUpdateDialog() },
                     onNavigateToAbout = onNavigateToAbout
                 )
-            }
-
-            val selectedFolder = remember(selectedFolderId, allFolders) {
-                allFolders.find { it.id == selectedFolderId }
             }
             val topBarColor = MaterialTheme.colorScheme.surfaceContainerLow
             val listState =
@@ -364,10 +446,10 @@ fun HomeView (
             }
 
             if (viewModel.isAddFolderDialogVisible.value) {
-                AddFolderDialog(
+                AddFolderDialogWithIcons(
                     onDismiss = { viewModel.setAddFolderDialogVisibility(false) },
-                    onConfirm = { name, color ->
-                        viewModel.addFolder(name, color)
+                    onConfirm = { name, iconName ->
+                        viewModel.addFolder(name, iconName)
                     }
                 )
             }
@@ -386,10 +468,10 @@ fun HomeView (
             }
 
             viewModel.folderToEdit.value?.let { folder ->
-                AddFolderDialog(
+                AddFolderDialogWithIcons(
                     onDismiss = { viewModel.onDismissEditFolderDialog() },
-                    onConfirm = { name, color ->
-                        viewModel.updateFolder(name, color)
+                    onConfirm = { name, iconName ->
+                        viewModel.updateFolder(name, iconName)
                     },
                     folderToEdit = folder
                 )
@@ -510,23 +592,10 @@ fun HomeView (
                                         viewModel.toggleIsVaultMode(false)
                                         viewModel.encryptionHelper.removePassword()
                                     }
-                                }
-                            )
-                            val folders by viewModel.allFolders.collectAsState()
-                            FolderBar(
-                                folders = folders,
-                                selectedFolderId = viewModel.selectedFolderId.value,
-                                onFolderSelected = { viewModel.selectFolder(it) },
-                                onAddFolderClicked = {
-                                    viewModel.setAddFolderDialogVisibility(
-                                        true
-                                    )
                                 },
-                                onFolderLongClick = { folder ->
-                                    viewModel.onFolderLongPressed(
-                                        folder
-                                    )
-                                }
+                                selectedFolderName = selectedFolder?.name ?: stringResource(R.string.all_notes),
+                                selectedFolderIconName = selectedFolder?.iconName,
+                                onFoldersClicked = { showFolderSheet = true }
                             )
                         }
                     }
@@ -735,7 +804,10 @@ private fun NotesSearchBar(
     onQueryChange: (String) -> Unit,
     onSettingsClick: () -> Unit,
     onVaultClicked: () -> Unit,
-    onClearClick: () -> Unit
+    onClearClick: () -> Unit,
+    selectedFolderName: String,
+    selectedFolderIconName: String?,
+    onFoldersClicked: () -> Unit
 ) {
     SearchBar(
         modifier = Modifier
@@ -754,6 +826,45 @@ private fun NotesSearchBar(
                 }
                 if (settingsModel.settings.value.vaultSettingEnabled) {
                     VaultButton(viewModel.isVaultMode.value) { onVaultClicked() }
+                }
+                AnimatedVisibility(
+                    visible = query.isBlank(),
+                    enter = fadeIn() + slideInHorizontally { it },
+                    exit = fadeOut() + slideOutHorizontally { it }
+                ) {
+                    Button(
+                        onClick = onFoldersClicked,
+                        shape = CircleShape,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        modifier = Modifier
+                            .widthIn(max = 120.dp)
+                            .padding(horizontal = 4.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp)
+                    ) {
+                        Icon(
+                            imageVector = selectedFolderIconName?.let { iconName ->
+                                iconNameToVector(iconName)
+                            } ?: Icons.Default.FolderOpen,
+                            contentDescription = "Folders",
+                            modifier = Modifier.size(18.dp)
+                        )
+
+                        if (selectedFolderName != stringResource(R.string.all_notes)) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = selectedFolderName,
+                                style = MaterialTheme.typography.labelLarge,
+                                maxLines = 1,
+                                modifier = Modifier.basicMarquee(
+                                    iterations = Int.MAX_VALUE,
+                                    initialDelayMillis = 1000
+                                )
+                            )
+                        }
+                    }
                 }
                 // ---> Update Check with Settings İcon
                 BadgedBox(
@@ -796,64 +907,283 @@ fun sorter(descending: Boolean): Comparator<Note> {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun FolderBar(
-    folders: List<Folder>,
+fun FolderSelectionBottomSheet(
+    allFolders: List<Folder>,
     selectedFolderId: Long?,
+    onDismiss: () -> Unit,
     onFolderSelected: (Long?) -> Unit,
     onAddFolderClicked: () -> Unit,
     onFolderLongClick: (Folder) -> Unit
 ) {
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        item {
-            Button(
-                onClick = { onFolderSelected(null) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selectedFolderId == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                Text(stringResource(R.string.all_notes))
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredFolders = remember(searchQuery, allFolders) {
+        if (searchQuery.isBlank()) {
+            allFolders
+        } else {
+            allFolders.filter { folder ->
+                folder.name.contains(searchQuery, ignoreCase = true)
             }
         }
+    }
 
-        items(folders) { folder ->
-            val isSelected = selectedFolderId == folder.id
-            Surface(
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        scrimColor = Color.Black.copy(alpha = 0.6f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            // Folder Search Bar
+            TextField(
+                value = searchQuery,
+                onValueChange = { newQuery -> searchQuery = newQuery },
+                placeholder = { Text(stringResource(R.string.search_folders)) },
+                leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
                 modifier = Modifier
-                    .clip(CircleShape)
-                    .combinedClickable(
-                        onClick = { onFolderSelected(folder.id) },
-                        onLongClick = { onFolderLongClick(folder) }
-                    ),
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 shape = CircleShape,
-                color = if (isSelected) Color(android.graphics.Color.parseColor(folder.color)) else MaterialTheme.colorScheme.surfaceVariant,
-                tonalElevation = 2.dp
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                )
+            )
+
+            // Folder list
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Box(
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = folder.name,
-                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                item {
+                    FolderListItem(
+                        name = stringResource(R.string.all_notes),
+                        iconName = "Inbox",
+                        isSelected = selectedFolderId == null,
+                        onClick = { onFolderSelected(null) }
                     )
                 }
-            }
-        }
-        item {
-            IconButton(onClick = onAddFolderClicked) {
-                Icon(Icons.Default.Add, contentDescription = "Add New Folder")
+
+                items(filteredFolders) { folder ->
+                    FolderListItem(
+                        name = folder.name,
+                        iconName = folder.iconName,
+                        isSelected = selectedFolderId == folder.id,
+                        onClick = { onFolderSelected(folder.id) },
+                        onLongClick = { onFolderLongClick(folder) }
+                    )
+                }
+
+                item {
+                    // "Add New Folder" button
+                    Button(
+                        onClick = onAddFolderClicked,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "Add New Folder")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.add_new_folder))
+                    }
+                }
             }
         }
     }
 }
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun FolderListItem(
+    name: String,
+    iconName: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null
+) {
+    val selectedBorder = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null
+    val cardColors = CardDefaults.cardColors(
+        containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
+    )
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(selectedBorder ?: BorderStroke(0.dp, Color.Transparent), RoundedCornerShape(16.dp))
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            ),
+        shape = RoundedCornerShape(16.dp),
+        colors = cardColors
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Show icon
+            Icon(
+                imageVector = iconNameToVector(iconName),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = name,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+            )
+        }
+    }
+}
+
+@Composable
+fun AddFolderDialogWithIcons(
+    onDismiss: () -> Unit,
+    onConfirm: (name: String, iconName: String) -> Unit,
+    folderToEdit: Folder? = null
+) {
+    var name by remember { mutableStateOf(folderToEdit?.name ?: "") }
+    var selectedIconName by remember { mutableStateOf(folderToEdit?.iconName ?: "Folder") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (folderToEdit == null) stringResource(R.string.new_folder) else stringResource(R.string.edit_folder)) },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { newName -> name = newName },
+                    label = { Text(stringResource(R.string.folder_name)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(stringResource(R.string.choose_icon), style = MaterialTheme.typography.labelLarge)
+                Spacer(modifier = Modifier.height(8.dp))
+                IconPicker(
+                    selectedIconName = selectedIconName,
+                    onIconSelected = { selectedIconName = it }
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (name.isNotBlank()) {
+                        onConfirm(name, selectedIconName)
+                    }
+                },
+                enabled = name.isNotBlank()
+            ) {
+                Text(stringResource(R.string.save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+fun IconPicker(
+    selectedIconName: String,
+    onIconSelected: (String) -> Unit
+) {
+    val icons = remember { materialIconsList }
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 48.dp),
+        modifier = Modifier.heightIn(max = 200.dp)
+    ) {
+        items(icons.keys.toList()) { iconName ->
+            val isSelected = selectedIconName == iconName
+            IconButton(
+                onClick = { onIconSelected(iconName) },
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+                )
+            ) {
+                Icon(
+                    imageVector = icons.getValue(iconName),
+                    contentDescription = iconName,
+                    tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+fun iconNameToVector(name: String): ImageVector {
+    return materialIconsList[name] ?: Icons.Default.Folder
+}
+
+val materialIconsList = mapOf(
+    "Folder" to Icons.Default.Folder,
+    "Bookmark" to Icons.Default.Bookmark,
+    "Favorite" to Icons.Default.Favorite,
+    "Home" to Icons.Default.Home,
+    "Star" to Icons.Default.Star,
+    "Event" to Icons.Default.Event,
+    "Work" to Icons.Default.Work,
+    "School" to Icons.Default.School,
+    "Person" to Icons.Default.Person,
+    "Group" to Icons.Default.Group,
+    "ShoppingCart" to Icons.Default.ShoppingCart,
+    "AttachMoney" to Icons.Default.AttachMoney,
+    "FitnessCenter" to Icons.Default.FitnessCenter,
+    "Travel" to Icons.Default.Flight,
+    "MusicNote" to Icons.Default.MusicNote,
+    "Movie" to Icons.Default.Movie,
+    "Book" to Icons.Default.Book,
+    "Code" to Icons.Default.Code,
+    "Cloud" to Icons.Default.Cloud,
+    "Lightbulb" to Icons.Default.Lightbulb,
+    "Pets" to Icons.Default.Pets,
+    "Build" to Icons.Default.Build,
+    "Palette" to Icons.Default.Palette,
+    "CardGiftcard" to Icons.Default.CardGiftcard,
+    "DirectionsCar" to Icons.Default.DirectionsCar,
+
+    // Extra İcons
+    "AccountBalance" to Icons.Default.AccountBalance,
+    "Alarm" to Icons.Default.Alarm,
+    "Apartment" to Icons.Default.Apartment,
+    "Assessment" to Icons.Default.Assessment,
+    "Backup" to Icons.Default.Backup,
+    "Cake" to Icons.Default.Cake,
+    "CameraAlt" to Icons.Default.CameraAlt,
+    "Campaign" to Icons.Default.Campaign,
+    "Chat" to Icons.AutoMirrored.Filled.Chat,
+    "Circle" to Icons.Default.Circle,
+    "ContentCut" to Icons.Default.ContentCut,
+    "Eco" to Icons.Default.Eco,
+    "Extension" to Icons.Default.Extension,
+    "Flag" to Icons.Default.Flag,
+    "Headset" to Icons.Default.Headset,
+    "Key" to Icons.Default.Key,
+    "Link" to Icons.Default.Link,
+    "Lock" to Icons.Default.Lock,
+    "Map" to Icons.Default.Map,
+    "PushPin" to Icons.Default.PushPin,
+    "Receipt" to Icons.Default.Receipt,
+    "Restaurant" to Icons.Default.Restaurant,
+    "Shield" to Icons.Default.Shield,
+    "Spa" to Icons.Default.Spa,
+    "SportsEsports" to Icons.Default.SportsEsports,
+    "Store" to Icons.Default.Store,
+    "ThumbUp" to Icons.Default.ThumbUp,
+    "Visibility" to Icons.Default.Visibility,
+    "Warning" to Icons.Default.Warning
+)
 
 @Composable
 fun ChatMessageItem(message: ChatMessage) {

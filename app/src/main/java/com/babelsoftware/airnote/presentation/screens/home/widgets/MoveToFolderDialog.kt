@@ -45,7 +45,7 @@ fun MoveToFolderDialog(
                                 Icon(
                                     imageVector = Icons.Default.Folder,
                                     contentDescription = folder.name,
-                                    tint = Color(android.graphics.Color.parseColor(folder.color))
+                                    tint = Color(android.graphics.Color.parseColor(folder.iconName))
                                 )
                             },
                             modifier = Modifier.clickable {
@@ -56,11 +56,7 @@ fun MoveToFolderDialog(
                 }
             }
         },
-        confirmButton = {
-            // Bu diyalogda sadece seçim yapıldığı için confirm butonu yerine
-            // direkt liste elemanına tıklama aksiyonu kullanıyoruz.
-            // İsterseniz bir "Vazgeç" butonu ekleyebilirsiniz.
-        },
+        confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.cancel))

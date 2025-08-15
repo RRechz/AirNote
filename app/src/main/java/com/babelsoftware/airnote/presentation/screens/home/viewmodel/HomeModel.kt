@@ -484,9 +484,9 @@ class HomeViewModel @Inject constructor(
         selectNote(null)
         _selectedFolderId.value = folderId
     }
-    fun addFolder(name: String, color: String) {
+    fun addFolder(name: String, iconName: String) {
         viewModelScope.launch {
-            folderUseCase.addFolder(Folder(name = name, color = color))
+            folderUseCase.addFolder(Folder(name = name, iconName = iconName))
             setAddFolderDialogVisibility(false)
         }
     }
@@ -549,10 +549,10 @@ class HomeViewModel @Inject constructor(
         onDismissNoteAction()
     }
 
-    fun updateFolder(name: String, color: String) {
+    fun updateFolder(name: String, iconName: String) {
         _folderToEdit.value?.let { folder ->
             viewModelScope.launch {
-                val updatedFolder = folder.copy(name = name, color = color)
+                val updatedFolder = folder.copy(name = name, iconName = iconName)
                 folderUseCase.updateFolder(updatedFolder)
                 onDismissEditFolderDialog()
             }

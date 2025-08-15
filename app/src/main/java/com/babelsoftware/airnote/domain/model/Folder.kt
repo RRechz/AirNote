@@ -12,6 +12,6 @@ data class Folder(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val name: String,
-    val color: String,
+    val iconName: String = "Folder",
     val createdAt: Long = System.currentTimeMillis()
 )

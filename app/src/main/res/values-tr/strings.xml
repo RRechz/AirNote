@@ -221,6 +221,7 @@
     <!-- Gemini Repository Strings-->
     <string name="update_card_release_notes_title">Yenilikler</string>
     <string name="error_message_image_analysis_failed">Görüntü analizi sırasında bir hata oluştu.</string>
+    <string name="choose_icon">İkon Seç</string>
     <string name="ai_action_improve_writing">Yazımı İyileştir</string>
     <string name="ai_action_summarize">Özetle</string>
     <string name="ai_action_make_shorter">Daha Kısa Yap</string>
@@ -287,4 +288,9 @@
     <string name="update_card_install_permission_needed">Güncelleme bilinmeyen kaynaklardan yükleme izni gerektirir.</string>
     <string name="update_card_download_link_not_found">İndirme linki bulunamadı.</string>
     <string name="prompt_airnote_ai_analyzeimage">Bu ekteki resmi Sherlock Holmes gibi analiz edin ve içeriğini açıklayan bir not oluşturun. Cevabınız, başlık ve içerik arasında net bir ayrım yaparak ‘BAŞLIK:’ ve ‘İÇERİK:’ içermelidir.</string>
+    <string name="about_latest_changes">Son Değişiklikler</string>
+    <string name="edit">Düzenle</string>
+    <string name="preview">Önizleme</string>
+    <string name="search_folders">Klasörlerde ara...</string>
+    <string name="new_folder">Yeni Klasör</string>
 </resources>
