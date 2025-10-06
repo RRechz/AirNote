@@ -9,10 +9,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
@@ -153,6 +155,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -206,7 +209,6 @@ import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsVie
 import com.babelsoftware.airnote.presentation.screens.settings.settings.PasswordPrompt
 import com.babelsoftware.airnote.presentation.screens.settings.settings.shapeManager
 import com.babelsoftware.airnote.presentation.theme.AiButtonColors
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -379,7 +381,7 @@ fun HomeView (
                                         .padding(horizontal = 8.dp),
                                     state = listState
                                 ) {
-                                    items(chatState.messages) { message ->
+                                    items(items = chatState.messages, key = { it.hashCode() }) { message ->
                                         AnimatedVisibility(
                                             visible = true,
                                             enter = slideInHorizontally { fullWidth ->
@@ -531,6 +533,10 @@ fun HomeView (
 
             if (settingsModel.databaseUpdate.value) viewModel.observeNotes()
             val containerColor = getContainerColor(settingsModel)
+            val sortedNotes = remember(notes, settings.sortDescending) {
+                notes.sortedWith(sorter(settings.sortDescending))
+            }
+
             NotesScaffold(
                 snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
                 floatingActionButton = {
@@ -609,7 +615,7 @@ fun HomeView (
                             radius = settingsModel.settings.value.cornerRadius / 2,
                             isBoth = true
                         ),
-                        notes = notes.sortedWith(sorter(settings.sortDescending)),
+                        notes = sortedNotes,
                         allFolders = allFolders,
                         onNoteClicked = { noteId ->
                             val clickedNote =
@@ -627,7 +633,7 @@ fun HomeView (
                         searchText = viewModel.searchQuery.value.ifBlank { null },
                         isDeleteMode = viewModel.isDeleteMode.value,
                         onNoteUpdate = { note ->
-                            CoroutineScope(Dispatchers.IO).launch {
+                            scope.launch(Dispatchers.IO) {
                                 viewModel.updateNote(note)
                             }
                         },
@@ -647,6 +653,7 @@ fun HomeView (
 }
 
 @Composable
+@ReadOnlyComposable
 fun getContainerColor(settingsModel: SettingsViewModel): Color {
     return if (settingsModel.settings.value.extremeAmoledMode) Color.Black else MaterialTheme.colorScheme.surfaceContainerHigh
 }
@@ -658,20 +665,21 @@ private fun MultiActionFloatingActionButton(
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val transition = updateTransition(targetState = isExpanded, label = "fab_transition")
-    val mainButtonRotation by transition.animateFloat(label = "fab_rotation") { expanded ->
+    val mainButtonRotation by transition.animateFloat(
+        label = "fab_rotation",
+        transitionSpec = { spring(stiffness = Spring.StiffnessMedium) }
+    ) { expanded ->
         if (expanded) 45f else 0f
     }
-
     val secondaryButtonAlpha by transition.animateFloat(
         label = "fab_alpha",
-        transitionSpec = { tween(durationMillis = 200) }
+        transitionSpec = { spring(stiffness = Spring.StiffnessMedium) }
     ) { expanded ->
         if (expanded) 1f else 0f
     }
-
     val secondaryButtonScale by transition.animateFloat(
         label = "fab_scale",
-        transitionSpec = { tween(durationMillis = 200) }
+        transitionSpec = { spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow) }
     ) { expanded ->
         if (expanded) 1f else 0.5f
     }
@@ -974,8 +982,7 @@ fun FolderSelectionBottomSheet(
                         onClick = { onFolderSelected(null) }
                     )
                 }
-
-                items(filteredFolders) { folder ->
+                items(items = filteredFolders, key = { it.id }) { folder ->
                     FolderListItem(
                         name = folder.name,
                         iconName = folder.iconName,
@@ -1101,12 +1108,12 @@ fun IconPicker(
     selectedIconName: String,
     onIconSelected: (String) -> Unit
 ) {
-    val icons = remember { materialIconsList }
+    val iconList = remember { materialIconsList.keys.toList() }
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 48.dp),
         modifier = Modifier.heightIn(max = 200.dp)
     ) {
-        items(icons.keys.toList()) { iconName ->
+        items(items = iconList, key = { it }) { iconName ->
             val isSelected = selectedIconName == iconName
             IconButton(
                 onClick = { onIconSelected(iconName) },
@@ -1115,7 +1122,7 @@ fun IconPicker(
                 )
             ) {
                 Icon(
-                    imageVector = icons.getValue(iconName),
+                    imageVector = materialIconsList.getValue(iconName),
                     contentDescription = iconName,
                     tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1376,7 +1383,7 @@ fun NewAiScreen(
             WavyGraphic(isLoading = isLoading)
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "Bugün size nasıl yardımcı olabilirim?",
+                text = "How can I help you today?",
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
@@ -1391,7 +1398,7 @@ fun NewAiScreen(
                 modifier = Modifier.padding(horizontal = 24.dp),
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp)
             ) {
-                itemsIndexed(suggestions) { index, suggestion ->
+                itemsIndexed(items = suggestions, key = { _, suggestion -> suggestion.title }) { index, suggestion ->
                     AnimatedVisibility(
                         visible = suggestionAnimatables.getOrElse(index) { mutableStateOf(false) }.value,
                         enter = slideInVertically { it / 2 } + fadeIn(),
@@ -1413,7 +1420,6 @@ fun NewAiScreen(
                 onSendMessage(text)
                 text = ""
             },
-            // DEĞİŞİKLİK: Tıklandığında ViewModel'deki fonksiyonu çağırmasını söylüyoruz
             onImagePickerClicked = { viewModel.requestImageForAnalysis() },
             enabled = !isLoading,
             onFocusChanged = { focused ->
