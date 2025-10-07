@@ -690,44 +690,79 @@ private fun MultiActionFloatingActionButton(
     ) {
         AnimatedVisibility(
             visible = isExpanded,
-            enter = fadeIn(),
-            exit = fadeOut()
+            enter = fadeIn(animationSpec = tween(150)),
+            exit = fadeOut(animationSpec = tween(150))
         ) {
             Column(
                 horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                SmallFloatingActionButton(
-                    onClick = {
-                        onAskAiClicked()
-                        isExpanded = false
-                    },
-                    containerColor = AiButtonColors.GeminiContainer,
+                // AI Button with Label
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.graphicsLayer {
                         alpha = secondaryButtonAlpha
                         scaleX = secondaryButtonScale
                         scaleY = secondaryButtonScale
                     }
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.AutoAwesome,
-                        contentDescription = stringResource(R.string.ai_button_texts),
-                        tint = AiButtonColors.GeminiOnContainer
-                    )
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        tonalElevation = 2.dp
+                    ) {
+                        Text(
+                            text = stringResource(R.string.ai_button_texts),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                    SmallFloatingActionButton(
+                        onClick = {
+                            onAskAiClicked()
+                            isExpanded = false
+                        },
+                        containerColor = AiButtonColors.GeminiContainer
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.AutoAwesome,
+                            contentDescription = stringResource(R.string.ai_button_texts),
+                            tint = AiButtonColors.GeminiOnContainer
+                        )
+                    }
                 }
-                SmallFloatingActionButton(
-                    onClick = {
-                        onNewNoteClicked()
-                        isExpanded = false
-                    },
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+
+                // New Note Button with Label
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.graphicsLayer {
                         alpha = secondaryButtonAlpha
                         scaleX = secondaryButtonScale
                         scaleY = secondaryButtonScale
                     }
                 ) {
-                    Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.new_note))
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        tonalElevation = 2.dp
+                    ) {
+                        Text(
+                            text = stringResource(R.string.new_note),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                    SmallFloatingActionButton(
+                        onClick = {
+                            onNewNoteClicked()
+                            isExpanded = false
+                        },
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    ) {
+                        Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.new_note))
+                    }
                 }
             }
         }
