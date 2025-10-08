@@ -222,6 +222,7 @@
     <string name="update_card_release_notes_title">Yenilikler</string>
     <string name="error_message_image_analysis_failed">Görüntü analizi sırasında bir hata oluştu.</string>
     <string name="choose_icon">İkon Seç</string>
+    <string name="whats_new_this_version">Bu sürümde ki yenilikler</string>
     <string name="ai_action_improve_writing">Yazımı İyileştir</string>
     <string name="ai_action_summarize">Özetle</string>
     <string name="ai_action_make_shorter">Daha Kısa Yap</string>
@@ -293,4 +294,8 @@
     <string name="preview">Önizleme</string>
     <string name="search_folders">Klasörlerde ara...</string>
     <string name="new_folder">Yeni Klasör</string>
+    <string name="hide">Gizle</string>
+    <string name="whats_new">Yenilikler</string>
+    <string name="ready_to_setup">Kuruluma hazır!</string>
+    <string name="using_latest_features">Harika! En son sürüm özelliklerini kullanıyorsunuz.</string>
 </resources>

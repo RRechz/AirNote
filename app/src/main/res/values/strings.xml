@@ -242,6 +242,11 @@
     <string name="search_folders">Search Folders...</string>
     <string name="new_folder">New Folder</string>
     <string name="choose_icon">Choose Icon</string>
+    <string name="hide">Hide</string>
+    <string name="whats_new">What\'s New?</string>
+    <string name="ready_to_setup">Ready to Setup!</string>
+    <string name="using_latest_features">Great! You\'re using the latest features.</string>
+    <string name="whats_new_this_version">What\'s New in This Version!</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>

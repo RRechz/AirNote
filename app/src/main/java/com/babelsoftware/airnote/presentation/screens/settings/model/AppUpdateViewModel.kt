@@ -7,9 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.babelsoftware.airnote.data.provider.StringProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -32,11 +35,12 @@ class AppUpdateViewModel @Inject constructor(
 
     private val _updateState = MutableStateFlow<UpdateState>(UpdateState.Idle)
     val updateState = _updateState.asStateFlow()
+    private var downloadJob: Job? = null
 
     fun downloadAndInstallApk(downloadUrl: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        downloadJob?.cancel()
+        downloadJob = viewModelScope.launch(Dispatchers.IO) {
             try {
-                // ---> Downloading process
                 _updateState.value = UpdateState.Downloading(0)
                 val url = URL(downloadUrl)
                 val connection = url.openConnection()
@@ -46,13 +50,22 @@ class AppUpdateViewModel @Inject constructor(
                 val file = File(app.cacheDir, "update.apk")
                 val outputStream = FileOutputStream(file)
                 var total: Long = 0
-                val data = ByteArray(1024)
+                val data = ByteArray(1024 * 4)
                 var count: Int
                 while (inputStream.read(data).also { count = it } != -1) {
+                    if (!isActive) {
+                        outputStream.close()
+                        inputStream.close()
+                        file.delete()
+                        throw CancellationException("Download cancelled by user.")
+                    }
+
                     total += count.toLong()
                     outputStream.write(data, 0, count)
-                    val progress = (total * 100 / fileSize).toInt()
-                    _updateState.value = UpdateState.Downloading(progress)
+                    if (fileSize > 0) {
+                        val progress = (total * 100 / fileSize).toInt()
+                        _updateState.value = UpdateState.Downloading(progress)
+                    }
                 }
                 outputStream.flush()
                 outputStream.close()
@@ -61,15 +74,19 @@ class AppUpdateViewModel @Inject constructor(
                 val authority = "${app.packageName}.provider"
                 val apkUri = FileProvider.getUriForFile(app, authority, file)
                 _updateState.value = UpdateState.ReadyToInstall(apkUri)
+
+            } catch (e: CancellationException) {
+                _updateState.value = UpdateState.Idle
+                println("İndirme kullanıcı tarafından iptal edildi.")
             } catch (e: Exception) {
                 e.printStackTrace()
                 _updateState.value = UpdateState.Failed("Güncelleme indirilirken bir hata oluştu: ${e.message}")
             }
-            // <---
         }
     }
-
     fun resetState() {
+        downloadJob?.cancel()
+        downloadJob = null
         _updateState.value = UpdateState.Idle
     }
 }
