@@ -11,7 +11,7 @@ import com.babelsoftware.airnote.presentation.screens.settings.settings.Language
 import com.babelsoftware.airnote.presentation.screens.settings.settings.MarkdownScreen
 import com.babelsoftware.airnote.presentation.screens.settings.settings.PrivacyScreen
 import com.babelsoftware.airnote.presentation.screens.settings.settings.SupportScreen
-import com.babelsoftware.airnote.presentation.screens.settings.AirNoteAiSettingsScreen
+import com.babelsoftware.airnote.presentation.screens.settings.settings.AirNoteAiSettingsScreen
 import com.babelsoftware.airnote.presentation.screens.settings.settings.DesktopModeSettingsScreen
 import com.babelsoftware.airnote.presentation.screens.settings.settings.ToolsScreen
 

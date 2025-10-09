@@ -34,7 +34,7 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = 1
-        versionName = "v1.3.3"
+        versionName = "v1.4"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -98,9 +98,11 @@ dependencies {
     ksp(libs.hilt.compile)
 
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
-    implementation("androidx.security:security-crypto:1.1.0-beta01")
+    implementation("androidx.security:security-crypto:1.1.0")
     implementation("com.udojava:EvalEx:2.7")
-    implementation("androidx.activity:activity-compose:1.10.1")
+    implementation("androidx.activity:activity-compose:1.11.0")
+    implementation("com.google.mlkit:translate:17.0.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.datastore.preferences)
