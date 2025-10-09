@@ -50,11 +50,11 @@ class GeminiRepository @Inject constructor(
     private val stringProvider: StringProvider
 ) {
     /**
-     * Tests if the given API key is valid.
+     * Tests if the given API key is valid for the selected model.
      */
-    suspend fun validateApiKey(apiKey: String): Result<Unit> = withContext(Dispatchers.IO) {
+    suspend fun validateApiKey(apiKey: String, modelName: String): Result<Unit> = withContext(Dispatchers.IO) {
         return@withContext try {
-            GenerativeModel(modelName = "gemini-2.0-flash-001", apiKey = apiKey)
+            GenerativeModel(modelName = modelName, apiKey = apiKey)
                 .countTokens("test")
             Result.success(Unit)
         } catch (e: Exception) {
@@ -189,10 +189,10 @@ class GeminiRepository @Inject constructor(
     suspend fun generateDraft(
         topic: String,
         apiKey: String
-        ): String? {
+    ): String? {
         val currentSettings = settingsRepository.settings.first()
 
-        if (apiKey.isNullOrBlank()) {
+        if (apiKey.isBlank()) {
             return stringProvider.getString(R.string.error_no_user_api_key)
         }
 
