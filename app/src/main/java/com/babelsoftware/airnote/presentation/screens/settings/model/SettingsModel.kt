@@ -59,6 +59,18 @@ class SettingsViewModel @Inject constructor(
     private val _showUpdateDialog = mutableStateOf(false)
     val showUpdateDialog: State<Boolean> = _showUpdateDialog
 
+    private val _userApiKey = mutableStateOf("")
+    val userApiKey: State<String> = _userApiKey
+
+    private val _isVerifyingApiKey = mutableStateOf(false)
+    val isVerifyingApiKey: State<Boolean> = _isVerifyingApiKey
+
+    private val _isApiKeyVerified = mutableStateOf(false)
+    val isApiKeyVerified: State<Boolean> = _isApiKeyVerified
+
+    private val _uiEvent = Channel<String>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
     fun checkForNewUpdate(context: Context) {
         viewModelScope.launch {
             val latestVersionFromGitHub = checkForUpdates()
@@ -94,26 +106,33 @@ class SettingsViewModel @Inject constructor(
 
         }
     }
-    private val _userApiKey = mutableStateOf("")
-    val userApiKey: State<String> = _userApiKey
 
     fun updateUserApiKey(newApiKey: String) {
         _userApiKey.value = newApiKey
+        if (_isApiKeyVerified.value) {
+            _isApiKeyVerified.value = false
+        }
     }
 
-    private fun loadUserApiKey() {
-        _userApiKey.value = secureStorageRepository.getUserApiKey() ?: ""
+    private fun checkStoredApiKey() {
+        val storedKey = secureStorageRepository.getUserApiKey() ?: ""
+        _userApiKey.value = storedKey
+        val storedModel = settings.value.selectedModelName
+
+        if (storedKey.isNotBlank()) {
+            viewModelScope.launch {
+                val result = geminiRepository.validateApiKey(
+                    apiKey = storedKey,
+                    modelName = storedModel
+                )
+                _isApiKeyVerified.value = result.isSuccess
+            }
+        }
     }
-
-    private val _isVerifyingApiKey = mutableStateOf(false)
-    val isVerifyingApiKey: State<Boolean> = _isVerifyingApiKey
-
-    private val _uiEvent = Channel<String>()
-    val uiEvent = _uiEvent.receiveAsFlow()
 
     fun verifyUserApiKey() {
         val keyToVerify = _userApiKey.value
-        secureStorageRepository.saveUserApiKey(keyToVerify)
+        val modelToVerify = settings.value.selectedModelName
 
         if (keyToVerify.isBlank()) {
             viewModelScope.launch { _uiEvent.send(stringProvider.getString(R.string.error_api_key_blank)) }
@@ -122,11 +141,18 @@ class SettingsViewModel @Inject constructor(
 
         viewModelScope.launch {
             _isVerifyingApiKey.value = true
-            val result = geminiRepository.validateApiKey(keyToVerify)
-            val message = if (result.isSuccess) {
-                stringProvider.getString(R.string.api_key_validation_success)
+            val result = geminiRepository.validateApiKey(
+                apiKey = keyToVerify,
+                modelName = modelToVerify
+            )
+            _isApiKeyVerified.value = result.isSuccess
+
+            val message: String
+            if (result.isSuccess) {
+                secureStorageRepository.saveUserApiKey(keyToVerify)
+                message = stringProvider.getString(R.string.api_key_validation_success)
             } else {
-                stringProvider.getString(R.string.api_key_validation_failure)
+                message = stringProvider.getString(R.string.api_key_validation_failure)
             }
             _uiEvent.send(message)
             _isVerifyingApiKey.value = false
@@ -135,6 +161,9 @@ class SettingsViewModel @Inject constructor(
 
     fun updateSelectedModel(modelName: String) {
         update(settings.value.copy(selectedModelName = modelName))
+        if (_isApiKeyVerified.value) {
+            _isApiKeyVerified.value = false
+        }
     }
 
     fun updateDefaultRoute(route: String) {
@@ -247,9 +276,6 @@ class SettingsViewModel @Inject constructor(
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
-    private val _isApiKeyVerified = mutableStateOf(false)
-    val isApiKeyVerified: State<Boolean> = _isApiKeyVerified
-
     val version: String = BuildConfig.VERSION_NAME
     val build: String = BuildConfig.BUILD_TYPE
 
@@ -257,6 +283,6 @@ class SettingsViewModel @Inject constructor(
         runBlocking {
             loadSettings()
         }
-        loadUserApiKey()
+        checkStoredApiKey()
     }
 }
