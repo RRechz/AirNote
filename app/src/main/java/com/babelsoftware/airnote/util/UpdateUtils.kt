@@ -6,7 +6,13 @@
 
 package com.babelsoftware.airnote.util
 
+import android.util.Log
+import com.google.mlkit.common.model.DownloadConditions
+import com.google.mlkit.nl.translate.TranslateLanguage
+import com.google.mlkit.nl.translate.Translation
+import com.google.mlkit.nl.translate.TranslatorOptions
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.URL
@@ -115,6 +121,39 @@ suspend fun getChangelogFromGitHub(): ChangelogResult {
             // <---
         } catch (e: Exception) {
             ChangelogResult.Error(e)
+        }
+    }
+}
+
+/**
+ * Translates the given text to the target language using ML Kit.
+ * @param textToTranslate The text to be translated (assumed to be in English).
+ * @param targetLanguage The language code to translate to (e.g., "tr").
+ * @return The translated text, or null if translation fails.
+ */
+suspend fun translateText(textToTranslate: String, targetLanguage: String): String? {
+    return withContext(Dispatchers.IO) {
+        if (targetLanguage == "en" || textToTranslate.isBlank()) {
+            return@withContext textToTranslate
+        }
+        try {
+            val options = TranslatorOptions.Builder()
+                .setSourceLanguage(TranslateLanguage.ENGLISH)
+                .setTargetLanguage(targetLanguage)
+                .build()
+            val translator = Translation.getClient(options)
+
+            val conditions = DownloadConditions.Builder()
+                .requireWifi()
+                .build()
+            translator.downloadModelIfNeeded(conditions).await()
+
+            val translatedText = translator.translate(textToTranslate).await()
+            translator.close()
+            translatedText
+        } catch (e: Exception) {
+            Log.e("Translation", "Text translation failed.", e)
+            null
         }
     }
 }

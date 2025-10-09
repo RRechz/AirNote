@@ -223,6 +223,7 @@
     <string name="error_message_image_analysis_failed">Görüntü analizi sırasında bir hata oluştu.</string>
     <string name="choose_icon">İkon Seç</string>
     <string name="whats_new_this_version">Bu sürümde ki yenilikler</string>
+    <string name="translation_failed">Çeviri Başarısız...</string>
     <string name="ai_action_improve_writing">Yazımı İyileştir</string>
     <string name="ai_action_summarize">Özetle</string>
     <string name="ai_action_make_shorter">Daha Kısa Yap</string>
@@ -298,4 +299,6 @@
     <string name="whats_new">Yenilikler</string>
     <string name="ready_to_setup">Kuruluma hazır!</string>
     <string name="using_latest_features">Harika! En son sürüm özelliklerini kullanıyorsunuz.</string>
+    <string name="translate">Çevir</string>
+    <string name="original_text">Orijinal Dil</string>
 </resources>

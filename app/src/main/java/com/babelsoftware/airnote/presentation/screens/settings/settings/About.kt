@@ -47,6 +47,7 @@ import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -62,6 +63,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -88,6 +90,9 @@ import com.babelsoftware.airnote.presentation.screens.settings.widgets.ActionTyp
 import com.babelsoftware.airnote.presentation.screens.settings.widgets.SettingsBox
 import com.babelsoftware.airnote.util.ReleaseInfo
 import com.babelsoftware.airnote.util.getLatestReleaseInfo
+import com.babelsoftware.airnote.util.translateText
+import kotlinx.coroutines.launch
+import java.util.Locale
 
 
 @Composable
@@ -208,11 +213,26 @@ fun UpdateCard(
     var isLoading by remember { mutableStateOf(true) }
     var changelogVisible by remember { mutableStateOf(false) }
 
+    val scope = rememberCoroutineScope()
+    var displayedChangelog by remember { mutableStateOf("") }
+    var isTranslating by remember { mutableStateOf(false) }
+    var isOriginalChangelog by remember { mutableStateOf(true) }
+
+
     LaunchedEffect(key1 = true) {
         if (latestReleaseInfo == null) {
             isLoading = true
             latestReleaseInfo = getLatestReleaseInfo()
             isLoading = false
+        }
+    }
+
+    LaunchedEffect(latestReleaseInfo) {
+        latestReleaseInfo?.let {
+            val cleanOriginalChangelog = it.changelog.substringAfter("## Changelog", it.changelog).trim()
+            displayedChangelog = cleanOriginalChangelog
+            isOriginalChangelog = true
+            isTranslating = false
         }
     }
 
@@ -332,8 +352,49 @@ fun UpdateCard(
                                                     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                                                     Text(stringResource(id = R.string.update_card_download_now))
                                                 }
-                                                TextButton(onClick = { changelogVisible = !changelogVisible }, colors = ButtonDefaults.textButtonColors(contentColor = contentColor)) {
-                                                    Text(if (changelogVisible) stringResource(R.string.hide) else stringResource(R.string.whats_new))
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    TextButton(onClick = { changelogVisible = !changelogVisible }, colors = ButtonDefaults.textButtonColors(contentColor = contentColor)) {
+                                                        Text(if (changelogVisible) stringResource(R.string.hide) else stringResource(R.string.whats_new))
+                                                    }
+                                                    if (changelogVisible) {
+                                                        Spacer(Modifier.width(8.dp))
+                                                        if (isTranslating) {
+                                                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = contentColor, strokeWidth = 2.dp)
+                                                        } else {
+                                                            TextButton(
+                                                                onClick = {
+                                                                    scope.launch {
+                                                                        isTranslating = true
+                                                                        val originalChangelog = latestReleaseInfo?.changelog?.substringAfter("## Changelog", latestReleaseInfo?.changelog ?: "")?.trim() ?: ""
+                                                                        if (isOriginalChangelog) {
+                                                                            val translatedLines = StringBuilder()
+                                                                            originalChangelog.lines().forEach { line ->
+                                                                                val trimmedLine = line.trim()
+                                                                                if (trimmedLine.startsWith("*") || trimmedLine.startsWith("-")) {
+                                                                                    val contentToTranslate = trimmedLine.substring(1).trim()
+                                                                                    val translatedContent = translateText(contentToTranslate, Locale.getDefault().language)
+                                                                                    translatedLines.append("* ${translatedContent ?: contentToTranslate}\n")
+                                                                                } else {
+                                                                                    translatedLines.append("$line\n")
+                                                                                }
+                                                                            }
+                                                                            displayedChangelog = translatedLines.toString().trim()
+                                                                            isOriginalChangelog = false
+                                                                        } else {
+                                                                            displayedChangelog = originalChangelog
+                                                                            isOriginalChangelog = true
+                                                                        }
+                                                                        isTranslating = false
+                                                                    }
+                                                                },
+                                                                colors = ButtonDefaults.textButtonColors(contentColor = contentColor)
+                                                            ) {
+                                                                Icon(Icons.Rounded.Translate, contentDescription = "Translate", modifier = Modifier.size(ButtonDefaults.IconSize))
+                                                                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                                                Text(if (isOriginalChangelog) stringResource(R.string.translate) else stringResource(R.string.original_text))
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -396,7 +457,7 @@ fun UpdateCard(
 
                 if (changelogVisible && latestReleaseInfo != null) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    ChangelogContent(releaseInfo = latestReleaseInfo!!, color = contentColor)
+                    ChangelogContent(changelogText = displayedChangelog, color = contentColor)
                 }
             }
         }
@@ -404,16 +465,18 @@ fun UpdateCard(
 }
 
 @Composable
-private fun ChangelogContent(releaseInfo: ReleaseInfo, color: Color) {
+private fun ChangelogContent(changelogText: String, color: Color) {
     Column {
         Text(text = stringResource(R.string.whats_new_this_version), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = color)
         Spacer(modifier = Modifier.height(8.dp))
-        releaseInfo.changelog?.split("\n")?.forEach { line ->
+        changelogText.lines().forEach { line ->
             if (line.trim().startsWith("*") || line.trim().startsWith("-")) {
                 Row(modifier = Modifier.padding(bottom = 4.dp)) {
                     Text("• ", color = color.copy(alpha = 0.9f), style = MaterialTheme.typography.bodyMedium)
-                    Text(text = line.trim().removePrefix("*").removePrefix("-").trim(), style = MaterialTheme.typography.bodyMedium, color = color.copy(alpha = 0.9f), lineHeight = 20.sp)
+                    Text(text = line.trim().substring(1).trim(), style = MaterialTheme.typography.bodyMedium, color = color.copy(alpha = 0.9f), lineHeight = 20.sp)
                 }
+            } else if (line.isNotBlank()){
+                Text(text = line, style = MaterialTheme.typography.bodyMedium, color = color.copy(alpha = 0.9f), lineHeight = 20.sp, modifier = Modifier.padding(bottom = 4.dp))
             }
         }
     }

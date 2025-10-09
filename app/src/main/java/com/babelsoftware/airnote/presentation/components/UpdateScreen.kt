@@ -6,12 +6,6 @@
 
 package com.babelsoftware.airnote.presentation.components
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
@@ -49,7 +43,7 @@ fun UpdateScreen(
                     }
                 }
                 is ChangelogResult.Error -> {
-                    context.getString(R.string.changelog_fetch_error_with_message, result.exception.message ?: "Bilinmeyen Hata")
+                    context.getString(R.string.changelog_fetch_error_with_message, result.exception.message ?: "Unknow error")
                 }
             }
         }

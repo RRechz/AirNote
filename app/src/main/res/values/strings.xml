@@ -247,6 +247,9 @@
     <string name="ready_to_setup">Ready to Setup!</string>
     <string name="using_latest_features">Great! You\'re using the latest features.</string>
     <string name="whats_new_this_version">What\'s New in This Version!</string>
+    <string name="translate">Translate</string>
+    <string name="original_text">Original language</string>
+    <string name="translation_failed">Translation failed</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>
