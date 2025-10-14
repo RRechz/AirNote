@@ -289,7 +289,8 @@ class HomeViewModel @Inject constructor(
                 Note(
                     name = draft.title,
                     description = draft.content,
-                    // ... other Note properties
+                    folderId = selectedFolderId.value,
+                    encrypted = isVaultMode.value
                 )
             )
             resetChatState()

@@ -37,8 +37,7 @@ fun NoteFilter(
     onNoteUpdate: (Note) -> Unit = {},
     onDeleteNote: (Int) -> Unit = {}
 ) {
-    val filteredNotes = filterNotes(notes, searchText)
-    if (filteredNotes.isEmpty()) {
+    if (notes.isEmpty()) {
         Placeholder(
             modifier = modifier,
             placeholderIcon = {
@@ -58,7 +57,7 @@ fun NoteFilter(
             settingsViewModel = settingsViewModel,
             containerColor = containerColor,
             onNoteClicked = onNoteClicked,
-            notes = filteredNotes,
+            notes = notes,
             allFolders = allFolders,
             shape = shape,
             onNoteUpdate = onNoteUpdate,
@@ -68,14 +67,6 @@ fun NoteFilter(
             animationFinished = onDeleteNote
         )
     }
-}
-
-private fun filterNotes(notes: List<Note>, searchText: String?): List<Note> {
-    return searchText?.takeIf { it.isNotBlank() }?.let { query ->
-        notes.filter { note ->
-            note.name.contains(query, ignoreCase = true) || note.description.contains(query, ignoreCase = true)
-        }
-    } ?: notes
 }
 
 @Composable

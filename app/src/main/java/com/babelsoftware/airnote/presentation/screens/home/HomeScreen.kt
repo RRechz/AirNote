@@ -245,7 +245,7 @@ fun HomeView (
             val allFolders by viewModel.allFolders.collectAsState()
             val notes by viewModel.displayedNotes.collectAsState()
             val settings = settingsModel.settings.value
-            val selectedFolderId = viewModel.selectedFolderId.value
+            val selectedFolderId by viewModel.selectedFolderId.collectAsState()
             var showFolderSheet by remember { mutableStateOf(false) }
             val selectedFolder = remember(selectedFolderId, allFolders) {
                 allFolders.find { it.id == selectedFolderId }
@@ -546,7 +546,7 @@ fun HomeView (
                         exit = slideOutVertically(targetOffsetY = { it * 2 })
                     ) {
                         MultiActionFloatingActionButton(
-                            onNewNoteClicked = { onNoteClicked(0, viewModel.isVaultMode.value, null) },
+                            onNewNoteClicked = { onNoteClicked(0, viewModel.isVaultMode.value, selectedFolderId) },
                             onAskAiClicked = { viewModel.toggleAiChatSheet(true) }
                         )
                     }
