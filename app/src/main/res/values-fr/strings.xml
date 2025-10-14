@@ -166,7 +166,6 @@
     <string name="font_size_value">Taille de la police : %1$d</string>
     <string name="font_size_preview_title">Aperçu</string>
     <string name="font_size_preview_text">Voici à quoi ressembleront vos notes avec la taille de police sélectionnée.</string>
-    <string name="developer" translatable="false">Développeur | @RRechz</string>
     <string name="info_dev">Fondateur de Babel Software et développeur Android</string>
     <string name="add_new_folder">Ajouter un nouveau dossier</string>
     <string name="folder_name">Nom du dossier</string>

@@ -166,7 +166,6 @@
     <string name="font_size_value">Tipara Grandeco: %1$d</string>
     <string name="font_size_preview_title">Antaŭvido</string>
     <string name="font_size_preview_text">Jen kiel viaj notoj aspektos kun la elektita tipara grandeco.</string>
-    <string name="developer" translatable="false">Programisto | @RRechz</string>
     <string name="info_dev">Fondinto de Babel Software kaj Android-programisto</string>
     <string name="add_new_folder">Aldoni novan dosierujon</string>
     <string name="folder_name">Nomo de dosierujo</string>

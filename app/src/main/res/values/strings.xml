@@ -250,6 +250,11 @@
     <string name="translate">Translate</string>
     <string name="original_text">Original language</string>
     <string name="translation_failed">Translation failed</string>
+    <string name="gemini_api_key">Gemini API Key</string>
+    <string name="save_and_check">Save And Check</string>
+    <string name="successfully_verified">Successfully verified and recorded!</string>
+    <string name="open_last_folder">Last Folder (BETA)</string>
+    <string name="open_last_folder_description">When the application opens, it displays the last folder viewed</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>

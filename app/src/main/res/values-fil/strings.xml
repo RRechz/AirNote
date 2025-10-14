@@ -166,7 +166,6 @@
     <string name="font_size_value">Laki ng Font: %1$d</string>
     <string name="font_size_preview_title">Preview</string>
     <string name="font_size_preview_text">Ito ang magiging hitsura ng iyong mga tala sa napiling laki ng font.</string>
-    <string name="developer" translatable="false">Developer | @RRechz</string>
     <string name="info_dev">Tagapagtatag ng Babel Software at developer ng Android</string>
     <string name="add_new_folder">Magdagdag ng bagong folder</string>
     <string name="folder_name">Pangalan ng folder</string>

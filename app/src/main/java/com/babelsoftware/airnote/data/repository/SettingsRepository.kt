@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.babelsoftware.airnote.domain.model.Settings
@@ -53,6 +54,8 @@ private object PreferencesKeys {
     val SELECTED_MODEL_NAME = stringPreferencesKey("selected_model_name")
     val DESKTOP_MODE_ENABLED = booleanPreferencesKey("desktop_mode_enabled")
     val DESKTOP_MODE_AI_ENABLED = booleanPreferencesKey("desktop_mode_ai_enabled")
+    val OPEN_TO_LAST_USED_FOLDER = booleanPreferencesKey("open_to_last_used_folder")
+    val LAST_USED_FOLDER_ID = longPreferencesKey("last_used_folder_id")
 }
 
 class SettingsRepositoryImpl(private val context: Context) : SettingsRepository {
@@ -90,7 +93,9 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
             useAirNoteApi = preferences[PreferencesKeys.USE_AIRNOTE_API] ?: false,
             selectedModelName = preferences[PreferencesKeys.SELECTED_MODEL_NAME] ?: "gemini-2.0-flash-001",
             desktopModeEnabled = preferences[PreferencesKeys.DESKTOP_MODE_ENABLED] ?: true,
-            desktopModeAiEnabled = preferences[PreferencesKeys.DESKTOP_MODE_AI_ENABLED] ?: true
+            desktopModeAiEnabled = preferences[PreferencesKeys.DESKTOP_MODE_AI_ENABLED] ?: true,
+            openToLastUsedFolder = preferences[PreferencesKeys.OPEN_TO_LAST_USED_FOLDER] ?: false,
+            lastUsedFolderId = preferences[PreferencesKeys.LAST_USED_FOLDER_ID]
         )
     }
 
@@ -128,6 +133,8 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
             preferences[PreferencesKeys.SELECTED_MODEL_NAME] = settings.selectedModelName
             preferences[PreferencesKeys.DESKTOP_MODE_ENABLED] = settings.desktopModeEnabled
             preferences[PreferencesKeys.DESKTOP_MODE_AI_ENABLED] = settings.desktopModeAiEnabled
+            preferences[PreferencesKeys.OPEN_TO_LAST_USED_FOLDER] = settings.openToLastUsedFolder
+            settings.lastUsedFolderId?.let { preferences[PreferencesKeys.LAST_USED_FOLDER_ID] = it } ?: preferences.remove(PreferencesKeys.LAST_USED_FOLDER_ID)
         }
     }
 

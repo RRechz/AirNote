@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.Style
 import androidx.compose.material.icons.rounded.Swipe
@@ -16,13 +17,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.presentation.components.unregisterGalleryObserver
 import com.babelsoftware.airnote.presentation.screens.settings.SettingsScaffold
+import com.babelsoftware.airnote.presentation.screens.settings.model.IconResource
 import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsViewModel
 import com.babelsoftware.airnote.presentation.screens.settings.widgets.ActionType
 import com.babelsoftware.airnote.presentation.screens.settings.widgets.SettingsBox
-import com.babelsoftware.airnote.R
-import com.babelsoftware.airnote.presentation.screens.settings.model.IconResource
 
 @Composable
 fun MarkdownScreen(navController: NavController, settingsViewModel: SettingsViewModel) {
@@ -127,7 +128,6 @@ fun MarkdownScreen(navController: NavController, settingsViewModel: SettingsView
                     icon = IconResource.Vector(Icons.Rounded.Swipe),
                     actionType = ActionType.SWITCH,
                     radius = shapeManager(
-                        isLast = true,
                         radius = settingsViewModel.settings.value.cornerRadius
                     ),
                     variable = settingsViewModel.settings.value.disableSwipeInEditMode,
@@ -136,6 +136,33 @@ fun MarkdownScreen(navController: NavController, settingsViewModel: SettingsView
                             settingsViewModel.settings.value.copy(
                                 disableSwipeInEditMode = it
                             )
+                        )
+                    }
+                )
+                SettingsBox(
+                    settingsViewModel = settingsViewModel,
+                    title = stringResource(id = R.string.open_last_folder),
+                    description = stringResource(id = R.string.open_last_folder_description),
+                    icon = IconResource.Vector(Icons.Rounded.FolderOpen),
+                    actionType = ActionType.SWITCH,
+                    radius = shapeManager(
+                        isLast = true,
+                        radius = settingsViewModel.settings.value.cornerRadius
+                    ),
+                    variable = settingsViewModel.settings.value.openToLastUsedFolder,
+                    switchEnabled = { isEnabled ->
+                        settingsViewModel.update(
+                            if (isEnabled) {
+                                // Enable the feature. The next folder selection will be saved.
+                                settingsViewModel.settings.value.copy(openToLastUsedFolder = true)
+                            } else {
+                                // When disabling the feature, clear the last used folder ID
+                                // to ensure a clean state for the next time it's enabled.
+                                settingsViewModel.settings.value.copy(
+                                    openToLastUsedFolder = false,
+                                    lastUsedFolderId = null
+                                )
+                            }
                         )
                     }
                 )

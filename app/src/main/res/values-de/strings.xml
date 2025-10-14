@@ -166,7 +166,6 @@
     <string name="font_size_value">Schriftgröße: %1$d</string>
     <string name="font_size_preview_title">Vorschau</string>
     <string name="font_size_preview_text">So werden Ihre Notizen mit der ausgewählten Schriftgröße aussehen.</string>
-    <string name="developer" translatable="false">Entwickler | @RRechz</string>
     <string name="info_dev">Gründer von Babel Software und Android-Entwickler</string>
     <string name="add_new_folder">Neuen Ordner hinzufügen</string>
     <string name="folder_name">Ordnername</string>

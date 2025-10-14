@@ -166,7 +166,6 @@
     <string name="font_size_value">حجم الخط: %1$d</string>
     <string name="font_size_preview_title">معاينة</string>
     <string name="font_size_preview_text">هكذا ستبدو ملاحظاتك بحجم الخط المحدد.</string>
-    <string name="developer" translatable="false">المطور | @RRechz</string>
     <string name="info_dev">مؤسس Babel Software ومطور أندرويد</string>
     <string name="add_new_folder">إضافة مجلد جديد</string>
     <string name="folder_name">اسم المجلد</string>

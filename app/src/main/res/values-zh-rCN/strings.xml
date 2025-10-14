@@ -166,7 +166,6 @@
     <string name="font_size_value">字体大小：%1$d</string>
     <string name="font_size_preview_title">预览</string>
     <string name="font_size_preview_text">这是您选择的字体大小下笔记的外观。</string>
-    <string name="developer" translatable="false">开发者 | @RRechz</string>
     <string name="info_dev">Babel Software 创始人兼 Android 开发者</string>
     <string name="add_new_folder">添加新文件夹</string>
     <string name="folder_name">文件夹名称</string>

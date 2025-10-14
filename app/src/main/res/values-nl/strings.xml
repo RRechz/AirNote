@@ -166,7 +166,6 @@
     <string name="font_size_value">Lettergrootte: %1$d</string>
     <string name="font_size_preview_title">Voorvertoning</string>
     <string name="font_size_preview_text">Zo zien je notities eruit met de geselecteerde lettergrootte.</string>
-    <string name="developer" translatable="false">Ontwikkelaar | @RRechz</string>
     <string name="info_dev">Oprichter van Babel Software en Android-ontwikkelaar</string>
     <string name="add_new_folder">Nieuwe map toevoegen</string>
     <string name="folder_name">Mapnaam</string>

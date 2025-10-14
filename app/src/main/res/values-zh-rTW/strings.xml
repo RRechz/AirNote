@@ -166,7 +166,6 @@
     <string name="font_size_value">字型大小：%1$d</string>
     <string name="font_size_preview_title">預覽</string>
     <string name="font_size_preview_text">這是您選取的字型大小在筆記中的外觀。</string>
-    <string name="developer" translatable="false">開發者 | @RRechz</string>
     <string name="info_dev">Babel Software 創辦人與 Android 開發者</string>
     <string name="add_new_folder">新增資料夾</string>
     <string name="folder_name">資料夾名稱</string>

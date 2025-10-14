@@ -445,6 +445,16 @@ class HomeViewModel @Inject constructor(
 
     init {
         noteUseCase.observe()
+        viewModelScope.launch {
+            val settings = settingsRepository.settings.first()
+            // Check if the feature is on AND there is a folder ID to restore
+            if (settings.openToLastUsedFolder && settings.lastUsedFolderId != null) {
+                // Restore the folder selection
+                _selectedFolderId.value = settings.lastUsedFolderId
+                // Clear the stored ID so it's only used once per app launch, as you requested.
+                settingsRepository.update(settings.copy(lastUsedFolderId = null))
+            }
+        }
     }
 
     fun setAddFolderDialogVisibility(isVisible: Boolean) {
@@ -492,7 +502,14 @@ class HomeViewModel @Inject constructor(
     fun selectFolder(folderId: Long?) {
         selectNote(null)
         _selectedFolderId.value = folderId
+        viewModelScope.launch {
+            val settings = settingsRepository.settings.first()
+            if (settings.openToLastUsedFolder) {
+                settingsRepository.update(settings.copy(lastUsedFolderId = folderId))
+            }
+        }
     }
+
     fun addFolder(name: String, iconName: String) {
         viewModelScope.launch {
             folderUseCase.addFolder(Folder(name = name, iconName = iconName))
@@ -607,7 +624,6 @@ class HomeViewModel @Inject constructor(
         val currentDescription = currentNote.description
 
         viewModelScope.launch {
-            // --- 3. DÜZELTME BAŞLANGICI ---
             geminiRepository.processAiAction(
                 action = action,
                 text = currentDescription,
@@ -620,7 +636,6 @@ class HomeViewModel @Inject constructor(
                 .onFailure { exception ->
                     _uiEvent.send(exception.message ?: "AI işlemi başarısız oldu.")
                 }
-            // --- 3. DÜZELTME SONU ---
         }
     }
 }
