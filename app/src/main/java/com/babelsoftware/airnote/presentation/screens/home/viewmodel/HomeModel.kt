@@ -243,27 +243,42 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             val apiKey = getApiKeyToUse()
-            val result = geminiRepository.generateDraft(topic, apiKey)
-            if (result != null && result.contains("BAŞLIK:") && result.contains("İÇERİK:")) {
-                val title = result.substringAfter("BAŞLIK:").substringBefore("İÇERİK:").trim()
-                val content = result.substringAfter("İÇERİK:").trim()
-                _chatState.value = _chatState.value.copy(
-                    messages = emptyList(),
-                    latestDraft = DraftedNote(topic, title, content)
-                )
-            } else {
-                val finalMessages = _chatState.value.messages.dropLast(1).toMutableList()
-                finalMessages.add(
-                    ChatMessage(
-                        text = result ?: "Bilinmeyen bir hata oluştu.",
-                        participant = Participant.ERROR
+            geminiRepository.generateDraft(topic, apiKey)
+                .onSuccess { result ->
+                    val title = result.substringAfter("BAŞLIK:").substringBefore("İÇERİK:").trim()
+                    val content = result.substringAfter("İÇERİK:").trim()
+                    if (title.isNotBlank() && content.isNotBlank()) {
+                        _chatState.value = _chatState.value.copy(
+                            messages = emptyList(),
+                            latestDraft = DraftedNote(topic, title, content)
+                        )
+                    } else {
+                        val errorMessages = _chatState.value.messages.dropLast(1).toMutableList()
+                        errorMessages.add(
+                            ChatMessage(
+                                text = "AI yanıtı beklenilen formatta değil.",
+                                participant = Participant.ERROR
+                            )
+                        )
+                        _chatState.value = _chatState.value.copy(
+                            messages = errorMessages,
+                            hasStartedConversation = false
+                        )
+                    }
+                }
+                .onFailure { exception ->
+                    val finalMessages = _chatState.value.messages.dropLast(1).toMutableList()
+                    finalMessages.add(
+                        ChatMessage(
+                            text = exception.message ?: "Bilinmeyen bir hata oluştu.",
+                            participant = Participant.ERROR
+                        )
                     )
-                )
-                _chatState.value = _chatState.value.copy(
-                    messages = finalMessages,
-                    hasStartedConversation = false
-                )
-            }
+                    _chatState.value = _chatState.value.copy(
+                        messages = finalMessages,
+                        hasStartedConversation = false
+                    )
+                }
         }
     }
 
@@ -293,7 +308,6 @@ class HomeViewModel @Inject constructor(
     fun analyzeImageAndCreateDraft(imageUri: Uri) {
         val prompt = stringProvider.getString(R.string.prompt_airnote_ai_analyzeimage)
 
-        // Yükleme arayüzünü başlat
         _chatState.value = _chatState.value.copy(
             latestDraft = null,
             messages = listOf(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true))
@@ -302,7 +316,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val apiKey = getApiKeyToUse()
 
-            // Convert URI to Bitmap
             val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, imageUri))
             } else {
@@ -310,50 +323,45 @@ class HomeViewModel @Inject constructor(
                 MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
             }
 
-            val result = geminiRepository.generateDraftFromImage(prompt, bitmap, apiKey)
+            geminiRepository.generateDraftFromImage(prompt, bitmap, apiKey)
+                .onSuccess { result ->
+                    var title: String
+                    var content: String
 
-            if (result != null) {
-                var title = ""
-                var content = ""
+                    val titleRegex = """(TİTLE:|\*\*TİTLE:\*\*)\s*(.*)""".toRegex(RegexOption.IGNORE_CASE)
+                    val contentRegex = """(CONTENT:|\*\*CONTENT:\*\*)\s*(.*)""".toRegex(RegexOption.IGNORE_CASE)
 
-                // ---> Extract header and content with Regex or simple string operations
-                val titleRegex = """(TİTLE:|\*\*TİTLE:\*\*)\s*(.*)""".toRegex(RegexOption.IGNORE_CASE)
-                val contentRegex = """(CONTENT:|\*\*CONTENT:\*\*)\s*(.*)""".toRegex(RegexOption.IGNORE_CASE)
-                // <---
+                    val titleMatch = titleRegex.find(result)
+                    val contentMatch = contentRegex.find(result)
 
-                val titleMatch = titleRegex.find(result)
-                val contentMatch = contentRegex.find(result)
+                    if (titleMatch != null && contentMatch != null) {
+                        title = titleMatch.groupValues[2].trim()
+                        content = result.substring(contentMatch.range.first + contentMatch.value.length).trim()
+                    } else {
+                        val lines = result.lines()
+                        title = lines.firstOrNull()?.cleanMarkdown() ?: "İsimsiz Not"
+                        content = lines.drop(1).joinToString("\n").trim().cleanMarkdown()
+                    }
 
-                if (titleMatch != null && contentMatch != null) {
-                    // If both title and content are found clearly
-                    title = titleMatch.groupValues[2].trim()
-                    content = result.substring(contentMatch.range.first + contentMatch.value.length).trim()
-                } else {
-                    // If the format cannot be found exactly, divide the answer wisely
-                    val lines = result.lines()
-                    title = lines.firstOrNull() ?: "İsimsiz Not"
-                    content = lines.drop(1).joinToString("\n").trim()
+                    _chatState.value = _chatState.value.copy(
+                        messages = emptyList(),
+                        latestDraft = DraftedNote(
+                            topic = prompt,
+                            title = title.cleanMarkdown(),
+                            content = content.cleanMarkdown(),
+                            sourceImageUri = imageUri
+                        )
+                    )
                 }
-
-                _chatState.value = _chatState.value.copy(
-                    messages = emptyList(),
-                    latestDraft = DraftedNote(
-                        topic = prompt,
-                        title = title.cleanMarkdown(),
-                        content = content.cleanMarkdown(),
-                        sourceImageUri = imageUri
+                .onFailure { exception ->
+                    val finalMessages = listOf(
+                        ChatMessage(
+                            text = exception.message ?: stringProvider.getString(R.string.error_message_image_analysis_failed),
+                            participant = Participant.ERROR
+                        )
                     )
-                )
-            } else {
-                // Hata durumunu yönet
-                val finalMessages = listOf(
-                    ChatMessage(
-                        text = stringProvider.getString(R.string.error_message_image_analysis_failed),
-                        participant = Participant.ERROR
-                    )
-                )
-                _chatState.value = _chatState.value.copy(messages = finalMessages)
-            }
+                    _chatState.value = _chatState.value.copy(messages = finalMessages)
+                }
         }
     }
 
@@ -598,16 +606,20 @@ class HomeViewModel @Inject constructor(
         val currentDescription = currentNote.description
 
         viewModelScope.launch {
-            val result = geminiRepository.processAiAction(
+            // --- 3. DÜZELTME BAŞLANGICI ---
+            geminiRepository.processAiAction(
                 action = action,
                 text = currentDescription,
                 tone = tone,
                 apiKey = getApiKeyToUse()
             )
-
-            if (result != null) {
-                updateNoteDetails(currentNote, currentNote.name, result)
-            }
+                .onSuccess { result ->
+                    updateNoteDetails(currentNote, currentNote.name, result)
+                }
+                .onFailure { exception ->
+                    _uiEvent.send(exception.message ?: "AI işlemi başarısız oldu.")
+                }
+            // --- 3. DÜZELTME SONU ---
         }
     }
 }

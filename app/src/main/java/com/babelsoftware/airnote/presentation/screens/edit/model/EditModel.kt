@@ -22,7 +22,6 @@ import com.babelsoftware.airnote.data.repository.AiAction
 import com.babelsoftware.airnote.data.repository.AiAssistantAction
 import com.babelsoftware.airnote.data.repository.AiTone
 import com.babelsoftware.airnote.data.repository.SecureStorageRepository
-import com.babelsoftware.airnote.domain.repository.SettingsRepository
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
@@ -149,19 +148,16 @@ class EditViewModel @Inject constructor(
                 _isAiLoading.value = true
                 try {
                     val apiKey = getApiKeyToUse()
-                    val result = geminiRepository.processAiAction(selectedText, action, tone, apiKey)
-                    if (!result.isNullOrBlank()) {
-                        if (result.startsWith("API isteği başarısız oldu") || result.startsWith("Kullanıcı API anahtarı bulunamadı")) {
-                            _uiEvent.send(result)
-                        } else {
+                    geminiRepository.processAiAction(selectedText, action, tone, apiKey)
+                        .onSuccess { responseText ->
                             _lastSelection = selection
-                            _aiResultText.value = result
+                            _aiResultText.value = responseText
                         }
-                    } else {
-                        _uiEvent.send("Yapay zeka bir yanıt üretemedi.")
-                    }
+                        .onFailure { exception ->
+                            _uiEvent.send(exception.message ?: "Unknow error")
+                        }
                 } catch (e: Exception) {
-                    _uiEvent.send("İşlem başarısız oldu. İnternet bağlantınızı kontrol edin.")
+                    _uiEvent.send("Beklenmedik bir hata oluştu: ${e.message}")
                 } finally {
                     _isAiLoading.value = false
                 }
@@ -182,15 +178,12 @@ class EditViewModel @Inject constructor(
                 action = action,
                 apiKey = apiKey
             )
-                // --->
                 .onStart {
                     if (action != AiAssistantAction.SUGGEST_A_TITLE) _isAiAssistantStreaming.value = true
                 }
                 .onCompletion {
                     _isAiAssistantStreaming.value = false
                 }
-                // <---
-
                 .collect { chunk ->
                     if (chunk.startsWith("API isteği başarısız oldu") || chunk.startsWith("Kullanıcı API anahtarı bulunamadı")) {
                         _uiEvent.send(chunk)
@@ -217,11 +210,8 @@ class EditViewModel @Inject constructor(
                     }
                     _titleSuggestions.value = suggestions
                 }
-                AiAssistantAction.PROS_AND_CONS,
-                AiAssistantAction.SIMPLIFY,
-                AiAssistantAction.GIVE_IDEA,
-                AiAssistantAction.CHANGE_PERSPECTIVE,
-                AiAssistantAction.CONTINUE_WRITING -> {}
+                else -> {
+                }
             }
         }
     }
@@ -355,11 +345,9 @@ class EditViewModel @Inject constructor(
 
     fun updateNoteDescription(newDescription: TextFieldValue) {
         _noteDescription.value = newDescription
-        // ---> If the user has selected a field (not the cursor), keep this selection.
         if (!newDescription.selection.collapsed) {
             _lastSelection = newDescription.selection
         }
-        // <---
         undoRedoState.onInput(newDescription)
     }
 

@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2025 Babel Software.
+ *
+ *
  */
 
 package com.babelsoftware.airnote.data.repository
@@ -49,13 +51,18 @@ class GeminiRepository @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val stringProvider: StringProvider
 ) {
-    /**
-     * Tests if the given API key is valid for the selected model.
-     */
+    private companion object {
+        const val DEFAULT_TEMPERATURE = 0.7f
+        const val CREATIVE_TEMPERATURE = 0.8f
+    }
+    class ApiKeyMissingException(message: String) : Exception(message)
+
     suspend fun validateApiKey(apiKey: String, modelName: String): Result<Unit> = withContext(Dispatchers.IO) {
+        if (apiKey.isBlank()) {
+            return@withContext Result.failure(ApiKeyMissingException("API key cannot be empty."))
+        }
         return@withContext try {
-            GenerativeModel(modelName = modelName, apiKey = apiKey)
-                .countTokens("test")
+            GenerativeModel(modelName = modelName, apiKey = apiKey).countTokens("test")
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -63,29 +70,28 @@ class GeminiRepository @Inject constructor(
         }
     }
 
-    /**
-     * Sends a request to the Gemini API based on the given text and AI action.
-     */
-    suspend fun processAiAction(text: String, action: AiAction, tone: AiTone? = null, apiKey: String): String? {
+    suspend fun processAiAction(text: String, action: AiAction, tone: AiTone? = null, apiKey: String): Result<String> {
+        if (apiKey.isBlank()) {
+            return Result.failure(ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key)))
+        }
         if (action == AiAction.CHANGE_TONE) {
             require(tone != null) { "CHANGE_TONE eylemi için bir ton belirtilmelidir." }
         }
 
-        val currentSettings = settingsRepository.settings.first()
-
-        if (apiKey.isBlank()) {
-            return stringProvider.getString(R.string.error_no_user_api_key)
+        val generativeModel: GenerativeModel = try {
+            val modelName = settingsRepository.settings.first().selectedModelName
+            GenerativeModel(
+                modelName = modelName,
+                apiKey = apiKey,
+                generationConfig = generationConfig {
+                    temperature = DEFAULT_TEMPERATURE
+                }
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return Result.failure(e)
         }
 
-        val generativeModel = GenerativeModel(
-            modelName = currentSettings.selectedModelName,
-            apiKey = apiKey,
-            generationConfig = generationConfig {
-                temperature = 0.7f
-            }
-        )
-
-        // Custom prompt by action | AI Functions
         val prompt = when (action) {
             AiAction.IMPROVE_WRITING -> stringProvider.getString(R.string.prompt_improve_writing, text)
             AiAction.SUMMARIZE -> stringProvider.getString(R.string.prompt_summarize, text)
@@ -98,17 +104,16 @@ class GeminiRepository @Inject constructor(
                     AiTone.FRIENDLY -> R.string.prompt_instruction_tone_friendly
                     null -> throw IllegalArgumentException("Tone cannot be null for CHANGE_TONE action")
                 }
-                // Ana prompt şablonu ile ton talimatını birleştiriyoruz
                 stringProvider.getString(R.string.prompt_change_tone_template, stringProvider.getString(tonePromptResId), text)
             }
         }
 
         return try {
             val response = generativeModel.generateContent(prompt)
-            response.text
+            response.text?.let { Result.success(it) } ?: Result.failure(Exception("API'den boş yanıt alındı."))
         } catch (e: Exception) {
             e.printStackTrace()
-            stringProvider.getString(R.string.error_api_request_failed, e.message ?: "Unknown error")
+            Result.failure(e)
         }
     }
 
@@ -118,19 +123,15 @@ class GeminiRepository @Inject constructor(
         action: AiAssistantAction,
         apiKey: String
     ): Flow<String> = flow {
-        val currentSettings = settingsRepository.settings.first()
-
         if (apiKey.isBlank()) {
-            emit(stringProvider.getString(R.string.error_no_user_api_key))
-            return@flow
+            throw ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key))
         }
 
+        val modelName = settingsRepository.settings.first().selectedModelName
         val generativeModel = GenerativeModel(
-            modelName = currentSettings.selectedModelName,
+            modelName = modelName,
             apiKey = apiKey,
-            generationConfig = generationConfig {
-                temperature = 0.8f
-            }
+            generationConfig = generationConfig { temperature = CREATIVE_TEMPERATURE }
         )
 
         val prompt = when (action) {
@@ -150,20 +151,17 @@ class GeminiRepository @Inject constructor(
         emit(stringProvider.getString(R.string.error_api_request_failed, it.message ?: "Unknown error"))
     }
 
-    fun generateChatResponse(history: List<ChatMessage>, apiKey: String): Flow<String> = flow {
-        val currentSettings = settingsRepository.settings.first()
 
+    fun generateChatResponse(history: List<ChatMessage>, apiKey: String): Flow<String> = flow {
         if (apiKey.isBlank()) {
-            emit(stringProvider.getString(R.string.error_no_user_api_key))
-            return@flow
+            throw ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key))
         }
 
+        val modelName = settingsRepository.settings.first().selectedModelName
         val generativeModel = GenerativeModel(
-            modelName = currentSettings.selectedModelName,
+            modelName = modelName,
             apiKey = apiKey,
-            generationConfig = generationConfig {
-                temperature = 0.8f
-            }
+            generationConfig = generationConfig { temperature = CREATIVE_TEMPERATURE }
         )
 
         val chatHistoryContent = history
@@ -185,58 +183,50 @@ class GeminiRepository @Inject constructor(
         emit(stringProvider.getString(R.string.error_api_request_failed, it.message ?: "Unknown error"))
     }
 
-    // ---> Function that creates a one-time note outline
-    suspend fun generateDraft(
-        topic: String,
-        apiKey: String
-    ): String? {
-        val currentSettings = settingsRepository.settings.first()
-
+    suspend fun generateDraft(topic: String, apiKey: String): Result<String> {
         if (apiKey.isBlank()) {
-            return stringProvider.getString(R.string.error_no_user_api_key)
+            return Result.failure(ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key)))
         }
 
-        val generativeModel = GenerativeModel(
-            modelName = currentSettings.selectedModelName,
-            apiKey = apiKey,
-            generationConfig = generationConfig {
-                temperature = 0.8f
-            }
-        )
+        val generativeModel: GenerativeModel = try {
+            val modelName = settingsRepository.settings.first().selectedModelName
+            GenerativeModel(
+                modelName = modelName,
+                apiKey = apiKey,
+                generationConfig = generationConfig { temperature = CREATIVE_TEMPERATURE }
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return Result.failure(e)
+        }
 
         val prompt = stringProvider.getString(R.string.prompt_assistant_draft_anything, topic)
 
         return try {
             val response = generativeModel.generateContent(prompt)
-            response.text
+            response.text?.let { Result.success(it) } ?: Result.failure(Exception("API'den boş yanıt alındı."))
         } catch (e: Exception) {
             e.printStackTrace()
-            stringProvider.getString(R.string.error_api_request_failed, e.message ?: "Bilinmeyen Hata")
+            Result.failure(e)
         }
     }
-    // <---
 
-    /**
-     * Creates a note draft from Gemini using a given image and command.
-     */
-    suspend fun generateDraftFromImage(
-        prompt: String,
-        image: Bitmap,
-        apiKey: String
-    ): String? {
-        val currentSettings = settingsRepository.settings.first()
-
+    suspend fun generateDraftFromImage(prompt: String, image: Bitmap, apiKey: String): Result<String> {
         if (apiKey.isBlank()) {
-            return stringProvider.getString(R.string.error_no_user_api_key)
+            return Result.failure(ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key)))
         }
 
-        val generativeModel = GenerativeModel(
-            modelName = currentSettings.selectedModelName,
-            apiKey = apiKey,
-            generationConfig = generationConfig {
-                temperature = 0.7f
-            }
-        )
+        val generativeModel: GenerativeModel = try {
+            val modelName = settingsRepository.settings.first().selectedModelName
+            GenerativeModel(
+                modelName = modelName,
+                apiKey = apiKey,
+                generationConfig = generationConfig { temperature = DEFAULT_TEMPERATURE }
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return Result.failure(e)
+        }
 
         val inputContent = content {
             image(image)
@@ -245,10 +235,10 @@ class GeminiRepository @Inject constructor(
 
         return try {
             val response = generativeModel.generateContent(inputContent)
-            response.text
+            response.text?.let { Result.success(it) } ?: Result.failure(Exception("API'den boş yanıt alındı."))
         } catch (e: Exception) {
             e.printStackTrace()
-            stringProvider.getString(R.string.error_api_request_failed, e.message ?: "Bilinmeyen Hata")
+            Result.failure(e)
         }
     }
 }
