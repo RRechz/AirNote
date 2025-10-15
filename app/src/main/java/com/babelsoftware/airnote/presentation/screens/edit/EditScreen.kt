@@ -719,16 +719,16 @@ private fun AiResultDialog(viewModel: EditViewModel) {
 
     AlertDialog(
         onDismissRequest = { viewModel.clearAiResult() },
-        title = { Text("AI Önerisi") },
+        title = { Text(stringResource(R.string.ai_suggestion)) },
         text = { Text(aiResult) },
         confirmButton = {
             TextButton(onClick = { viewModel.replaceWithAiResult() }) {
-                Text("Değiştir")
+                Text(stringResource(R.string.change))
             }
         },
         dismissButton = {
             TextButton(onClick = { viewModel.clearAiResult() }) {
-                Text("İptal")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

@@ -255,6 +255,7 @@
     <string name="successfully_verified">Successfully verified and recorded!</string>
     <string name="open_last_folder">Last Folder (BETA)</string>
     <string name="open_last_folder_description">When the application opens, it displays the last folder viewed</string>
+    <string name="change">Change</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>
