@@ -2,6 +2,7 @@ package com.babelsoftware.airnote.presentation.screens.settings.model
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +28,9 @@ import com.babelsoftware.airnote.util.isNewerVersion
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -44,7 +48,7 @@ class SettingsViewModel @Inject constructor(
     val noteUseCase: NoteUseCase,
     private val importExportUseCase: ImportExportUseCase,
     private val secureStorageRepository: SecureStorageRepository,
-    private val geminiRepository: GeminiRepository,
+    val geminiRepository: GeminiRepository,
     private val stringProvider: StringProvider
 ) : ViewModel() {
     var defaultRoute: String? = null
@@ -70,6 +74,57 @@ class SettingsViewModel @Inject constructor(
 
     private val _uiEvent = Channel<String>()
     val uiEvent = _uiEvent.receiveAsFlow()
+    private val _downloadedModels = MutableStateFlow<Set<String>>(emptySet())
+    val downloadedModels: StateFlow<Set<String>> = _downloadedModels.asStateFlow()
+
+    private val _processingLanguageCode = MutableStateFlow<String?>(null)
+    val processingLanguageCode: StateFlow<String?> = _processingLanguageCode.asStateFlow()
+
+    fun fetchDownloadedModels() {
+        viewModelScope.launch {
+            geminiRepository.getDownloadedModels()
+                .onSuccess { _downloadedModels.value = it }
+                .onFailure {
+                    Log.e("SettingsViewModel", "Failed to fetch models", it)
+                    viewModelScope.launch { _uiEvent.send(stringProvider.getString(R.string.lang_models_fetch_error)) }
+                }
+        }
+    }
+
+    fun downloadLanguageModel(languageCode: String, onResult: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            _processingLanguageCode.value = languageCode
+            geminiRepository.downloadLanguageModel(languageCode)
+                .onSuccess {
+                    _downloadedModels.value = _downloadedModels.value + languageCode
+                    val languageName = geminiRepository.supportedLanguages[languageCode] ?: languageCode
+                    onResult(true, stringProvider.getString(R.string.lang_model_download_success, languageName))
+                }
+                .onFailure {
+                    val languageName = geminiRepository.supportedLanguages[languageCode] ?: languageCode
+                    onResult(false, stringProvider.getString(R.string.lang_model_download_failure, languageName))
+                }
+            _processingLanguageCode.value = null
+        }
+    }
+
+    fun deleteLanguageModel(languageCode: String, onResult: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            _processingLanguageCode.value = languageCode
+            geminiRepository.deleteLanguageModel(languageCode)
+                .onSuccess {
+                    _downloadedModels.value = _downloadedModels.value - languageCode
+                    val languageName = geminiRepository.supportedLanguages[languageCode] ?: languageCode
+                    onResult(true, stringProvider.getString(R.string.lang_model_delete_success, languageName))
+                }
+                .onFailure {
+                    val languageName = geminiRepository.supportedLanguages[languageCode] ?: languageCode
+                    onResult(false, stringProvider.getString(R.string.lang_model_delete_failure, languageName))
+                }
+            _processingLanguageCode.value = null
+        }
+    }
+
 
     fun checkForNewUpdate(context: Context) {
         viewModelScope.launch {
@@ -259,16 +314,16 @@ class SettingsViewModel @Inject constructor(
     private fun handleBackupResult(result: BackupResult, context: Context) {
         when (result) {
             is BackupResult.Success -> {}
-            is BackupResult.Error -> showToast("Error", context)
-            BackupResult.BadPassword -> showToast(context.getString(R.string.detabase_restore_error), context)
+            is BackupResult.Error -> showToast(stringProvider.getString(R.string.error_generic), context)
+            BackupResult.BadPassword -> showToast(stringProvider.getString(R.string.detabase_restore_error), context)
         }
     }
 
     private fun handleImportResult(result: ImportResult, context: Context) {
         when (result.successful) {
-            result.total -> {showToast(context.getString(R.string.file_import_success), context)}
-            0 -> {showToast(context.getString(R.string.file_import_error), context)}
-            else -> {showToast(context.getString(R.string.file_import_partial_error), context)}
+            result.total -> {showToast(stringProvider.getString(R.string.file_import_success), context)}
+            0 -> {showToast(stringProvider.getString(R.string.file_import_error), context)}
+            else -> {showToast(stringProvider.getString(R.string.file_import_partial_error), context)}
         }
     }
 
@@ -284,5 +339,6 @@ class SettingsViewModel @Inject constructor(
             loadSettings()
         }
         checkStoredApiKey()
+        fetchDownloadedModels()
     }
 }

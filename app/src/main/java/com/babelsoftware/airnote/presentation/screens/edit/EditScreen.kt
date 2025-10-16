@@ -71,6 +71,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -132,6 +133,11 @@ fun EditNoteView(
 
     if (viewModel.isToneActionSheetVisible.value) {
         ToneActionSheet(viewModel = viewModel)
+    }
+
+    // [EKLENDİ] Yeni çeviri BottomSheet'i için kontrol
+    if (viewModel.isTranslateSheetVisible.value) {
+        TranslateLanguageSheet(viewModel = viewModel)
     }
 
     if (viewModel.titleSuggestions.value.isNotEmpty()) {
@@ -710,6 +716,13 @@ fun AiCommandMenu(
             title = stringResource(R.string.ai_command_title),
             onClick = { viewModel.executeAiAssistantAction(AiAssistantAction.SUGGEST_A_TITLE) }
         )
+        CommandMenuItem(
+            title = stringResource(R.string.translate_all_note),
+            onClick = {
+                onDismiss()
+                viewModel.onTranslateClicked(forSelection = false)
+            }
+        )
     }
 }
 
@@ -821,6 +834,7 @@ fun AiAction.getDisplayName(): String {
         AiAction.MAKE_SHORTER -> stringResource(id = R.string.ai_action_make_shorter)
         AiAction.MAKE_LONGER -> stringResource(id = R.string.ai_action_make_longer)
         AiAction.CHANGE_TONE -> stringResource(id = R.string.ai_action_change_tone)
+        AiAction.TRANSLATE -> stringResource(id = R.string.translate)
     }
 }
 
@@ -830,5 +844,35 @@ fun AiTone.getDisplayName(): String {
         AiTone.FORMAL -> stringResource(id = R.string.ai_tone_formal)
         AiTone.BALANCED -> stringResource(id = R.string.ai_tone_balanced)
         AiTone.FRIENDLY -> stringResource(id = R.string.ai_tone_friendly)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TranslateLanguageSheet(viewModel: EditViewModel) {
+    val languages = viewModel.downloadedLanguages.value
+    ModalBottomSheet(onDismissRequest = { viewModel.toggleTranslateSheet(false) }) {
+        if (languages.isEmpty()) {
+            Text(
+                text = stringResource(R.string.no_downloaded_languages),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        } else {
+            LazyColumn {
+                items(languages) { (code, name) ->
+                    ListItem(
+                        headlineContent = { Text(name) },
+                        modifier = Modifier.clickable {
+                            viewModel.executeTranslation(code)
+                        }
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }

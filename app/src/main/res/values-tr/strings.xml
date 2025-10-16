@@ -207,6 +207,7 @@
     <string name="api_key_guide_step_5">5. Oluşturulan uzun karakter dizisini kopyalayın.</string>
     <string name="api_key_guide_step_6">6. Kopyaladığınız anahtarı aşağıdaki metin kutusuna yapıştırın ve \"Kontrol Et\" butonuna basın.</string>
     <string name="api_key_guide_button">Google AI Studio\'ya Git</string>
+    <string name="lang_model_delete_failure">%1s silinemedi</string>
     <string name="error_api_key_blank">Lütfen önce bir API anahtarı girin.</string>
     <string name="api_key_validation_success">API anahtarı geçerli ve başarıyla kaydedildi! ✅</string>
     <string name="api_key_validation_failure">Geçersiz API anahtarı. Lütfen kontrol edin ve tekrar deneyin.</string>
@@ -226,6 +227,9 @@
     <string name="translation_failed">Çeviri Başarısız...</string>
     <string name="successfully_verified">Başarıyla doğrulandı ve kaydedildi!</string>
     <string name="open_last_folder_description">Uygulama açıldığında en son görüntülenen klasörü gösterir.</string>
+    <string name="change">Değiştir</string>
+    <string name="translate_all_note">Tüm Notu Çevir</string>
+    <string name="ai_error_select_text_to_translate">Çevirmek istediğiniz metni seçin!</string>
     <string name="ai_action_improve_writing">Yazımı İyileştir</string>
     <string name="ai_action_summarize">Özetle</string>
     <string name="ai_action_make_shorter">Daha Kısa Yap</string>
@@ -306,4 +310,25 @@
     <string name="gemini_api_key">Gemini API Anahtarı</string>
     <string name="save_and_check">Kaydet ve Doğrula</string>
     <string name="open_last_folder">Son Klasör (BETA)</string>
+    <string name="offline_translation_models">Çeviri Modülleri</string>
+    <string name="downloaded">İndirildi</string>
+    <string name="not_downloaded">İndirilmedi</string>
+    <string name="download">İndir</string>
+    <string name="no_downloaded_languages">Kullanılabilir çeviri dili bulunmuyor! Lütfen Ayarlar > AirNote AI menüsünden bir dil modeli indirin</string>
+    <string name="api_key_icon_cd">API Anahtar Simgesi</string>
+    <string name="successfully_verified_icon_cd">Başarıyla Doğrulanmış Simgesi</string>
+    <string name="delete_language_model_title">%1s Silinsin mi?</string>
+    <string name="delete_language_model_body">Bu dil modelini cihazınızdan kaldırmak istediğinizden emin misiniz?</string>
+    <string name="delete_language_model_cd">%1s dil modelini sil</string>
+    <string name="error_generic">Hata</string>
+    <string name="lang_models_fetch_error">İndirilen dil modellerinin listesi alınamadı.</string>
+    <string name="lang_model_download_success">%1s indirildi</string>
+    <string name="lang_model_download_failure">%1s indirilemedi</string>
+    <string name="lang_model_delete_success">%1s silindi</string>
+    <string name="ai_error_no_text_selected">Çalışmak istediğiniz metni seçin!</string>
+    <string name="error_unknown">Bilinmeyen bir hata oluştu!</string>
+    <string name="error_unexpected_with_message">Beklenmeyen bir hata oluştu: %1s</string>
+    <string name="ai_error_no_tasks_for_todo">Öncelikle, gün içinde yapmanız gerekenleri kısaca açıklayın.</string>
+    <string name="error_fetching_downloaded_models">İndirilen dil modelleri alınamadı: %1s</string>
+    <string name="error_translation_failed">Çeviri başarısız: %1s</string>
 </resources>

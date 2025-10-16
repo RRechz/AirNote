@@ -83,7 +83,6 @@
     <string name="encrypt_databse">Encrypt Database</string>
     <string name="encrypt_databse_description">Encrypt database during backup</string>
     <string name="password_prompt">Enter password</string>
-    <string name="detabase_restore_error">Password is invalid or the database isn\'t encrypted</string>
     <string name="invalid_input">Invalid input</string>
     <string name="sort_ascending">Sort Ascending</string>
     <string name="sort_descending">Sort Descending</string>
@@ -129,9 +128,6 @@
     <string name="terms_effective_date">Effective Date</string>
     <string name="agree">Agree</string>
     <string name="terms_of_service">Terms of service</string>
-    <string name="file_import_error">Couldn\'t import</string>
-    <string name="file_import_partial_error">Import of some files failed</string>
-    <string name="file_import_success">Successfully imported</string>
     <string name="file_import_title">Import</string>
     <string name="file_import_description">Import other text files as notes</string>
     <string name="monospace_font_description">Use monospace font while editing note</string>
@@ -256,6 +252,34 @@
     <string name="open_last_folder">Last Folder (BETA)</string>
     <string name="open_last_folder_description">When the application opens, it displays the last folder viewed</string>
     <string name="change">Change</string>
+    <string name="offline_translation_models">Translation Modules</string>
+    <string name="downloaded">Downloaded</string>
+    <string name="not_downloaded">Not Downloaded</string>
+    <string name="download">Download</string>
+    <string name="no_downloaded_languages">No available translation language! Please download a language model from Settings > AirNote AI menu</string>
+    <string name="translate_all_note">Translate All Note</string>
+    <string name="api_key_icon_cd">API Key Icon</string>
+    <string name="successfully_verified_icon_cd">Successfully Verified Icon</string>
+    <string name="delete_language_model_title">%1s Delete?</string>
+    <string name="delete_language_model_body">Are you sure you want to remove this language model from your device?</string>
+    <string name="delete_language_model_cd">%1s delete the language model</string>
+    <string name="error_generic">Error</string>
+    <string name="lang_models_fetch_error">The list of downloaded language models could not be retrieved.</string>
+    <string name="lang_model_download_success">%1s downloaded</string>
+    <string name="lang_model_download_failure">%1s could not be downloaded</string>
+    <string name="lang_model_delete_success">%1s deleted</string>
+    <string name="lang_model_delete_failure">%1s could not be deleted</string>
+    <string name="detabase_restore_error">Error while restoring the database: incorrect password!</string>
+    <string name="file_import_success">All files were successfully imported!</string>
+    <string name="file_import_error">An error occurred while importing files.</string>
+    <string name="file_import_partial_error">An error occurred while importing some files.</string>
+    <string name="ai_error_no_text_selected">Please select the text you want to work on!</string>
+    <string name="error_unknown">An unknown error occurred!</string>
+    <string name="error_unexpected_with_message">An unexpected error occurred: %1s</string>
+    <string name="ai_error_no_tasks_for_todo">First, briefly describe what you need to do during the day.</string>
+    <string name="error_fetching_downloaded_models">Downloaded language models could not be retrieved: %1s</string>
+    <string name="error_translation_failed">Translation failed: %1s</string>
+    <string name="ai_error_select_text_to_translate">Please select the text you want to translate!</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>

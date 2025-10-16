@@ -1,5 +1,6 @@
 package com.babelsoftware.airnote.presentation.screens.settings.settings
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -19,8 +20,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Memory
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -36,9 +39,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -110,7 +116,7 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
                         leadingContent = {
                             Icon(
                                 imageVector = Icons.Rounded.Key,
-                                contentDescription = "API Key Icon",
+                                contentDescription = stringResource(R.string.api_key_icon_cd),
                                 modifier = Modifier.size(32.dp)
                             )
                         }
@@ -154,6 +160,10 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
                     }
                 }
             }
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+            item {
+                OfflineTranslationSettings(settingsViewModel = settingsViewModel)
+            }
             item { Spacer(modifier = Modifier.height(24.dp)) }
             item {
                 Column(
@@ -183,7 +193,7 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.CheckCircle,
-                                contentDescription = "Başarılı",
+                                contentDescription = stringResource(R.string.successfully_verified_icon_cd),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Text(
@@ -231,11 +241,94 @@ private fun SettingsGroup(
 }
 
 @Composable
+private fun OfflineTranslationSettings(settingsViewModel: SettingsViewModel) {
+    val downloadedModels by settingsViewModel.downloadedModels.collectAsState()
+    val processingLanguageCode by settingsViewModel.processingLanguageCode.collectAsState()
+    val context = LocalContext.current
+    var showDeleteDialog by remember { mutableStateOf<String?>(null) }
+
+    if (showDeleteDialog != null) {
+        val langCodeToDelete = showDeleteDialog!!
+        val langNameToDelete = settingsViewModel.geminiRepository.supportedLanguages[langCodeToDelete] ?: langCodeToDelete
+
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = null },
+            title = { Text(text = stringResource(R.string.delete_language_model_title, langNameToDelete)) },
+            text = { Text(text = stringResource(R.string.delete_language_model_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        settingsViewModel.deleteLanguageModel(langCodeToDelete) { _, message ->
+                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                        }
+                        showDeleteDialog = null
+                    }
+                ) {
+                    Text(stringResource(R.string.delete))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    SettingsGroup(title = "3. ${stringResource(id = R.string.offline_translation_models)}") {
+        Column {
+            settingsViewModel.geminiRepository.supportedLanguages.forEach { (code, name) ->
+                val isDownloaded = downloadedModels.contains(code)
+
+                ListItem(
+                    headlineContent = { Text(name) },
+                    supportingContent = {
+                        Text(if (isDownloaded) stringResource(R.string.downloaded) else stringResource(R.string.not_downloaded))
+                    },
+                    trailingContent = {
+                        if (processingLanguageCode == code) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        } else {
+                            if (isDownloaded) {
+                                IconButton(
+                                    onClick = { showDeleteDialog = code },
+                                    enabled = processingLanguageCode == null
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Delete,
+                                        contentDescription = stringResource(R.string.delete_language_model_cd, name),
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            } else {
+                                TextButton(
+                                    onClick = {
+                                        settingsViewModel.downloadLanguageModel(code) { _, message ->
+                                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                        }
+                                    },
+                                    enabled = processingLanguageCode == null
+                                ) {
+                                    Text(stringResource(id = R.string.download))
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
 private fun ApiKeyGuide() {
     val uriHandler = LocalUriHandler.current
     val geminiStudioUrl = "https://aistudio.google.com/app/apikey"
     Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 8.dp)
     ) {
         Text(
             text = stringResource(id = R.string.api_key_guide_title),

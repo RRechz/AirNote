@@ -166,7 +166,6 @@
     <string name="font_size_value">Ukuran Font: %1$d</string>
     <string name="font_size_preview_title">Pratinjau</string>
     <string name="font_size_preview_text">Beginilah tampilan catatan Anda dengan ukuran font yang dipilih.</string>
-    <string name="developer" translatable="false">Pengembang | @RRechz</string>
     <string name="info_dev">Pendiri Babel Software dan pengembang Android</string>
     <string name="add_new_folder">Tambah folder baru</string>
     <string name="folder_name">Nama folder</string>

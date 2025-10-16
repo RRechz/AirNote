@@ -22,6 +22,8 @@ import com.babelsoftware.airnote.data.repository.AiAction
 import com.babelsoftware.airnote.data.repository.AiAssistantAction
 import com.babelsoftware.airnote.data.repository.AiTone
 import com.babelsoftware.airnote.data.repository.SecureStorageRepository
+import com.babelsoftware.airnote.R
+import com.babelsoftware.airnote.data.provider.StringProvider
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
@@ -34,7 +36,8 @@ class EditViewModel @Inject constructor(
     private val noteUseCase: NoteUseCase,
     private val encryption: EncryptionHelper,
     private val geminiRepository: GeminiRepository,
-    private val secureStorageRepository: SecureStorageRepository
+    private val secureStorageRepository: SecureStorageRepository,
+    private val stringProvider: StringProvider
 ) : ViewModel() {
     private val _noteName = mutableStateOf(TextFieldValue())
     val noteName: State<TextFieldValue> get() = _noteName
@@ -97,6 +100,14 @@ class EditViewModel @Inject constructor(
     val isAiAssistantSheetVisible: State<Boolean> = _isAiAssistantSheetVisible
     private val _titleSuggestions = mutableStateOf<List<String>>(emptyList())
     val titleSuggestions: State<List<String>> = _titleSuggestions
+
+    private val _isTranslateSheetVisible = mutableStateOf(false)
+    val isTranslateSheetVisible: State<Boolean> = _isTranslateSheetVisible
+
+    private val _downloadedLanguages = mutableStateOf<List<Pair<String, String>>>(emptyList())
+    val downloadedLanguages: State<List<Pair<String, String>>> = _downloadedLanguages
+
+    private var _translationSelection: TextRange? = null
     // --- AI'S STATES | END---
 
     // --- AI FUNCTIONS ---
@@ -134,9 +145,14 @@ class EditViewModel @Inject constructor(
             return
         }
 
+        if (action == AiAction.TRANSLATE) {
+            onTranslateClicked(forSelection = true)
+            return
+        }
+
         if (selection.collapsed) {
             viewModelScope.launch {
-                _uiEvent.send("Lütfen üzerinde işlem yapmak istediğiniz metni seçin.")
+                _uiEvent.send(stringProvider.getString(R.string.ai_error_no_text_selected))
             }
             return
         }
@@ -154,10 +170,10 @@ class EditViewModel @Inject constructor(
                             _aiResultText.value = responseText
                         }
                         .onFailure { exception ->
-                            _uiEvent.send(exception.message ?: "Unknow error")
+                            _uiEvent.send(exception.message ?: stringProvider.getString(R.string.error_unknown))
                         }
                 } catch (e: Exception) {
-                    _uiEvent.send("Beklenmedik bir hata oluştu: ${e.message}")
+                    _uiEvent.send(stringProvider.getString(R.string.error_unexpected_with_message, e.message ?: ""))
                 } finally {
                     _isAiLoading.value = false
                 }
@@ -201,7 +217,7 @@ class EditViewModel @Inject constructor(
             when (action) {
                 AiAssistantAction.CREATE_TODO_LIST -> {
                     if (finalResponse.trim() == "NO_TASKS") {
-                        _uiEvent.send("Önce gün içerisinde yapmanız gerekenleri birkaç cümle ile anlatın.")
+                        _uiEvent.send(stringProvider.getString(R.string.ai_error_no_tasks_for_todo))
                     }
                 }
                 AiAssistantAction.SUGGEST_A_TITLE -> {
@@ -241,6 +257,74 @@ class EditViewModel @Inject constructor(
 
     fun clearTitleSuggestions() {
         _titleSuggestions.value = emptyList()
+    }
+
+    fun toggleTranslateSheet(isVisible: Boolean) {
+        _isTranslateSheetVisible.value = isVisible
+    }
+
+    fun onTranslateClicked(forSelection: Boolean) {
+        _translationSelection = if (forSelection) {
+            noteDescription.value.selection.takeIf { !it.collapsed }
+        } else {
+            TextRange(0, noteDescription.value.text.length)
+        }
+
+        if (forSelection && _translationSelection == null) {
+            viewModelScope.launch {
+                _uiEvent.send(stringProvider.getString(R.string.ai_error_select_text_to_translate))
+            }
+            return
+        }
+
+
+        viewModelScope.launch {
+            _isAiLoading.value = true
+            geminiRepository.getDownloadedModels()
+                .onSuccess { downloadedCodes ->
+                    val availableLanguages = geminiRepository.supportedLanguages
+                        .filter { downloadedCodes.contains(it.key) }
+                        .map { it.key to it.value }
+                    _downloadedLanguages.value = availableLanguages
+                    toggleTranslateSheet(true)
+                }
+                .onFailure {
+                    _uiEvent.send(stringProvider.getString(R.string.error_fetching_downloaded_models, it.message ?: ""))
+                }
+            _isAiLoading.value = false
+        }
+    }
+
+    fun executeTranslation(targetLanguageCode: String) {
+        toggleTranslateSheet(false)
+
+        val selection = _translationSelection
+        if (selection == null || selection.end > noteDescription.value.text.length) {
+            return
+        }
+
+        val textToTranslate = noteDescription.value.text.substring(selection.start, selection.end)
+        if (textToTranslate.isBlank()) return
+
+        viewModelScope.launch {
+            _isAiLoading.value = true
+            geminiRepository.translateOnDevice(textToTranslate, targetLanguageCode)
+                .onSuccess { translatedText ->
+                    val originalText = noteDescription.value.text
+                    val updatedText = originalText.replaceRange(selection.start, selection.end, translatedText)
+                    val newSelectionStart = selection.start + translatedText.length
+                    updateNoteDescription(
+                        TextFieldValue(
+                            text = updatedText,
+                            selection = TextRange(newSelectionStart)
+                        )
+                    )
+                }
+                .onFailure {
+                    _uiEvent.send(stringProvider.getString(R.string.error_translation_failed, it.message ?: ""))
+                }
+            _isAiLoading.value = false
+        }
     }
     // --- AI FUNCTIONS | END ---
 
