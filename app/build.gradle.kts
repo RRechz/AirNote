@@ -102,6 +102,7 @@ dependencies {
     implementation("com.udojava:EvalEx:2.7")
     implementation("androidx.activity:activity-compose:1.11.0")
     implementation("com.google.mlkit:translate:17.0.3")
+    implementation("com.google.mlkit:language-id:17.0.6")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
 
     implementation(libs.hilt.android)

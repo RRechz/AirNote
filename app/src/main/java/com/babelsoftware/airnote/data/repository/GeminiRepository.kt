@@ -290,7 +290,6 @@ class GeminiRepository @Inject constructor(
                 }
         }
     }
-
     suspend fun deleteLanguageModel(languageCode: String): Result<Unit> = withContext(Dispatchers.IO) {
         suspendCoroutine { continuation ->
             val model = TranslateRemoteModel.Builder(languageCode).build()
@@ -309,7 +308,7 @@ class GeminiRepository @Inject constructor(
         languageIdentifier.identifyLanguage(text)
             .addOnSuccessListener { languageCode ->
                 if (languageCode == "und") {
-                    continuation.resume(Result.failure(Exception("Source language could not be detected!")))
+                    continuation.resume(Result.failure(Exception("The source language could not be identified.")))
                 } else {
                     continuation.resume(Result.success(languageCode))
                 }
@@ -355,7 +354,7 @@ class GeminiRepository @Inject constructor(
         val sourceLanguageCode = langIdResult.getOrNull()!!
 
         if (sourceLanguageCode.equals(targetLanguage, ignoreCase = true)) {
-            return@withContext Result.failure(Exception("The note text is already in the language you want to translate it into"))
+            return@withContext Result.failure(Exception("The note text is already in the language you want to translate."))
         }
 
         val originalLines = text.split('\n')
