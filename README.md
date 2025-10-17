@@ -15,7 +15,9 @@
   * **Summarize**: Reduce long texts to their main idea in one click.
   * **Change Tone**: Give your texts a Formal, Balanced or Intimate tone.
   * **Length Adjustment**: Make your notes shorter or longer.
+  * **Smart Translator**: Effortless and instant translations on the device. (only supported languages)
  * **Advanced Note Editor**: Enrich your notes with headings, lists and highlights with full Markdown support.
+ * **AirNote DeX**: Advanced desktop mode optimized for large screens (e.g., tablets).
  * **Organization**: Easily organize your notes through folders and highlight important notes with the pinning feature.
  * **Modern and Fluent Interface**: Jetpack Compose provides a dynamic and elegant user experience that is completely declarative.
 
