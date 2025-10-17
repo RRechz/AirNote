@@ -3,7 +3,10 @@ package com.babelsoftware.airnote.presentation.screens.home.desktop
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -23,31 +26,43 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DriveFileMove
 import androidx.compose.material.icons.automirrored.rounded.LibraryBooks
 import androidx.compose.material.icons.automirrored.rounded.MenuOpen
+import androidx.compose.material.icons.automirrored.rounded.NoteAdd
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.AllInbox
 import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Compress
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.FormatBold
+import androidx.compose.material.icons.rounded.FormatItalic
+import androidx.compose.material.icons.rounded.FormatListBulleted
+import androidx.compose.material.icons.rounded.FormatQuote
+import androidx.compose.material.icons.rounded.FormatUnderlined
+import androidx.compose.material.icons.rounded.HorizontalRule
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.NoteAdd
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.TheaterComedy
+import androidx.compose.material.icons.rounded.Title
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -74,12 +89,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.babelsoftware.airnote.R
@@ -101,6 +122,13 @@ fun DesktopHomeScreen(
     onNoteClicked: (noteId: Int, isVault: Boolean, folderId: Long?) -> Unit,
     onSettingsClicked: () -> Unit,
 ) {
+    var showWelcomeAnimation by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        delay(3200L) // 3,2s
+        showWelcomeAnimation = false
+    }
+
     val notes by viewModel.displayedNotes.collectAsState()
     val selectedNote by viewModel.selectedNote.collectAsState()
     val folders by viewModel.allFolders.collectAsState()
@@ -108,7 +136,7 @@ fun DesktopHomeScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     val noteForAction by viewModel.noteForAction
     val isAiChatSheetVisible by viewModel.isAiChatSheetVisible
-    var isNavRailExpanded by remember { mutableStateOf(false) }
+    var isNavRailExpanded by remember { mutableStateOf(true) }
     val isAddFolderDialogVisible by viewModel.isAddFolderDialogVisible
 
     if (isAddFolderDialogVisible) {
@@ -130,62 +158,77 @@ fun DesktopHomeScreen(
         )
     }
 
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceContainerLowest)
     ) {
-        DesktopNavRail(
-            isExpanded = isNavRailExpanded,
-            onToggleExpand = { isNavRailExpanded = !isNavRailExpanded },
-            aiEnabled = settings.desktopModeAiEnabled,
-            folders = folders,
-            selectedFolderId = selectedFolderId,
-            onFolderSelected = { folderId -> viewModel.selectFolder(folderId) },
-            onAddNewNote = { viewModel.createNewNoteForDesktop() },
-            onAddFolder = { viewModel.setAddFolderDialogVisibility(true) },
-            onAskAi = { viewModel.toggleAiChatSheet(true) },
-            onSettingsClicked = onSettingsClicked
-        )
+        AnimatedVisibility(
+            visible = !showWelcomeAnimation,
+            enter = fadeIn(animationSpec = tween(durationMillis = 500, delayMillis = 200))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                DesktopNavRail(
+                    isExpanded = isNavRailExpanded,
+                    onToggleExpand = { isNavRailExpanded = !isNavRailExpanded },
+                    aiEnabled = settings.desktopModeAiEnabled,
+                    folders = folders,
+                    selectedFolderId = selectedFolderId,
+                    onFolderSelected = { folderId -> viewModel.selectFolder(folderId) },
+                    onAddNewNote = { viewModel.createNewNoteForDesktop() },
+                    onAddFolder = { viewModel.setAddFolderDialogVisibility(true) },
+                    onAskAi = { viewModel.toggleAiChatSheet(true) },
+                    onSettingsClicked = onSettingsClicked
+                )
 
-        NoteListPane(
-            notes = notes,
-            selectedNote = selectedNote,
-            searchQuery = searchQuery,
-            onQueryChange = { query -> viewModel.changeSearchQuery(query) },
-            onNoteSelected = { note -> viewModel.selectNote(note) },
-            onNewNoteClicked = { viewModel.createNewNoteForDesktop() },
-            noteForAction = noteForAction,
-            onNoteLongPressed = { note -> viewModel.onNoteLongPressed(note) },
-            onDismissNoteAction = { viewModel.onDismissNoteAction() },
-            onDeleteAction = { viewModel.deleteNoteAction() },
-            onMoveAction = { viewModel.requestMoveNoteAction() },
-            modifier = Modifier.weight(0.4f)
-        )
+                NoteListPane(
+                    notes = notes,
+                    selectedNote = selectedNote,
+                    searchQuery = searchQuery,
+                    onQueryChange = { query -> viewModel.changeSearchQuery(query) },
+                    onNoteSelected = { note -> viewModel.selectNote(note) },
+                    onNewNoteClicked = { viewModel.createNewNoteForDesktop() },
+                    noteForAction = noteForAction,
+                    onNoteLongPressed = { note -> viewModel.onNoteLongPressed(note) },
+                    onDismissNoteAction = { viewModel.onDismissNoteAction() },
+                    onDeleteAction = { viewModel.deleteNoteAction() },
+                    onMoveAction = { viewModel.requestMoveNoteAction() },
+                    modifier = Modifier.weight(0.4f)
+                )
 
-        AnimatedContent(
-            targetState = selectedNote,
-            modifier = Modifier.weight(0.6f),
-            transitionSpec = {
-                (fadeIn(animationSpec = tween(300, easing = LinearOutSlowInEasing)) +
-                        slideInVertically(animationSpec = tween(300, easing = LinearOutSlowInEasing), initialOffsetY = { it / 8 }))
-                    .togetherWith(fadeOut(animationSpec = tween(300, easing = LinearOutSlowInEasing)))
-            },
-            label = "NoteDetailAnimation"
-        ) { targetNote ->
-            NoteDetailPane(
-                note = targetNote,
-                aiEnabled = settings.desktopModeAiEnabled,
-                onAiAction = { action, tone -> viewModel.executeDesktopAiAction(action, tone) },
-                onUpdateNote = { noteToUpdate, newName, newDescription ->
-                    viewModel.updateNoteDetails(noteToUpdate, newName, newDescription)
+                AnimatedContent(
+                    targetState = selectedNote,
+                    modifier = Modifier.weight(0.6f),
+                    transitionSpec = {
+                        (fadeIn(animationSpec = tween(300, easing = LinearOutSlowInEasing)) +
+                                slideInVertically(animationSpec = tween(300, easing = LinearOutSlowInEasing), initialOffsetY = { it / 8 }))
+                            .togetherWith(fadeOut(animationSpec = tween(300, easing = LinearOutSlowInEasing)))
+                    },
+                    label = "NoteDetailAnimation"
+                ) { targetNote ->
+                    NoteDetailPane(
+                        note = targetNote,
+                        aiEnabled = settings.desktopModeAiEnabled,
+                        onAiAction = { action, tone -> viewModel.executeDesktopAiAction(action, tone) },
+                        onUpdateNote = { noteToUpdate, newName, newDescription ->
+                            viewModel.updateNoteDetails(noteToUpdate, newName, newDescription)
+                        }
+                    )
                 }
-            )
+            }
+        }
+        AnimatedVisibility(
+            visible = showWelcomeAnimation,
+            exit = fadeOut(animationSpec = tween(durationMillis = 500))
+        ) {
+            AnimatedWelcomeOverlay()
         }
     }
 }
 
-// Left (Vertical Nav) Panel
 @Composable
 private fun DesktopNavRail(
     isExpanded: Boolean,
@@ -200,13 +243,16 @@ private fun DesktopNavRail(
     onSettingsClicked: () -> Unit
 ) {
     val navRailBackground = Brush.verticalGradient(
-        colors = listOf(Color(0xFF0A3D2A), Color(0xFF1A5A41))
+        colors = listOf(
+            MaterialTheme.colorScheme.surfaceContainer,
+            MaterialTheme.colorScheme.surfaceContainerLow
+        )
     )
 
-    // Animated state for the left panel width
     val animatedWidth by animateDpAsState(
         targetValue = if (isExpanded) 240.dp else 80.dp,
-        label = "NavRailWidthAnimation"
+        label = "NavRailWidthAnimation",
+        animationSpec = spring(stiffness = Spring.StiffnessMedium)
     )
 
     Surface(
@@ -218,7 +264,6 @@ private fun DesktopNavRail(
             .padding(vertical = 10.dp, horizontal = 12.dp)
     ) {
         Column(horizontalAlignment = Alignment.Start) {
-            // --- FIXED TOP SECTION
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(start = 4.dp, bottom = 16.dp)
@@ -227,14 +272,14 @@ private fun DesktopNavRail(
                     Icon(
                         imageVector = if (isExpanded) Icons.AutoMirrored.Rounded.MenuOpen else Icons.Rounded.Menu,
                         contentDescription = "Toggle Navigation Rail",
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 AnimatedVisibility(visible = isExpanded) {
                     Text(
-                        text = "AirNote Desktop BETA",
+                        text = "AirNote DeX",
                         style = MaterialTheme.typography.titleLarge,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(start = 2.dp)
                     )
                 }
@@ -244,48 +289,44 @@ private fun DesktopNavRail(
             if (aiEnabled) {
                 NavItem(isExpanded = isExpanded, text = stringResource(R.string.ai_button_texts), icon = Icons.Rounded.AutoAwesome, onClick = onAskAi)
             }
-            // <---
 
-            Divider(modifier = Modifier.padding(vertical = 4.dp), color = Color.White.copy(alpha = 0.2f))
+            Divider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
-            // ---> FOLDER SECTION
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 AnimatedVisibility(visible = isExpanded) {
                     Text(
-                        text = "Folders",
+                        text = stringResource(R.string.folders),
                         style = MaterialTheme.typography.titleSmall,
-                        color = Color.White.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 AnimatedVisibility(visible = isExpanded) {
                     IconButton(onClick = onAddFolder, modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.Rounded.Add, contentDescription = "Yeni Klasör Ekle", tint = Color.White)
+                        Icon(Icons.Rounded.Add, contentDescription = "Add New Folder", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
 
-            // Scrolling area of folders list
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(32.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
                 contentPadding = PaddingValues(top = 8.dp)
             ) {
                 item {
-                    NavItem(isExpanded = isExpanded, text = "All Notes", icon = Icons.Rounded.AllInbox, isSelected = selectedFolderId == null, onClick = { onFolderSelected(null) })
+                    NavItem(isExpanded = isExpanded, text = stringResource(R.string.all_notes), icon = Icons.Rounded.AllInbox, isSelected = selectedFolderId == null, onClick = { onFolderSelected(null) })
                 }
                 items(folders) { folder ->
                     NavItem(isExpanded = isExpanded, text = folder.name, icon = Icons.Rounded.Folder, isSelected = selectedFolderId == folder.id, onClick = { onFolderSelected(folder.id) })
                 }
             }
-            // <---
 
-            // ---> SETTİNGS SUBSECTION
             NavItem(isExpanded = isExpanded, text = stringResource(R.string.screen_settings), icon = Icons.Rounded.Settings, onClick = onSettingsClicked)
-            // <---
         }
     }
 }
@@ -298,14 +339,16 @@ private fun NavItem(
     isSelected: Boolean = false,
     onClick: () -> Unit
 ) {
-    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.25f) else Color.Transparent
-    val contentColor = Color.White
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+    val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
 
     Surface(
         onClick = onClick,
         color = backgroundColor,
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth().height(56.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -322,9 +365,6 @@ private fun NavItem(
     }
 }
 
-/*
- * Center panel: The area where the notes are listed
- */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NoteListPane(
@@ -356,7 +396,7 @@ private fun NoteListPane(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                placeholder = { Text("Search...") },
+                placeholder = { Text(stringResource(R.string.search_notes)) },
                 leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = "Search") },
                 shape = RoundedCornerShape(16.dp),
                 singleLine = true,
@@ -373,7 +413,7 @@ private fun NoteListPane(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
                 ) {
-                    items(notes) { note ->
+                    items(notes, key = { it.id }) { note ->
                         val isSelected = selectedNote?.id == note.id
                         Box {
                             Card(
@@ -409,14 +449,14 @@ private fun NoteListPane(
                                 onDismissRequest = { onDismissNoteAction() }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("Move to Folder") },
+                                    text = { Text(stringResource(R.string.move_to_folder)) },
                                     onClick = { onMoveAction() },
-                                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.DriveFileMove, contentDescription = "Klasöre Taşı") }
+                                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.DriveFileMove, contentDescription = "Move to Folder") }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
+                                    text = { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) },
                                     onClick = { onDeleteAction() },
-                                    leadingIcon = { Icon(Icons.Default.Delete, contentDescription = "Sil", tint = MaterialTheme.colorScheme.error) }
+                                    leadingIcon = { Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error) }
                                 )
                             }
                         }
@@ -427,9 +467,6 @@ private fun NoteListPane(
     }
 }
 
-/*
- * Right panel: Area where the content of the selected note is shown
- */
 @Composable
 private fun NoteDetailPane(
     note: Note?,
@@ -439,22 +476,23 @@ private fun NoteDetailPane(
     onUpdateNote: (noteToUpdate: Note, newName: String, newDescription: String) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf(TextFieldValue("")) }
+    var isDescriptionFocused by remember { mutableStateOf(false) }
     var showToneMenu by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = note) {
         if (note != null) {
             title = note.name
-            description = note.description
+            description = TextFieldValue(note.description)
         } else {
             title = ""
-            description = ""
+            description = TextFieldValue("")
         }
     }
     LaunchedEffect(key1 = title, key2 = description) {
-        if (note != null && (title != note.name || description != note.description)) {
+        if (note != null && (title != note.name || description.text != note.description)) {
             delay(750L)
-            onUpdateNote(note, title, description)
+            onUpdateNote(note, title, description.text)
         }
     }
 
@@ -479,7 +517,7 @@ private fun NoteDetailPane(
                         textStyle = MaterialTheme.typography.headlineMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface
                         ),
-                        placeholder = { Text("Title...") },
+                        placeholder = { Text(stringResource(R.string.title_dex)) },
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
@@ -493,11 +531,14 @@ private fun NoteDetailPane(
                         onValueChange = { description = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f),
+                            .weight(1f)
+                            .onFocusChanged { focusState ->
+                                isDescriptionFocused = focusState.isFocused
+                            },
                         textStyle = MaterialTheme.typography.bodyLarge.copy(
                             color = MaterialTheme.colorScheme.onSurface
                         ),
-                        placeholder = { Text("Write your note here...") },
+                        placeholder = { Text(stringResource(R.string.write_your_note_here)) },
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
@@ -505,6 +546,15 @@ private fun NoteDetailPane(
                             unfocusedIndicatorColor = Color.Transparent
                         )
                     )
+
+                    AnimatedVisibility(visible = isDescriptionFocused) {
+                        DesktopTextFormattingToolbar(
+                            currentValue = description,
+                            onValueChange = { newTextFieldValue ->
+                                description = newTextFieldValue
+                            }
+                        )
+                    }
 
                     if (aiEnabled) {
                         Surface(
@@ -518,20 +568,20 @@ private fun NoteDetailPane(
                                 horizontalArrangement = Arrangement.SpaceAround,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                AiActionButton(icon = Icons.Rounded.AutoAwesome, text = "Enhance") {
+                                AiActionButton(icon = Icons.Rounded.AutoAwesome, text = stringResource(R.string.ai_action_improve_writing)) {
                                     onAiAction(AiAction.IMPROVE_WRITING, null)
                                 }
-                                AiActionButton(icon = Icons.Rounded.Compress, text = "Summarize") {
+                                AiActionButton(icon = Icons.Rounded.Compress, text = stringResource(R.string.ai_action_summarize)) {
                                     onAiAction(AiAction.SUMMARIZE, null)
                                 }
-                                AiActionButton(icon = Icons.Rounded.KeyboardArrowDown, text = "Make Shorter") {
+                                AiActionButton(icon = Icons.Rounded.KeyboardArrowDown, text = stringResource(R.string.ai_action_make_shorter)) {
                                     onAiAction(AiAction.MAKE_SHORTER, null)
                                 }
-                                AiActionButton(icon = Icons.Rounded.KeyboardArrowUp, text = "Make Longer") {
+                                AiActionButton(icon = Icons.Rounded.KeyboardArrowUp, text = stringResource(R.string.ai_action_make_longer)) {
                                     onAiAction(AiAction.MAKE_LONGER, null)
                                 }
                                 Box {
-                                    AiActionButton(icon = Icons.Rounded.TheaterComedy, text = "Change Tone") {
+                                    AiActionButton(icon = Icons.Rounded.TheaterComedy, text = stringResource(R.string.ai_action_change_tone)) {
                                         showToneMenu = true
                                     }
                                     DropdownMenu(
@@ -570,29 +620,22 @@ private fun EmptyNotesView(onNewNoteClicked: () -> Unit) {
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = Icons.Rounded.NoteAdd,
-            contentDescription = "Boş Not Kutusu",
+            imageVector = Icons.AutoMirrored.Rounded.NoteAdd,
+            contentDescription = "Empty Note Box",
             modifier = Modifier.size(80.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "No note yet",
+            text = stringResource(R.string.no_created_notes),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "To get started, create a new note.",
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-        )
         Spacer(modifier = Modifier.height(32.dp))
         Button(onClick = onNewNoteClicked) {
-            Icon(Icons.Rounded.Add, contentDescription = "Yeni Not")
+            Icon(Icons.Rounded.Add, contentDescription = "New Note")
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Create New Note")
+            Text(stringResource(R.string.dex_create_new_note))
         }
     }
 }
@@ -608,19 +651,19 @@ private fun EmptySelectionView() {
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Rounded.LibraryBooks,
-            contentDescription = "Not Seçilmedi",
+            contentDescription = "Note Not Selected",
             modifier = Modifier.size(80.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Get Started!",
+            text = stringResource(R.string.dex_start),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Select a note from the list on the left to view or edit it.",
+            text = stringResource(R.string.dex_note_preview),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
@@ -636,5 +679,145 @@ private fun AiActionButton(icon: ImageVector, text: String, onClick: () -> Unit)
             Spacer(modifier = Modifier.height(2.dp))
             Text(text = text, style = MaterialTheme.typography.labelSmall)
         }
+    }
+}
+
+@Composable
+private fun AnimatedWelcomeOverlay() {
+    var iconScale by remember { mutableStateOf(0f) }
+    var textAlpha by remember { mutableStateOf(0f) }
+    var textOffsetY by remember { mutableStateOf(30f) }
+
+    val animatedIconScale by animateFloatAsState(
+        targetValue = iconScale,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = 100f
+        ), label = "icon_scale_anim"
+    )
+
+    val animatedTextAlpha by animateFloatAsState(
+        targetValue = textAlpha,
+        animationSpec = tween(durationMillis = 600, delayMillis = 200),
+        label = "text_alpha_anim"
+    )
+
+    val animatedTextOffsetY by animateFloatAsState(
+        targetValue = textOffsetY,
+        animationSpec = tween(durationMillis = 600, delayMillis = 200),
+        label = "text_offset_anim"
+    )
+
+    LaunchedEffect(Unit) {
+        iconScale = 1f
+        textAlpha = 1f
+        textOffsetY = 0f
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                contentDescription = "AirNote Logo",
+                modifier = Modifier
+                    .size(128.dp)
+                    .scale(animatedIconScale),
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .alpha(animatedTextAlpha)
+                    .offset(y = animatedTextOffsetY.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.welcome_to_airnote_dex),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.airnote_dex_description),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DesktopTextFormattingToolbar(
+    currentValue: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit
+) {
+    Surface(
+        tonalElevation = 2.dp,
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh
+    ) {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            item { IconButton(onClick = { onValueChange(currentValue.applyMarkdown("**", "**")) }) { Icon(Icons.Rounded.FormatBold, "Thick") } }
+            item { IconButton(onClick = { onValueChange(currentValue.applyMarkdown("*", "*")) }) { Icon(Icons.Rounded.FormatItalic, "Italic") } }
+            item { IconButton(onClick = { onValueChange(currentValue.applyMarkdown("<u>", "</u>")) }) { Icon(Icons.Rounded.FormatUnderlined, "Underlined") } }
+            item { IconButton(onClick = { onValueChange(currentValue.applyMarkdown("# ", isLinePrefix = true)) }) { Icon(Icons.Rounded.Title, "Title") } }
+            item { IconButton(onClick = { onValueChange(currentValue.applyMarkdown("\n- ", "")) }) { Icon(Icons.Rounded.FormatListBulleted, "List") } }
+            item { IconButton(onClick = { onValueChange(currentValue.applyMarkdown("> ", isLinePrefix = true)) }) { Icon(Icons.Rounded.FormatQuote, "Quote") } }
+            item { IconButton(onClick = { onValueChange(currentValue.applyMarkdown("`", "`")) }) { Icon(Icons.Rounded.Code, "Code") } }
+            item { IconButton(onClick = { onValueChange(currentValue.applyMarkdown("\n---\n", "")) }) { Icon(Icons.Rounded.HorizontalRule, "Bracket") } }
+            item { IconButton(onClick = { onValueChange(currentValue.applyMarkdown("[", "]()")) }) { Icon(Icons.Rounded.Link, "Link") } }
+        }
+    }
+}
+
+private fun TextFieldValue.applyMarkdown(
+    prefix: String,
+    suffix: String = "",
+    isLinePrefix: Boolean = false
+): TextFieldValue {
+    val selection = this.selection
+    val text = this.text
+
+    if (isLinePrefix) {
+        var lineStart = selection.start
+        while (lineStart > 0 && text.getOrNull(lineStart - 1) != '\n') {
+            lineStart--
+        }
+        val newText = text.substring(0, lineStart) + prefix + text.substring(lineStart)
+        return this.copy(
+            text = newText,
+            selection = TextRange(selection.end + prefix.length)
+        )
+    } else if (selection.collapsed) {
+        val newText = text.substring(0, selection.start) + prefix + suffix + text.substring(selection.end)
+        return this.copy(
+            text = newText,
+            selection = TextRange(selection.start + prefix.length)
+        )
+    } else {
+        val selectedText = text.substring(selection.min, selection.max)
+        val newText = text.replaceRange(
+            selection.min,
+            selection.max,
+            prefix + selectedText + suffix
+        )
+        return this.copy(
+            text = newText,
+            selection = TextRange(selection.end + prefix.length + suffix.length)
+        )
     }
 }

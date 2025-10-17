@@ -280,6 +280,17 @@
     <string name="error_fetching_downloaded_models">Downloaded language models could not be retrieved: %1s</string>
     <string name="error_translation_failed">Translation failed: %1s</string>
     <string name="ai_error_select_text_to_translate">Please select the text you want to translate!</string>
+    <string name="welcome_to_airnote_dex">Welcome to AirNote DeX</string>
+    <string name="airnote_dex_description">A better note-taking experience on larger screens!</string>
+    <string name="folders">Folders</string>
+    <string name="search_notes">Search in notes...</string>
+    <string name="title_dex">Title...</string>
+    <string name="write_your_note_here">Write your note here...</string>
+    <string name="dex_create_new_note">Create New Note</string>
+    <string name="dex_start">Start!</string>
+    <string name="dex_note_preview">To view or edit, select a note from the list on the left.</string>
+    <string name="dex_version">DeX Version</string>
+    <string name="ai_version">AirNote AI Version</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>

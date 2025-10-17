@@ -138,7 +138,7 @@ fun AboutScreen(
             item {
                 SettingsBox(
                     settingsViewModel = settingsViewModel,
-                    title = "AirNote AI Version",
+                    title = stringResource(R.string.ai_version),
                     description = "v1.2 build v0.9.0",
                     icon = IconResource.Vector(Icons.Rounded.AutoAwesome),
                     actionType = ActionType.TEXT,
@@ -148,8 +148,8 @@ fun AboutScreen(
             item {
                 SettingsBox(
                     settingsViewModel = settingsViewModel,
-                    title = "Desktop UI Version",
-                    description = "v0.1.0-beta",
+                    title = stringResource(R.string.dex_version),
+                    description = "v0.2.0-beta",
                     icon = IconResource.Vector(Icons.Rounded.DesktopWindows),
                     actionType = ActionType.TEXT,
                     radius = RoundedCornerShape(0.dp)

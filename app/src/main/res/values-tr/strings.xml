@@ -230,6 +230,9 @@
     <string name="change">Değiştir</string>
     <string name="translate_all_note">Tüm Notu Çevir</string>
     <string name="ai_error_select_text_to_translate">Çevirmek istediğiniz metni seçin!</string>
+    <string name="dex_note_preview">Görüntülemek veya düzenlemek için soldaki listeden bir not seçin.</string>
+    <string name="dex_version">DeX Sürümü</string>
+    <string name="ai_version">AirNote AI Sürümü</string>
     <string name="ai_action_improve_writing">Yazımı İyileştir</string>
     <string name="ai_action_summarize">Özetle</string>
     <string name="ai_action_make_shorter">Daha Kısa Yap</string>
@@ -331,4 +334,12 @@
     <string name="ai_error_no_tasks_for_todo">Öncelikle, gün içinde yapmanız gerekenleri kısaca açıklayın.</string>
     <string name="error_fetching_downloaded_models">İndirilen dil modelleri alınamadı: %1s</string>
     <string name="error_translation_failed">Çeviri başarısız: %1s</string>
+    <string name="welcome_to_airnote_dex">AirNote DeX\'e Hoşgeldiniz</string>
+    <string name="airnote_dex_description">Geniş ekranlarda daha iyi not alma deneyimi!</string>
+    <string name="folders">Klasörler</string>
+    <string name="search_notes">Notlarda ara...</string>
+    <string name="title_dex">Başlık...</string>
+    <string name="write_your_note_here">Notunuzu buraya yazın...</string>
+    <string name="dex_create_new_note">Yeni Not Oluştur</string>
+    <string name="dex_start">Başlayın!</string>
 </resources>
