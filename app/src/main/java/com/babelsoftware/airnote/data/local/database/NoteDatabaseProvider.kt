@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.babelsoftware.airnote.constant.DatabaseConst
+import com.babelsoftware.airnote.data.local.dao.AiChatDao
 import com.babelsoftware.airnote.data.local.dao.NoteDao
 import com.babelsoftware.airnote.data.source.FolderDao
 
@@ -14,7 +15,6 @@ class NoteDatabaseProvider(private val application: Application) {
     @Volatile
     private var database: NoteDatabase? = null
 
-    @Synchronized
     fun instance(): NoteDatabase {
         return database ?: synchronized(this) {
             database ?: buildDatabase().also { database = it }
@@ -25,7 +25,7 @@ class NoteDatabaseProvider(private val application: Application) {
         return Room.databaseBuilder(application.applicationContext,
             NoteDatabase::class.java,
             DatabaseConst.NOTES_DATABASE_FILE_NAME)
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_2_4, MIGRATION_4_5, MIGRATION_5_6)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_2_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
             .build()
     }
 
@@ -42,9 +42,10 @@ class NoteDatabaseProvider(private val application: Application) {
     fun folderDao(): FolderDao {
         return instance().folderDao()
     }
+    fun aiChatDao(): AiChatDao {
+        return instance().aiChatDao()
+    }
 }
-
-
 
 private val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(db: SupportSQLiteDatabase) {
@@ -84,5 +85,30 @@ private val MIGRATION_5_6 = object : Migration(5, 6) {
         db.execSQL("INSERT INTO `Folder_new` (`id`, `name`, `iconName`, `createdAt`) SELECT `id`, `name`, 'Folder', `createdAt` FROM `Folder`")
         db.execSQL("DROP TABLE `Folder`")
         db.execSQL("ALTER TABLE `Folder_new` RENAME TO `Folder`")
+    }
+}
+
+private val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("""
+            CREATE TABLE IF NOT EXISTS `ai_chat_sessions` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+                `title` TEXT NOT NULL, 
+                `createdAt` INTEGER NOT NULL, 
+                `aiMode` TEXT NOT NULL
+            )
+        """.trimIndent())
+
+        database.execSQL("""
+            CREATE TABLE IF NOT EXISTS `ai_chat_messages` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+                `sessionId` INTEGER NOT NULL, 
+                `text` TEXT NOT NULL, 
+                `participant` TEXT NOT NULL, 
+                `timestamp` INTEGER NOT NULL, 
+                `isLoading` INTEGER NOT NULL, 
+                FOREIGN KEY(`sessionId`) REFERENCES `ai_chat_sessions`(`id`) ON DELETE CASCADE
+            )
+        """.trimIndent())
     }
 }

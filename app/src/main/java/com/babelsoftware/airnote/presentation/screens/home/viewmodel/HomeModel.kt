@@ -18,15 +18,19 @@ import androidx.lifecycle.viewModelScope
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
 import com.babelsoftware.airnote.data.repository.AiAction
+import com.babelsoftware.airnote.data.repository.AiMode
 import com.babelsoftware.airnote.data.repository.AiTone
 import com.babelsoftware.airnote.data.repository.GeminiRepository
 import com.babelsoftware.airnote.data.repository.SecureStorageRepository
+import com.babelsoftware.airnote.domain.model.AiChatMessage
+import com.babelsoftware.airnote.domain.model.AiChatSession
 import com.babelsoftware.airnote.domain.model.AiSuggestion
 import com.babelsoftware.airnote.domain.model.ChatMessage
 import com.babelsoftware.airnote.domain.model.Folder
 import com.babelsoftware.airnote.domain.model.Note
 import com.babelsoftware.airnote.domain.model.Participant
 import com.babelsoftware.airnote.domain.repository.SettingsRepository
+import com.babelsoftware.airnote.domain.usecase.AiChatUseCase
 import com.babelsoftware.airnote.domain.usecase.FolderUseCase
 import com.babelsoftware.airnote.domain.usecase.NoteUseCase
 import com.babelsoftware.airnote.presentation.components.DecryptionResult
@@ -40,29 +44,30 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// ---> Data class to hold the note outline created by AI
 data class DraftedNote(
     val topic: String,
     val title: String,
     val content: String,
     val sourceImageUri: Uri? = null
 )
-// <---
 
-// ---> A data class that keeps all the state of the chat interface together
 data class ChatState(
     val messages: List<ChatMessage> = emptyList(),
     val isAwaitingDraftTopic: Boolean = false,
     val latestDraft: DraftedNote? = null,
-    val hasStartedConversation: Boolean = false
+    val hasStartedConversation: Boolean = false,
+    val currentSessionId: Long? = null
 )
-// <---
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -70,6 +75,7 @@ class HomeViewModel @Inject constructor(
     val encryptionHelper: EncryptionHelper,
     private val noteUseCase: NoteUseCase,
     private val folderUseCase: FolderUseCase,
+    private val aiChatUseCase: AiChatUseCase,
     @ApplicationContext private val context: Context,
     private val geminiRepository: GeminiRepository,
     private val settingsRepository: SettingsRepository,
@@ -120,14 +126,12 @@ class HomeViewModel @Inject constructor(
         return secureStorageRepository.getUserApiKey() ?: ""
     }
 
-    // ---> Desktop Mode State
     private val _selectedNote = MutableStateFlow<Note?>(null)
     val selectedNote: StateFlow<Note?> = _selectedNote.asStateFlow()
 
     fun selectNote(note: Note?) {
         _selectedNote.value = note
     }
-    // <---
 
     // --- Global AI Chat States ---
     private val _isAiChatSheetVisible = mutableStateOf(false)
@@ -136,18 +140,27 @@ class HomeViewModel @Inject constructor(
     private val _isFabExtended = mutableStateOf(true)
     val isFabExtended: State<Boolean> = _isFabExtended
 
-    private val _chatState = mutableStateOf(ChatState())
-    val chatState: State<ChatState> = _chatState
+    private val _chatState = MutableStateFlow(ChatState())
+    val chatState: StateFlow<ChatState> = _chatState.asStateFlow()
 
     private val _uiActionChannel = Channel<UiAction>()
     val uiActionChannel = _uiActionChannel.receiveAsFlow()
+
+    private val _aiMode = MutableStateFlow(AiMode.NOTE_ASSISTANT)
+    val aiMode: StateFlow<AiMode> = _aiMode.asStateFlow()
+
+    val allChatSessions: StateFlow<List<AiChatSession>> = aiChatUseCase.getAllSessions()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val _showAiHistoryScreen = mutableStateOf(false)
+    val showAiHistoryScreen: State<Boolean> = _showAiHistoryScreen
+
 
     val suggestions: List<AiSuggestion> by lazy {
         listOf(
             AiSuggestion(
                 title = stringProvider.getString(R.string.ask_ai),
                 icon = Icons.Rounded.Search,
-                action = { /* TODO */ }
+                action = { sendMessage(stringProvider.getString(R.string.ai_greeting_message)) }
             ),
             AiSuggestion(
                 title = stringProvider.getString(R.string.make_note),
@@ -157,7 +170,10 @@ class HomeViewModel @Inject constructor(
             AiSuggestion(
                 title = stringProvider.getString(R.string.generate_ideas),
                 icon = Icons.Rounded.AutoAwesome,
-                action = { sendMessage(stringProvider.getString(R.string.generate_ideas_prompt)) }
+                action = {
+                    setAiMode(AiMode.CREATIVE_MIND)
+                    sendMessage(stringProvider.getString(R.string.generate_ideas_prompt))
+                }
             ),
             AiSuggestion(
                 title = stringProvider.getString(R.string.create_note_from_object),
@@ -167,223 +183,269 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    // --- Global AI Chat States | END ---
+    init {
+        _chatState.asStateFlow().flatMapLatest { state: ChatState ->
+            state.currentSessionId?.let { sessionId: Long ->
+                aiChatUseCase.getMessagesForSession(sessionId)
+            } ?: flowOf(emptyList())
+        }.onEach { dbMessages: List<AiChatMessage> ->
+            val chatMessages = dbMessages.map { dbMessage: AiChatMessage ->
+                ChatMessage(dbMessage.text, dbMessage.participant, dbMessage.isLoading)
+            }
+            _chatState.value = _chatState.value.copy(messages = chatMessages)
+        }.launchIn(viewModelScope)
+
+
+        noteUseCase.observe()
+        viewModelScope.launch {
+            val settings = settingsRepository.settings.first()
+            if (settings.openToLastUsedFolder && settings.lastUsedFolderId != null) {
+                _selectedFolderId.value = settings.lastUsedFolderId
+                settingsRepository.update(settings.copy(lastUsedFolderId = null))
+            }
+        }
+    }
 
     // --- Global AI Chat Functions ---
+    fun setAiMode(mode: AiMode) {
+        _aiMode.value = mode
+        viewModelScope.launch {
+            _chatState.value.currentSessionId?.let {
+                aiChatUseCase.updateSessionMode(it, mode)
+            }
+        }
+    }
+
+    fun toggleAiHistoryScreen(show: Boolean) {
+        _showAiHistoryScreen.value = show
+    }
+
+    fun startNewChat() {
+        resetChatState()
+        toggleAiHistoryScreen(false)
+    }
+
+    fun loadChatSession(session: AiChatSession) {
+        viewModelScope.launch {
+            _chatState.value = ChatState(
+                currentSessionId = session.id,
+                hasStartedConversation = true
+            )
+            setAiMode(AiMode.valueOf(session.aiMode))
+            toggleAiHistoryScreen(false)
+        }
+    }
+
+    fun deleteChatSession(sessionId: Long) {
+        viewModelScope.launch {
+            aiChatUseCase.deleteSessionById(sessionId)
+            if (_chatState.value.currentSessionId == sessionId) {
+                resetChatState()
+            }
+        }
+    }
+
     fun toggleAiChatSheet(isVisible: Boolean) {
         _isAiChatSheetVisible.value = isVisible
+        if (!isVisible) {
+            resetChatState()
+            toggleAiHistoryScreen(false)
+        }
     }
 
     fun setFabExtended(isExtended: Boolean) {
         _isFabExtended.value = isExtended
     }
 
-    fun sendMessage(userMessage: String) {
-        val currentMessages = _chatState.value.messages.toMutableList() // Create a temporary message list
-
-        // ---> Add user's message and loading indicator for AI
-        currentMessages.add(ChatMessage(text = userMessage, participant = Participant.USER))
-        currentMessages.add(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true))
-        // <---
-
-        _chatState.value = _chatState.value.copy(messages = currentMessages, hasStartedConversation = true) // update UI
-
-        viewModelScope.launch {
-            val history = _chatState.value.messages
-            val responseBuilder = StringBuilder()
-            val apiKey = getApiKeyToUse()
-
-            geminiRepository.generateChatResponse(history, apiKey)
-                .onCompletion {
-                    // Sets the ‘isLoading’ status of the last message to “false” when the flow is finished
-                    val finalMessages = _chatState.value.messages.toMutableList()
-                    val lastMessage = finalMessages.lastOrNull()
-                    if (lastMessage != null && lastMessage.participant == Participant.MODEL) {
-                        finalMessages[finalMessages.size - 1] = lastMessage.copy(isLoading = false)
-                        _chatState.value = _chatState.value.copy(messages = finalMessages)
-                    }
-                }
-                .collect { chunk ->
-                    responseBuilder.append(chunk)
-
-                    val updatedMessages = _chatState.value.messages.toMutableList() // Creates the streaming effect by updating the last message (AI's response)
-                    val lastMessageIndex = updatedMessages.size - 1
-                    if (lastMessageIndex >= 0) {
-                        updatedMessages[lastMessageIndex] = updatedMessages[lastMessageIndex].copy(
-                            text = responseBuilder.toString(),
-                            isLoading = true // Stays “true” as long as the flow continues
-                        )
-                        _chatState.value = _chatState.value.copy(messages = updatedMessages)
-                    }
-                }
+    fun sendMessage(userMessage: String) = viewModelScope.launch {
+        var sessionId = _chatState.value.currentSessionId
+        if (sessionId == null) {
+            val newSessionId = aiChatUseCase.startNewSession(userMessage.take(40), _aiMode.value)
+            _chatState.value = _chatState.value.copy(currentSessionId = newSessionId, hasStartedConversation = true)
+            sessionId = newSessionId
         }
+
+        val userChatMessage = ChatMessage(userMessage, Participant.USER)
+        aiChatUseCase.addMessageToSession(sessionId, userChatMessage)
+
+        val loadingMessage = ChatMessage("", Participant.MODEL, isLoading = true)
+        val loadingMessageId = aiChatUseCase.addMessageToSession(sessionId, loadingMessage)
+
+        val historyForApi = (_chatState.value.messages + userChatMessage).filter { !it.isLoading }
+
+        val responseBuilder = StringBuilder()
+        geminiRepository.generateChatResponse(historyForApi, getApiKeyToUse(), _aiMode.value)
+            .onCompletion {
+                val finalMessage = ChatMessage(responseBuilder.toString(), Participant.MODEL, isLoading = false)
+                aiChatUseCase.updateMessageById(loadingMessageId, finalMessage.text, false)
+            }
+            .collect { chunk ->
+                responseBuilder.append(chunk)
+            }
     }
 
+
     fun onDraftAnythingClicked() {
+        startNewChat()
+        setAiMode(AiMode.NOTE_ASSISTANT)
         val promptMessage = ChatMessage(
-            text = stringProvider.getString(R.string.ai_prompt_for_draft_topic),
-            participant = Participant.MODEL
+            stringProvider.getString(R.string.ai_prompt_for_draft_topic),
+            Participant.MODEL
         )
         _chatState.value = _chatState.value.copy(
-            isAwaitingDraftTopic = true,
             messages = listOf(promptMessage),
+            isAwaitingDraftTopic = true,
             hasStartedConversation = true
         )
     }
 
-    fun generateDraft(topic: String) {
-        val currentMessages = _chatState.value.messages.toMutableList()
-        currentMessages.add(ChatMessage(text = topic, participant = Participant.USER))
-        currentMessages.add(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true))
-
+    fun generateDraft(topic: String) = viewModelScope.launch {
+        _chatState.value = _chatState.value.copy(isAwaitingDraftTopic = false, messages = emptyList())
         _chatState.value = _chatState.value.copy(
-            isAwaitingDraftTopic = false,
-            messages = currentMessages
+            latestDraft = null,
+            messages = listOf(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true)),
+            hasStartedConversation = true
         )
 
-        viewModelScope.launch {
-            val apiKey = getApiKeyToUse()
-            geminiRepository.generateDraft(topic, apiKey)
-                .onSuccess { result ->
-                    val title = result.substringAfter("BAŞLIK:").substringBefore("İÇERİK:").trim()
-                    val content = result.substringAfter("İÇERİK:").trim()
-                    if (title.isNotBlank() && content.isNotBlank()) {
-                        _chatState.value = _chatState.value.copy(
-                            messages = emptyList(),
-                            latestDraft = DraftedNote(topic, title, content)
-                        )
-                    } else {
-                        val errorMessages = _chatState.value.messages.dropLast(1).toMutableList()
-                        errorMessages.add(
-                            ChatMessage(
-                                text = "AI yanıtı beklenilen formatta değil.",
-                                participant = Participant.ERROR
-                            )
-                        )
-                        _chatState.value = _chatState.value.copy(
-                            messages = errorMessages,
-                            hasStartedConversation = false
-                        )
-                    }
-                }
-                .onFailure { exception ->
-                    val finalMessages = _chatState.value.messages.dropLast(1).toMutableList()
-                    finalMessages.add(
-                        ChatMessage(
-                            text = exception.message ?: "Bilinmeyen bir hata oluştu.",
-                            participant = Participant.ERROR
-                        )
-                    )
-                    _chatState.value = _chatState.value.copy(
-                        messages = finalMessages,
-                        hasStartedConversation = false
-                    )
-                }
-        }
+        geminiRepository.generateDraft(topic, getApiKeyToUse(), _aiMode.value)
+            .onSuccess { result ->
+                parseAndSetDraft(result, topic, null)
+            }
+            .onFailure { exception ->
+                handleFailure(exception)
+            }
     }
 
-    fun saveDraftedNote() {
-        val draft = _chatState.value.latestDraft ?: return
-        viewModelScope.launch {
-            noteUseCase.addNote(
-                Note(
-                    name = draft.title,
-                    description = draft.content,
-                    folderId = selectedFolderId.value,
-                    encrypted = isVaultMode.value
-                )
+    private fun parseAndSetDraft(result: String, topic: String, imageUri: Uri?) {
+        var title: String
+        var content: String
+
+        // Regex'ler başlık ve içeriği ayıklamak için
+        val titleRegex = """(TITLE:|\*\*TITLE:\*\*)\s*(.*)""".toRegex(RegexOption.IGNORE_CASE)
+        val contentRegex = """(CONTENT:|\*\*CONTENT:\*\*)\s*(.*)""".toRegex(setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
+
+        val titleMatch = titleRegex.find(result)
+        val contentMatch = contentRegex.find(result)
+
+        title = titleMatch?.groupValues?.get(2)?.trim() ?: "Generated Note"
+        content = contentMatch?.let {
+            result.substring(it.range.last + 1).trim()
+        } ?: result
+
+        _chatState.value = _chatState.value.copy(
+            messages = emptyList(),
+            latestDraft = DraftedNote(
+                topic = topic,
+                title = title.replace(Regex("[*#]"), "").trim(),
+                content = content.replace(Regex("[*#]"), "").trim(),
+                sourceImageUri = imageUri
             )
-            resetChatState()
-            toggleAiChatSheet(false)
-        }
+        )
     }
 
-    // This function sends a “open visual selector” command to the UI
+    private fun handleFailure(exception: Throwable) {
+        val finalMessages = listOf(
+            ChatMessage(
+                text = exception.message ?: stringProvider.getString(R.string.error_message_image_analysis_failed),
+                participant = Participant.ERROR
+            )
+        )
+        _chatState.value = _chatState.value.copy(messages = finalMessages, latestDraft = null)
+    }
+
+
+    fun saveDraftedNote() = viewModelScope.launch {
+        val draft = _chatState.value.latestDraft ?: return@launch
+        noteUseCase.addNote(
+            Note(
+                name = draft.title,
+                description = draft.content,
+                folderId = selectedFolderId.value,
+                encrypted = isVaultMode.value
+            )
+        )
+        resetChatState()
+        toggleAiChatSheet(false)
+    }
+
     fun requestImageForAnalysis() {
         viewModelScope.launch {
             _uiActionChannel.send(UiAction.RequestImageForAnalysis)
         }
     }
 
-    // This function is called after selecting the image from the UI
-    fun analyzeImageAndCreateDraft(imageUri: Uri) {
+    fun analyzeImageAndCreateDraft(imageUri: Uri) = viewModelScope.launch {
+        startNewChat()
         val prompt = stringProvider.getString(R.string.prompt_airnote_ai_analyzeimage)
-
         _chatState.value = _chatState.value.copy(
             latestDraft = null,
-            messages = listOf(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true))
+            messages = listOf(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true)),
+            hasStartedConversation = true
         )
 
-        viewModelScope.launch {
-            val apiKey = getApiKeyToUse()
+        val apiKey = getApiKeyToUse()
 
-            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, imageUri))
-            } else {
-                @Suppress("DEPRECATION")
-                MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
-            }
-
-            geminiRepository.generateDraftFromImage(prompt, bitmap, apiKey)
-                .onSuccess { result ->
-                    var title: String
-                    var content: String
-
-                    val titleRegex = """(TİTLE:|\*\*TİTLE:\*\*)\s*(.*)""".toRegex(RegexOption.IGNORE_CASE)
-                    val contentRegex = """(CONTENT:|\*\*CONTENT:\*\*)\s*(.*)""".toRegex(RegexOption.IGNORE_CASE)
-
-                    val titleMatch = titleRegex.find(result)
-                    val contentMatch = contentRegex.find(result)
-
-                    if (titleMatch != null && contentMatch != null) {
-                        title = titleMatch.groupValues[2].trim()
-                        content = result.substring(contentMatch.range.first + contentMatch.value.length).trim()
-                    } else {
-                        val lines = result.lines()
-                        title = lines.firstOrNull()?.cleanMarkdown() ?: "İsimsiz Not"
-                        content = lines.drop(1).joinToString("\n").trim().cleanMarkdown()
-                    }
-
-                    _chatState.value = _chatState.value.copy(
-                        messages = emptyList(),
-                        latestDraft = DraftedNote(
-                            topic = prompt,
-                            title = title.cleanMarkdown(),
-                            content = content.cleanMarkdown(),
-                            sourceImageUri = imageUri
-                        )
-                    )
-                }
-                .onFailure { exception ->
-                    val finalMessages = listOf(
-                        ChatMessage(
-                            text = exception.message ?: stringProvider.getString(R.string.error_message_image_analysis_failed),
-                            participant = Participant.ERROR
-                        )
-                    )
-                    _chatState.value = _chatState.value.copy(messages = finalMessages)
-                }
+        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, imageUri))
+        } else {
+            @Suppress("DEPRECATION")
+            MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
         }
+
+        geminiRepository.generateDraftFromImage(prompt, bitmap, apiKey, _aiMode.value)
+            .onSuccess { result ->
+                parseAndSetDraft(result, prompt, imageUri)
+            }
+            .onFailure { exception ->
+                handleFailure(exception)
+            }
     }
+
 
     fun regenerateDraft() {
         val draft = _chatState.value.latestDraft ?: return
         _chatState.value = _chatState.value.copy(latestDraft = null)
 
         if (draft.sourceImageUri != null) {
-            // If the draft was created from an image, analyze it again with the same image
             analyzeImageAndCreateDraft(draft.sourceImageUri)
         } else {
-            // Otherwise, re-create text-based
             generateDraft(draft.topic)
         }
     }
 
     fun resetChatState() {
         _chatState.value = ChatState()
+        setAiMode(AiMode.NOTE_ASSISTANT)
     }
 
-    // --- Global AI Chat Functions | END ---
+    // --- Note and Folder Functions ---
+
+    val allFolders: StateFlow<List<Folder>> = folderUseCase.getAllFolders()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val displayedNotes: StateFlow<List<Note>> =
+        combine<List<Note>, Long?, Boolean, String, List<Note>>(
+            noteUseCase.getAllNotes(),
+            selectedFolderId,
+            isVaultMode,
+            searchQuery
+        ) { allNotes, folderId, isVault, query ->
+            val notesAfterFolderFilter = if (folderId == null) {
+                allNotes
+            } else {
+                allNotes.filter { it.folderId == folderId }
+            }
+            val notesAfterVaultFilter = notesAfterFolderFilter.filter { it.encrypted == isVault }
+
+            if (query.isBlank()) {
+                notesAfterVaultFilter
+            } else {
+                notesAfterVaultFilter.filter { note ->
+                    note.name.contains(query, ignoreCase = true) ||
+                            note.description.contains(query, ignoreCase = true)
+                }
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun onFolderLongPressed(folder: Folder) {
         _folderForAction.value = folder
@@ -414,47 +476,6 @@ class HomeViewModel @Inject constructor(
 
     fun onDismissEditFolderDialog() {
         _folderToEdit.value = null
-    }
-
-    val allFolders: StateFlow<List<Folder>> = folderUseCase.getAllFolders()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    val displayedNotes: StateFlow<List<Note>> =
-        combine(
-            noteUseCase.getAllNotes(),
-            selectedFolderId,
-            isVaultMode,
-            searchQuery
-        ) { allNotes: List<Note>, folderId: Long?, isVault: Boolean, query: String ->
-            val notesAfterFolderFilter = if (folderId == null) {
-                allNotes
-            } else {
-                allNotes.filter { it.folderId == folderId }
-            }
-            val notesAfterVaultFilter = notesAfterFolderFilter.filter { it.encrypted == isVault }
-
-            if (query.isBlank()) {
-                notesAfterVaultFilter
-            } else {
-                notesAfterVaultFilter.filter { note ->
-                    note.name.contains(query, ignoreCase = true) ||
-                            note.description.contains(query, ignoreCase = true)
-                }
-            }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    init {
-        noteUseCase.observe()
-        viewModelScope.launch {
-            val settings = settingsRepository.settings.first()
-            // Check if the feature is on AND there is a folder ID to restore
-            if (settings.openToLastUsedFolder && settings.lastUsedFolderId != null) {
-                // Restore the folder selection
-                _selectedFolderId.value = settings.lastUsedFolderId
-                // Clear the stored ID so it's only used once per app launch, as you requested.
-                settingsRepository.update(settings.copy(lastUsedFolderId = null))
-            }
-        }
     }
 
     fun setAddFolderDialogVisibility(isVisible: Boolean) {
@@ -495,7 +516,6 @@ class HomeViewModel @Inject constructor(
                 noteUseCase.pinNote(updatedNote)
             }
         }
-
         selectedNotes.clear()
     }
 
@@ -595,9 +615,6 @@ class HomeViewModel @Inject constructor(
         noteUseCase.observe()
     }
 
-    /**
-     * Creates a new, blank note for Desktop mode and instantly makes it selected.
-     */
     fun createNewNoteForDesktop() {
         viewModelScope.launch {
             val targetFolderId = _selectedFolderId.value
@@ -616,9 +633,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    /**
-     * In Desktop mode, runs AI actions on the selected note.
-     */
     fun executeDesktopAiAction(action: AiAction, tone: AiTone? = null) {
         val currentNote = _selectedNote.value ?: return
         val currentDescription = currentNote.description
@@ -628,7 +642,8 @@ class HomeViewModel @Inject constructor(
                 action = action,
                 text = currentDescription,
                 tone = tone,
-                apiKey = getApiKeyToUse()
+                apiKey = getApiKeyToUse(),
+                aiMode = _aiMode.value
             )
                 .onSuccess { result ->
                     updateNoteDetails(currentNote, currentNote.name, result)
@@ -638,8 +653,4 @@ class HomeViewModel @Inject constructor(
                 }
         }
     }
-}
-
-private fun String.cleanMarkdown(): String {
-    return this.replace(Regex("[*#]"), "").trim()
 }

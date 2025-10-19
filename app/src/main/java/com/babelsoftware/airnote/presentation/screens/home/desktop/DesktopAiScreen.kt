@@ -39,7 +39,6 @@ import androidx.compose.ui.window.DialogProperties
 import com.babelsoftware.airnote.domain.model.Participant
 import com.babelsoftware.airnote.presentation.screens.home.ChatMessageItem
 import com.babelsoftware.airnote.presentation.screens.home.DraftDisplay
-import com.babelsoftware.airnote.presentation.screens.home.WavyGraphic
 import com.babelsoftware.airnote.presentation.screens.home.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
 
@@ -62,7 +61,7 @@ fun DesktopAiAssistantDialog(
                 .fillMaxHeight(0.85f),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
-            val chatState by viewModel.chatState
+            val chatState by viewModel.chatState.collectAsState()
             val isDark = isSystemInDarkTheme()
             val gradientBrush = Brush.verticalGradient(
                 colors = if (isDark) {
@@ -81,7 +80,7 @@ fun DesktopAiAssistantDialog(
             ) {
                 when {
                     chatState.latestDraft != null -> DraftDisplay(
-                        draft = chatState.latestDraft!!,
+                        draft = chatState.latestDraft,
                         onSave = { viewModel.saveDraftedNote() },
                         onRegenerate = { viewModel.regenerateDraft() }
                     )
@@ -102,7 +101,7 @@ fun DesktopAiAssistantDialog(
  */
 @Composable
 private fun NewAiScreen(viewModel: HomeViewModel) {
-    val chatState by viewModel.chatState
+    val chatState by viewModel.chatState.collectAsState()
     var text by remember { mutableStateOf("") }
 
     Column(
@@ -113,7 +112,6 @@ private fun NewAiScreen(viewModel: HomeViewModel) {
             modifier = Modifier.padding(top = 32.dp, bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            WavyGraphic(isLoading = chatState.messages.lastOrNull()?.isLoading == true)
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "How can I help you?",
@@ -152,7 +150,7 @@ private fun NewAiScreen(viewModel: HomeViewModel) {
                 }
             },
             onImagePickerClicked = { viewModel.requestImageForAnalysis() },
-            enabled = !(chatState.messages.lastOrNull()?.isLoading == true),
+            enabled = !chatState.messages.any { it.isLoading },
             modifier = Modifier.padding(bottom = 8.dp)
         )
     }
@@ -163,9 +161,9 @@ private fun NewAiScreen(viewModel: HomeViewModel) {
  */
 @Composable
 private fun CompactAiChatView(viewModel: HomeViewModel) {
-    val chatState by viewModel.chatState
+    val chatState by viewModel.chatState.collectAsState()
     var text by remember { mutableStateOf("") }
-    val isLoading = chatState.messages.lastOrNull()?.isLoading == true
+    val isLoading = chatState.messages.any { it.isLoading }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
@@ -179,10 +177,12 @@ private fun CompactAiChatView(viewModel: HomeViewModel) {
 
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
-            modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp),
             state = listState
         ) {
-            items(chatState.messages) { message ->
+            items(items = chatState.messages, key = { it.hashCode() }) { message ->
                 AnimatedVisibility(
                     visible = true,
                     enter = slideInHorizontally { fullWidth ->

@@ -14,6 +14,7 @@ import com.babelsoftware.airnote.domain.model.ChatMessage
 import com.babelsoftware.airnote.domain.model.Participant
 import com.babelsoftware.airnote.domain.repository.SettingsRepository
 import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.Content
 import com.google.ai.client.generativeai.type.content
 import com.google.ai.client.generativeai.type.generationConfig
 import com.google.mlkit.common.model.DownloadConditions
@@ -32,6 +33,14 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
+/**
+ * Represents the different personalities or modes the AI can operate in.
+ */
+enum class AiMode {
+    NOTE_ASSISTANT, // For factual, note-taking tasks.
+    CREATIVE_MIND   // For brainstorming and creative writing.
+}
 
 enum class AiAction {
     IMPROVE_WRITING,
@@ -64,7 +73,7 @@ class GeminiRepository @Inject constructor(
 ) {
     private companion object {
         const val DEFAULT_TEMPERATURE = 0.7f
-        const val CREATIVE_TEMPERATURE = 0.8f
+        const val CREATIVE_TEMPERATURE = 0.9f
     }
     class ApiKeyMissingException(message: String) : Exception(message)
 
@@ -81,7 +90,7 @@ class GeminiRepository @Inject constructor(
         }
     }
 
-    suspend fun processAiAction(text: String, action: AiAction, tone: AiTone? = null, apiKey: String): Result<String> {
+    suspend fun processAiAction(text: String, action: AiAction, tone: AiTone? = null, apiKey: String, aiMode: AiMode = AiMode.NOTE_ASSISTANT): Result<String> {
         if (apiKey.isBlank()) {
             return Result.failure(ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key)))
         }
@@ -89,13 +98,13 @@ class GeminiRepository @Inject constructor(
             require(tone != null) { "CHANGE_TONE eylemi için bir ton belirtilmelidir." }
         }
 
+        val modelName = settingsRepository.settings.first().selectedModelName
         val generativeModel: GenerativeModel = try {
-            val modelName = settingsRepository.settings.first().selectedModelName
             GenerativeModel(
                 modelName = modelName,
                 apiKey = apiKey,
                 generationConfig = generationConfig {
-                    temperature = DEFAULT_TEMPERATURE
+                    this.temperature = if (aiMode == AiMode.CREATIVE_MIND) CREATIVE_TEMPERATURE else DEFAULT_TEMPERATURE
                 }
             )
         } catch (e: Exception) {
@@ -103,7 +112,12 @@ class GeminiRepository @Inject constructor(
             return Result.failure(e)
         }
 
-        val prompt = when (action) {
+        val systemPrompt = when (aiMode) {
+            AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant)
+            AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind)
+        }
+
+        val userPrompt = when (action) {
             AiAction.IMPROVE_WRITING -> stringProvider.getString(R.string.prompt_improve_writing, text)
             AiAction.SUMMARIZE -> stringProvider.getString(R.string.prompt_summarize, text)
             AiAction.MAKE_SHORTER -> stringProvider.getString(R.string.prompt_make_shorter, text)
@@ -120,8 +134,10 @@ class GeminiRepository @Inject constructor(
             AiAction.TRANSLATE -> "" // This action is handled on-device
         }
 
+        val finalPrompt = "$systemPrompt\n\n---\n\n$userPrompt"
+
         return try {
-            val response = generativeModel.generateContent(prompt)
+            val response = generativeModel.generateContent(finalPrompt)
             response.text?.let { Result.success(it) } ?: Result.failure(Exception("API'den boş yanıt alındı."))
         } catch (e: Exception) {
             e.printStackTrace()
@@ -133,7 +149,8 @@ class GeminiRepository @Inject constructor(
         noteName: String,
         noteDescription: String,
         action: AiAssistantAction,
-        apiKey: String
+        apiKey: String,
+        aiMode: AiMode = AiMode.CREATIVE_MIND
     ): Flow<String> = flow {
         if (apiKey.isBlank()) {
             throw ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key))
@@ -143,10 +160,17 @@ class GeminiRepository @Inject constructor(
         val generativeModel = GenerativeModel(
             modelName = modelName,
             apiKey = apiKey,
-            generationConfig = generationConfig { temperature = CREATIVE_TEMPERATURE }
+            generationConfig = generationConfig {
+                this.temperature = if (aiMode == AiMode.CREATIVE_MIND) CREATIVE_TEMPERATURE else DEFAULT_TEMPERATURE
+            }
         )
 
-        val prompt = when (action) {
+        val systemPrompt = when (aiMode) {
+            AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant)
+            AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind)
+        }
+
+        val userPrompt = when (action) {
             AiAssistantAction.GIVE_IDEA -> stringProvider.getString(R.string.prompt_assistant_give_idea, noteName)
             AiAssistantAction.CONTINUE_WRITING -> stringProvider.getString(R.string.prompt_assistant_continue_writing, noteName, noteDescription)
             AiAssistantAction.CHANGE_PERSPECTIVE -> stringProvider.getString(R.string.prompt_assistant_change_perspective, noteName, noteDescription)
@@ -156,15 +180,16 @@ class GeminiRepository @Inject constructor(
             AiAssistantAction.SUGGEST_A_TITLE -> stringProvider.getString(R.string.prompt_assistant_suggest_title, noteDescription)
         }
 
-        generativeModel.generateContentStream(prompt).collect { chunk ->
+        val finalPrompt = "$systemPrompt\n\n---\n\n$userPrompt"
+
+        generativeModel.generateContentStream(finalPrompt).collect { chunk ->
             emit(chunk.text ?: "")
         }
     }.catch {
         emit(stringProvider.getString(R.string.error_api_request_failed, it.message ?: "Unknown error"))
     }
 
-
-    fun generateChatResponse(history: List<ChatMessage>, apiKey: String): Flow<String> = flow {
+    fun generateChatResponse(history: List<ChatMessage>, apiKey: String, aiMode: AiMode = AiMode.NOTE_ASSISTANT): Flow<String> = flow {
         if (apiKey.isBlank()) {
             throw ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key))
         }
@@ -173,19 +198,32 @@ class GeminiRepository @Inject constructor(
         val generativeModel = GenerativeModel(
             modelName = modelName,
             apiKey = apiKey,
-            generationConfig = generationConfig { temperature = CREATIVE_TEMPERATURE }
+            generationConfig = generationConfig {
+                this.temperature = if (aiMode == AiMode.CREATIVE_MIND) CREATIVE_TEMPERATURE else DEFAULT_TEMPERATURE
+            }
         )
 
-        val chatHistoryContent = history
+        val systemPrompt = when (aiMode) {
+            AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant)
+            AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind)
+        }
+
+        val chatHistoryForModel = mutableListOf<Content>()
+        chatHistoryForModel.add(content("user") { text(systemPrompt) })
+        chatHistoryForModel.add(content("model") { text("OK.") })
+
+        val userHistoryContent = history
             .filter { it.participant != Participant.ERROR && !it.isLoading }
             .map { msg ->
                 content(role = if (msg.participant == Participant.USER) "user" else "model") {
                     text(msg.text)
                 }
             }
+        chatHistoryForModel.addAll(userHistoryContent)
 
-        val lastMessage = chatHistoryContent.lastOrNull() ?: return@flow
-        val historyWithoutLast = chatHistoryContent.dropLast(1)
+
+        val lastMessage = chatHistoryForModel.lastOrNull() ?: return@flow
+        val historyWithoutLast = chatHistoryForModel.dropLast(1)
         val chat = generativeModel.startChat(history = historyWithoutLast)
 
         chat.sendMessageStream(lastMessage).collect { chunk ->
@@ -195,27 +233,34 @@ class GeminiRepository @Inject constructor(
         emit(stringProvider.getString(R.string.error_api_request_failed, it.message ?: "Unknown error"))
     }
 
-    suspend fun generateDraft(topic: String, apiKey: String): Result<String> {
+    suspend fun generateDraft(topic: String, apiKey: String, aiMode: AiMode = AiMode.NOTE_ASSISTANT): Result<String> {
         if (apiKey.isBlank()) {
             return Result.failure(ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key)))
         }
 
+        val modelName = settingsRepository.settings.first().selectedModelName
         val generativeModel: GenerativeModel = try {
-            val modelName = settingsRepository.settings.first().selectedModelName
             GenerativeModel(
                 modelName = modelName,
                 apiKey = apiKey,
-                generationConfig = generationConfig { temperature = CREATIVE_TEMPERATURE }
+                generationConfig = generationConfig {
+                    this.temperature = if (aiMode == AiMode.CREATIVE_MIND) CREATIVE_TEMPERATURE else DEFAULT_TEMPERATURE
+                }
             )
         } catch (e: Exception) {
             e.printStackTrace()
             return Result.failure(e)
         }
 
-        val prompt = stringProvider.getString(R.string.prompt_assistant_draft_anything, topic)
+        val systemPrompt = when (aiMode) {
+            AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant)
+            AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind)
+        }
+        val userPrompt = stringProvider.getString(R.string.prompt_assistant_draft_anything, topic)
+        val finalPrompt = "$systemPrompt\n\n---\n\n$userPrompt"
 
         return try {
-            val response = generativeModel.generateContent(prompt)
+            val response = generativeModel.generateContent(finalPrompt)
             response.text?.let { Result.success(it) } ?: Result.failure(Exception("API'den boş yanıt alındı."))
         } catch (e: Exception) {
             e.printStackTrace()
@@ -223,26 +268,39 @@ class GeminiRepository @Inject constructor(
         }
     }
 
-    suspend fun generateDraftFromImage(prompt: String, image: Bitmap, apiKey: String): Result<String> {
+    suspend fun generateDraftFromImage(prompt: String, image: Bitmap, apiKey: String, aiMode: AiMode): Result<String> {
         if (apiKey.isBlank()) {
             return Result.failure(ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key)))
         }
 
         val generativeModel: GenerativeModel = try {
             val modelName = settingsRepository.settings.first().selectedModelName
+            val systemPrompt = when (aiMode) {
+                AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant)
+                AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind)
+            }
+            val temperature = if (aiMode == AiMode.CREATIVE_MIND) CREATIVE_TEMPERATURE else DEFAULT_TEMPERATURE
+
             GenerativeModel(
                 modelName = modelName,
                 apiKey = apiKey,
-                generationConfig = generationConfig { temperature = DEFAULT_TEMPERATURE }
+                generationConfig = generationConfig {
+                    this.temperature = temperature
+                }
             )
         } catch (e: Exception) {
             e.printStackTrace()
             return Result.failure(e)
         }
 
+        val finalPrompt = when (aiMode) {
+            AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant) + "\n\n---\n\n" + prompt
+            AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind) + "\n\n---\n\n" + prompt
+        }
+
         val inputContent = content {
             image(image)
-            text(prompt)
+            text(finalPrompt)
         }
 
         return try {

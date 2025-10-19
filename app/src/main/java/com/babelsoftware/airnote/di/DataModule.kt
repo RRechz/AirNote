@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import com.babelsoftware.airnote.data.local.dao.AiChatDao
+import com.babelsoftware.airnote.data.local.database.NoteDatabase
 import com.babelsoftware.airnote.data.local.database.NoteDatabaseProvider
 import com.babelsoftware.airnote.data.repository.FolderRepositoryImpl
 import com.babelsoftware.airnote.data.repository.ImportExportRepository
@@ -126,5 +128,11 @@ object ApplicationModule {
         noteRepository: NoteRepository
     ): FolderUseCase {
         return FolderUseCase(folderRepository, noteRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAiChatDao(noteDatabaseProvider: NoteDatabaseProvider): AiChatDao {
+        return noteDatabaseProvider.aiChatDao()
     }
 }

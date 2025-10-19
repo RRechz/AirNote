@@ -6,8 +6,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
@@ -31,8 +31,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,7 +52,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
@@ -79,6 +78,7 @@ import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.ContentCut
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Event
@@ -117,8 +117,13 @@ import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Work
+import androidx.compose.material.icons.rounded.AddComment
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.Notes
+import androidx.compose.material.icons.rounded.Psychology
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
@@ -129,7 +134,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -165,13 +174,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -180,11 +186,13 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.babelsoftware.airnote.R
-import com.babelsoftware.airnote.domain.model.AiSuggestion
-import com.babelsoftware.airnote.domain.model.ChatMessage
+import com.babelsoftware.airnote.data.repository.AiMode
+import com.babelsoftware.airnote.domain.model.AiChatSession
 import com.babelsoftware.airnote.domain.model.Folder
 import com.babelsoftware.airnote.domain.model.Note
 import com.babelsoftware.airnote.domain.model.Participant
@@ -210,11 +218,9 @@ import com.babelsoftware.airnote.presentation.screens.settings.settings.Password
 import com.babelsoftware.airnote.presentation.screens.settings.settings.shapeManager
 import com.babelsoftware.airnote.presentation.theme.AiButtonColors
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class, androidx.compose.animation.ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeView (
     viewModel: HomeViewModel = hiltViewModel(),
@@ -244,14 +250,11 @@ fun HomeView (
         } else {
             val allFolders by viewModel.allFolders.collectAsState()
             val notes by viewModel.displayedNotes.collectAsState()
-            val settings = settingsModel.settings.value
             val selectedFolderId by viewModel.selectedFolderId.collectAsState()
             var showFolderSheet by remember { mutableStateOf(false) }
             val selectedFolder = remember(selectedFolderId, allFolders) {
                 allFolders.find { it.id == selectedFolderId }
             }
-            val context = LocalContext.current
-            // ---> Image Picker (Photo Picker)
             val imagePickerLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.GetContent(),
                 onResult = { uri: Uri? ->
@@ -270,7 +273,6 @@ fun HomeView (
                     }
                 }
             }
-            // <---
 
             LaunchedEffect(key1 = Unit) {
                 settingsModel.checkForNewUpdate(context)
@@ -302,131 +304,26 @@ fun HomeView (
                 )
             }
             val topBarColor = MaterialTheme.colorScheme.surfaceContainerLow
-            val listState =
-                rememberLazyStaggeredGridState() // LazyListState to listen to the scrolling state of the note list
+            val listState = rememberLazyStaggeredGridState()
 
-            // ---> Expansion and reduction of the FAB according to the scrolling situation
             val isFabExtended by remember {
                 derivedStateOf {
                     listState.firstVisibleItemIndex == 0
                 }
             }
-            // <---
             viewModel.setFabExtended(isFabExtended)
 
-            val sheetState = rememberModalBottomSheetState(
-                skipPartiallyExpanded = true
-            )
+            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-            // AI Chat Window (ModalBottomSheet)
             if (viewModel.isAiChatSheetVisible.value) {
                 ModalBottomSheet(
-                    onDismissRequest = {
-                        viewModel.toggleAiChatSheet(false)
-                        viewModel.resetChatState()
-                    },
+                    onDismissRequest = { viewModel.toggleAiChatSheet(false) },
                     sheetState = sheetState,
                     modifier = Modifier.fillMaxWidth(),
-                    containerColor = Color.Transparent // Variable color for the AI window
+                    containerColor = Color.Transparent,
+                    tonalElevation = 0.dp
                 ) {
-                    val isDark = isSystemInDarkTheme()
-                    val gradientBrush = Brush.verticalGradient(
-                        colors = if (isDark) {
-                            listOf(Color(0xFF282322), Color(0xFF121011))
-                        } else {
-                            listOf(
-                                MaterialTheme.colorScheme.surfaceContainer,
-                                MaterialTheme.colorScheme.surfaceContainerLowest
-                            )
-                        }
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(gradientBrush)
-                    ) {
-                        val chatState = viewModel.chatState.value
-
-                        if (chatState.latestDraft != null) {
-                            DraftDisplay(
-                                draft = chatState.latestDraft,
-                                onSave = { viewModel.saveDraftedNote() },
-                                onRegenerate = { viewModel.regenerateDraft() }
-                            )
-                        } else if (chatState.messages.isNotEmpty()) {
-                            var text by remember { mutableStateOf("") }
-                            val isLoading =
-                                chatState.messages.lastOrNull()?.isLoading == true
-                            val haptic = LocalHapticFeedback.current
-                            val listState = rememberLazyListState()
-                            val scope = rememberCoroutineScope()
-
-                            LaunchedEffect(chatState.messages.size) {
-                                if (chatState.messages.isNotEmpty()) {
-                                    scope.launch {
-                                        listState.animateScrollToItem(chatState.messages.size - 1)
-                                    }
-                                    if (chatState.messages.last().participant == Participant.MODEL) {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    }
-                                }
-                            }
-
-                            Column(
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                LazyColumn(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(horizontal = 8.dp),
-                                    state = listState
-                                ) {
-                                    items(items = chatState.messages, key = { it.hashCode() }) { message ->
-                                        AnimatedVisibility(
-                                            visible = true,
-                                            enter = slideInHorizontally { fullWidth ->
-                                                if (message.participant == Participant.USER) fullWidth else -fullWidth
-                                            } + fadeIn()
-                                        ) {
-                                            ChatMessageItem(message = message)
-                                        }
-                                    }
-                                }
-                                ChatInputBar(
-                                    text = text,
-                                    onValueChange = { text = it },
-                                    isAwaitingTopic = chatState.isAwaitingDraftTopic,
-                                    onSendMessage = {
-                                        val messageToSend = text
-                                        if (messageToSend.isNotBlank()) {
-                                            if (chatState.isAwaitingDraftTopic) {
-                                                viewModel.generateDraft(messageToSend)
-                                            } else {
-                                                viewModel.sendMessage(messageToSend)
-                                            }
-                                            text = ""
-                                        }
-                                    },
-                                    onImagePickerClicked = { viewModel.requestImageForAnalysis() },
-                                    enabled = !isLoading
-                                )
-                            }
-                        } else {
-                            NewAiScreen(
-                                isAwaitingTopic = chatState.isAwaitingDraftTopic,
-                                isLoading = chatState.messages.lastOrNull()?.isLoading == true,
-                                onSendMessage = { message ->
-                                    if (chatState.isAwaitingDraftTopic) {
-                                        viewModel.generateDraft(message)
-                                    } else {
-                                        viewModel.sendMessage(message)
-                                    }
-                                },
-                                suggestions = viewModel.suggestions,
-                                viewModel = viewModel
-                            )
-                        }
-                    }
+                    AiChatContainer(viewModel = viewModel)
                 }
             }
 
@@ -697,7 +594,6 @@ private fun MultiActionFloatingActionButton(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // AI Button with Label
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -733,7 +629,6 @@ private fun MultiActionFloatingActionButton(
                     }
                 }
 
-                // New Note Button with Label
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -909,7 +804,6 @@ private fun NotesSearchBar(
                         }
                     }
                 }
-                // ---> Update Check with Settings İcon
                 BadgedBox(
                     badge = {
                         if (settingsModel.updateAvailable.value) {
@@ -924,7 +818,6 @@ private fun NotesSearchBar(
                         )
                     }
                 }
-                // <---
             }
         },
         onQueryChange = onQueryChange,
@@ -985,7 +878,6 @@ fun FolderSelectionBottomSheet(
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
         ) {
-            // Folder Search Bar
             TextField(
                 value = searchQuery,
                 onValueChange = { newQuery -> searchQuery = newQuery },
@@ -1001,7 +893,6 @@ fun FolderSelectionBottomSheet(
                 )
             )
 
-            // Folder list
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1028,10 +919,11 @@ fun FolderSelectionBottomSheet(
                 }
 
                 item {
-                    // "Add New Folder" button
                     Button(
                         onClick = onAddFolderClicked,
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
                     ) {
                         Icon(Icons.Default.Add, contentDescription = "Add New Folder")
                         Spacer(modifier = Modifier.width(8.dp))
@@ -1072,7 +964,6 @@ fun FolderListItem(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Show icon
             Icon(
                 imageVector = iconNameToVector(iconName),
                 contentDescription = null,
@@ -1196,8 +1087,6 @@ val materialIconsList = mapOf(
     "Palette" to Icons.Default.Palette,
     "CardGiftcard" to Icons.Default.CardGiftcard,
     "DirectionsCar" to Icons.Default.DirectionsCar,
-
-    // Extra İcons
     "AccountBalance" to Icons.Default.AccountBalance,
     "Alarm" to Icons.Default.Alarm,
     "Apartment" to Icons.Default.Apartment,
@@ -1229,21 +1118,545 @@ val materialIconsList = mapOf(
     "Warning" to Icons.Default.Warning
 )
 
+// =================================================================
+// === Enhanced AirNote AI Interface ===============================
+// =================================================================
+
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun ChatMessageItem(message: ChatMessage) {
+fun AiChatContainer(viewModel: HomeViewModel) {
+    val backgroundBrush = Brush.verticalGradient(
+        colors = listOf(Color(0xFF10141C), Color(0xFF0A0D12))
+    )
+    val showHistoryScreen by viewModel.showAiHistoryScreen
+    val allSessions by viewModel.allChatSessions.collectAsState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundBrush)
+    ) {
+        AiTopBar(
+            viewModel = viewModel,
+            showHistory = showHistoryScreen,
+            onToggleHistory = { viewModel.toggleAiHistoryScreen(!showHistoryScreen) }
+        )
+
+        AnimatedContent(targetState = showHistoryScreen, label = "AiScreenAnimation") { showHistory ->
+            if (showHistory) {
+                AiHistoryScreen(
+                    sessions = allSessions,
+                    onNewChatClicked = { viewModel.startNewChat() },
+                    onSessionClicked = { viewModel.loadChatSession(it) },
+                    onDeleteSession = { viewModel.deleteChatSession(it.id) }
+                )
+            } else {
+                AiMainContent(viewModel = viewModel)
+            }
+        }
+    }
+}
+
+@Composable
+fun AiMainContent(viewModel: HomeViewModel) {
+    val chatState by viewModel.chatState.collectAsState()
+    var text by remember { mutableStateOf("") }
+    val isLoading = chatState.messages.any { it.isLoading }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.weight(1f)) {
+            when {
+                chatState.latestDraft != null -> {
+                    DraftDisplay(
+                        draft = chatState.latestDraft,
+                        onSave = { viewModel.saveDraftedNote() },
+                        onRegenerate = { viewModel.regenerateDraft() }
+                    )
+                }
+                chatState.hasStartedConversation || chatState.messages.isNotEmpty() -> {
+                    ChatScreenContent(
+                        messages = chatState.messages
+                    )
+                }
+                else -> {
+                    NewAiHomeScreen(viewModel = viewModel)
+                }
+            }
+        }
+
+        RedesignedChatInputBar(
+            text = text,
+            onValueChange = { text = it },
+            onSendMessage = {
+                if (text.isNotBlank()) {
+                    if (chatState.isAwaitingDraftTopic) {
+                        viewModel.generateDraft(text)
+                    } else {
+                        viewModel.sendMessage(text)
+                    }
+                    text = ""
+                }
+            },
+            onImagePickerClicked = { viewModel.requestImageForAnalysis() },
+            enabled = !isLoading,
+            placeholderText = if (chatState.isAwaitingDraftTopic) stringResource(R.string.draft_topic_placeholder) else stringResource(R.string.ask_airnote_ai)
+        )
+    }
+}
+
+@Composable
+fun NewAiHomeScreen(viewModel: HomeViewModel) {
+    val chatState by viewModel.chatState.collectAsState()
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        contentPadding = PaddingValues(bottom = 16.dp)
+    ) {
+        item {
+            Spacer(modifier = Modifier.height(64.dp))
+            AiCentralGraphic(isThinking = chatState.messages.any { it.isLoading })
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        val suggestions = viewModel.suggestions
+        val rows = (suggestions.size + 1) / 2
+        items(rows) { rowIndex ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                val itemIndex1 = rowIndex * 2
+                Box(modifier = Modifier.weight(1f)) {
+                    ActionCard(
+                        text = suggestions[itemIndex1].title,
+                        icon = suggestions[itemIndex1].icon,
+                        onClick = suggestions[itemIndex1].action
+                    )
+                }
+
+                val itemIndex2 = itemIndex1 + 1
+                Box(modifier = Modifier.weight(1f)) {
+                    if (itemIndex2 < suggestions.size) {
+                        ActionCard(
+                            text = suggestions[itemIndex2].title,
+                            icon = suggestions[itemIndex2].icon,
+                            onClick = suggestions[itemIndex2].action
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun ChatScreenContent(messages: List<com.babelsoftware.airnote.domain.model.ChatMessage>) {
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) {
+            scope.launch {
+                listState.animateScrollToItem(messages.size - 1)
+            }
+        }
+    }
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 8.dp),
+        state = listState,
+        contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp)
+    ) {
+        items(items = messages, key = { it.hashCode() }) { message ->
+            ChatMessageItem(message = message)
+        }
+    }
+}
+
+@Composable
+fun AiHistoryScreen(
+    sessions: List<AiChatSession>,
+    onNewChatClicked: () -> Unit,
+    onSessionClicked: (AiChatSession) -> Unit,
+    onDeleteSession: (AiChatSession) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            OutlinedButton(
+                onClick = onNewChatClicked,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f)),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
+            ) {
+                Icon(Icons.Rounded.AddComment, contentDescription = stringResource(R.string.new_chat))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.new_chat))
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                stringResource(R.string.history),
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White.copy(alpha = 0.8f)
+            )
+        }
+        if (sessions.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 80.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    stringResource(R.string.no_chat_history),
+                    color = Color.White.copy(alpha = 0.6f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 32.dp)
+                )
+            }
+        } else {
+            LazyColumn(
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(items = sessions, key = { it.id }) { session ->
+                    HistoryItem(
+                        session = session,
+                        onClick = { onSessionClicked(session) },
+                        onDelete = { onDeleteSession(session) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun HistoryItem(session: AiChatSession, onClick: () -> Unit, onDelete: () -> Unit) {
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text(stringResource(R.string.delete_chat)) },
+            text = { Text(stringResource(R.string.delete_chat_description)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDelete()
+                        showDeleteConfirm = false
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text(stringResource(R.string.delete))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = { showDeleteConfirm = true }
+            ),
+        color = Color.White.copy(alpha = 0.05f),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                if (session.aiMode == AiMode.CREATIVE_MIND.name) Icons.Rounded.Psychology else Icons.Rounded.Notes,
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.6f),
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = session.title,
+                color = Color.White.copy(alpha = 0.9f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+fun AiTopBar(
+    viewModel: HomeViewModel,
+    showHistory: Boolean,
+    onToggleHistory: () -> Unit
+) {
+    val currentAiMode by viewModel.aiMode.collectAsState()
+    var showModelMenu by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Box {
+            Row(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.1f))
+                    .clickable { showModelMenu = true }
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = when(currentAiMode) {
+                        AiMode.NOTE_ASSISTANT -> Icons.Rounded.Notes
+                        AiMode.CREATIVE_MIND -> Icons.Rounded.Psychology
+                    },
+                    contentDescription = "AI Model",
+                    tint = Color(0xFF33A2FF),
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = when (currentAiMode) {
+                        AiMode.NOTE_ASSISTANT -> stringResource(R.string.ai_mode_note_assistant)
+                        AiMode.CREATIVE_MIND -> stringResource(R.string.ai_mode_creative_mind)
+                    },
+                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp
+                )
+                Icon(Icons.Rounded.ExpandMore, contentDescription = "Change Model", tint = Color.White.copy(alpha = 0.7f))
+            }
+
+            DropdownMenu(
+                expanded = showModelMenu,
+                onDismissRequest = { showModelMenu = false },
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            ) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.ai_mode_note_assistant)) },
+                    onClick = {
+                        viewModel.setAiMode(AiMode.NOTE_ASSISTANT)
+                        showModelMenu = false
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Rounded.Notes,
+                            contentDescription = stringResource(R.string.ai_mode_note_assistant)
+                        )
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.ai_mode_creative_mind)) },
+                    onClick = {
+                        viewModel.setAiMode(AiMode.CREATIVE_MIND)
+                        showModelMenu = false
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Rounded.Psychology,
+                            contentDescription = stringResource(R.string.ai_mode_creative_mind)
+                        )
+                    }
+                )
+            }
+        }
+
+        IconButton(onClick = onToggleHistory) {
+            Icon(
+                if (showHistory) Icons.AutoMirrored.Filled.Chat else Icons.Rounded.History,
+                contentDescription = "Toggle History",
+                tint = Color.White.copy(alpha = 0.8f)
+            )
+        }
+    }
+}
+
+@Composable
+fun AiCentralGraphic(isThinking: Boolean) {
+    val infiniteTransition = rememberInfiniteTransition(label = "orb_animation")
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(tween(if (isThinking) 2000 else 10000, easing = LinearEasing), RepeatMode.Restart),
+        label = "orb_rotation"
+    )
+    val scale by animateFloatAsState(
+        targetValue = if (isThinking) 1.1f else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "orb_scale"
+    )
+
+    Box(
+        modifier = Modifier.size(120.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(Color(0xFF33A2FF).copy(alpha = 0.1f), Color.Transparent),
+                ),
+                radius = (size.minDimension / 2.0f) * scale
+            )
+        }
+        Box(
+            modifier = Modifier
+                .size(120.dp)
+                .graphicsLayer {
+                    rotationZ = rotation
+                }
+                .border(
+                    BorderStroke(
+                        2.dp,
+                        Brush.sweepGradient(
+                            0.0f to Color.Transparent,
+                            0.7f to Color(0xFF33A2FF),
+                            1.0f to Color.Transparent
+                        )
+                    ),
+                    CircleShape
+                ),
+        )
+        Icon(
+            imageVector = Icons.Rounded.AutoAwesome,
+            contentDescription = "AI Core",
+            tint = Color(0xFF33A2FF),
+            modifier = Modifier.size(50.dp)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AiModeSelector(
+    currentMode: AiMode,
+    onModeSelected: (AiMode) -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        @Composable
+        fun ModeChip(
+            text: String,
+            icon: ImageVector,
+            isSelected: Boolean,
+            onClick: () -> Unit
+        ) {
+            FilterChip(
+                selected = isSelected,
+                onClick = onClick,
+                label = { Text(text) },
+                leadingIcon = { Icon(icon, contentDescription = text, modifier = Modifier.size(FilterChipDefaults.IconSize)) },
+                colors = FilterChipDefaults.filterChipColors(
+                    containerColor = Color.White.copy(alpha = 0.05f),
+                    labelColor = Color.White.copy(alpha = 0.7f),
+                    iconColor = Color.White.copy(alpha = 0.7f),
+                    selectedContainerColor = Color(0xFF33A2FF).copy(alpha = 0.25f),
+                    selectedLabelColor = Color.White,
+                    selectedLeadingIconColor = Color.White
+                ),
+                border = BorderStroke(1.dp, if (isSelected) Color(0xFF33A2FF) else Color.White.copy(alpha = 0.1f))
+            )
+        }
+
+        ModeChip(
+            text = stringResource(R.string.ai_mode_note_assistant),
+            icon = Icons.Rounded.Notes,
+            isSelected = currentMode == AiMode.NOTE_ASSISTANT,
+            onClick = { onModeSelected(AiMode.NOTE_ASSISTANT) }
+        )
+
+        ModeChip(
+            text = stringResource(R.string.ai_mode_creative_mind),
+            icon = Icons.Rounded.Psychology,
+            isSelected = currentMode == AiMode.CREATIVE_MIND,
+            onClick = { onModeSelected(AiMode.CREATIVE_MIND) }
+        )
+    }
+}
+
+@Composable
+fun ActionCard(text: String, icon: ImageVector, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color = Color.White.copy(alpha = 0.05f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = text,
+                tint = Color.White.copy(alpha = 0.8f)
+            )
+            Text(
+                text = text,
+                color = Color.White,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+
+@Composable
+fun ChatMessageItem(message: com.babelsoftware.airnote.domain.model.ChatMessage) {
+    val isUser = message.participant == Participant.USER
     Row(
         modifier = Modifier
             .padding(vertical = 4.dp, horizontal = 8.dp)
             .fillMaxWidth(),
-        horizontalArrangement = if (message.participant == Participant.USER) Arrangement.End else Arrangement.Start
+        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
     ) {
         Surface(
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(
+                topStart = 16.dp,
+                topEnd = 16.dp,
+                bottomStart = if (isUser) 16.dp else 0.dp,
+                bottomEnd = if (isUser) 0.dp else 16.dp
+            ),
             color = when (message.participant) {
-                Participant.USER -> MaterialTheme.colorScheme.primaryContainer
-                Participant.MODEL -> MaterialTheme.colorScheme.surfaceVariant
+                Participant.USER -> Color(0xFF33A2FF).copy(alpha = 0.25f)
+                Participant.MODEL -> Color.White.copy(alpha = 0.05f)
                 Participant.ERROR -> MaterialTheme.colorScheme.errorContainer
             },
+            border = if (message.participant == Participant.MODEL) BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)) else null,
             tonalElevation = 1.dp
         ) {
             Box(modifier = Modifier.padding(12.dp)) {
@@ -1251,8 +1664,9 @@ fun ChatMessageItem(message: ChatMessage) {
                     TypingIndicator()
                 } else {
                     Text(
-                        text = message.text.cleanMarkdown(),
-                        style = MaterialTheme.typography.bodyLarge
+                        text = message.text.replace(Regex("[*#]"), "").trim(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White.copy(alpha = 0.9f)
                     )
                 }
             }
@@ -1260,75 +1674,79 @@ fun ChatMessageItem(message: ChatMessage) {
     }
 }
 
-// Composable with text input field and submit button
 @Composable
-fun ChatInputBar(
+fun RedesignedChatInputBar(
     text: String,
     onValueChange: (String) -> Unit,
-    isAwaitingTopic: Boolean,
     onSendMessage: () -> Unit,
     onImagePickerClicked: () -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier,
-    onFocusChanged: (isFocused: Boolean) -> Unit = {}
+    placeholderText: String
 ) {
     val haptic = LocalHapticFeedback.current
 
-    Row(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+        shape = CircleShape,
+        color = Color.White.copy(alpha = 0.05f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
-        // Add image button
-        IconButton(onClick = onImagePickerClicked, enabled = enabled) {
-            Icon(
-                Icons.Default.Image,
-                contentDescription = "Add İmage",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        TextField(
-            value = text,
-            onValueChange = onValueChange,
-            modifier = Modifier
-                .weight(1f)
-                .onFocusChanged { focusState ->
-                    onFocusChanged(focusState.isFocused)
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onImagePickerClicked, enabled = enabled) {
+                Icon(
+                    Icons.Default.Image,
+                    contentDescription = "Add Image",
+                    tint = Color.White.copy(alpha = 0.7f)
+                )
+            }
+            TextField(
+                value = text,
+                onValueChange = onValueChange,
+                modifier = Modifier.weight(1f),
+                enabled = enabled,
+                placeholder = {
+                    Text(placeholderText, color = Color.White.copy(alpha = 0.5f))
                 },
-            enabled = enabled,
-            placeholder = {
-                Text(if (isAwaitingTopic) "Write the draft topic..." else "Ask AirNote AI...")
-            },
-            shape = CircleShape,
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = Color(0xFF33A2FF),
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White.copy(alpha = 0.9f),
+                    disabledPlaceholderColor = Color.White.copy(alpha = 0.3f)
+                )
             )
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        AnimatedContent(
-            targetState = enabled,
-            transitionSpec = {
-                (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-                        scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
-                    .togetherWith(fadeOut(animationSpec = tween(90)))
-            },
-            label = "send_button_animation"
-        ) { isEnabled ->
-            if (!isEnabled) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-            } else {
-                IconButton(
-                    onClick = {
-                        if (text.isNotBlank()) {
+            AnimatedContent(
+                targetState = enabled && text.isNotBlank(),
+                transitionSpec = {
+                    (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                            scaleIn(initialScale = 0.8f, animationSpec = tween(220, delayMillis = 90)))
+                        .togetherWith(fadeOut(animationSpec = tween(90)))
+                },
+                label = "send_button_animation"
+            ) { isSendButtonVisible ->
+                if (isSendButtonVisible) {
+                    IconButton(
+                        onClick = {
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             onSendMessage()
-                        }
-                    },
-                    enabled = text.isNotBlank()
-                ) {
-                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send message")
+                        },
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Send,
+                            contentDescription = "Send message",
+                            tint = Color(0xFF33A2FF)
+                        )
+                    }
                 }
             }
         }
@@ -1336,243 +1754,49 @@ fun ChatInputBar(
 }
 
 @Composable
-fun DraftDisplay(draft: DraftedNote, onSave: () -> Unit, onRegenerate: () -> Unit) {
-    Column(modifier = Modifier
-        .padding(16.dp)
-        .fillMaxSize()) {
-        Text(text = draft.title, style = MaterialTheme.typography.titleLarge)
+fun DraftDisplay(draft: DraftedNote?, onSave: () -> Unit, onRegenerate: () -> Unit) {
+    if (draft == null) return
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize()) {
+        Text(
+            text = draft.title,
+            style = MaterialTheme.typography.titleLarge,
+            color = Color.White
+        )
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(modifier = Modifier.weight(1f)) {
             item {
-                Text(text = draft.content, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = draft.content,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White.copy(alpha = 0.8f)
+                )
             }
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Button(onClick = onSave, modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.save_note))
-            }
-            OutlinedButton(onClick = onRegenerate, modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.regenerate_note))
-            }
-        }
-    }
-}
-
-// =================================================================
-// === New AI Window Design ========================================
-// =================================================================
-
-/**
- * Modern, theme compatible AI start screen with text input.
- * @param isAwaitingTopic Information from ViewModel whether a draft topic is waiting.
- * @param onSendMessage Lambda function to be triggered when the user sends a message.
- */
-@Composable
-fun NewAiScreen(
-    isAwaitingTopic: Boolean,
-    isLoading: Boolean,
-    onSendMessage: (String) -> Unit,
-    suggestions: List<AiSuggestion>,
-    viewModel: HomeViewModel
-) {
-    var isFocused by remember { mutableStateOf(false) }
-    var text by remember { mutableStateOf("") }
-    val suggestionAnimatables = List(6) { remember { mutableStateOf(false) } }
-
-    LaunchedEffect(Unit) {
-        suggestionAnimatables.forEachIndexed { index, state ->
-            delay(80L * index)
-            state.value = true
-        }
-    }
-
-    val backgroundAlpha by animateFloatAsState(
-        targetValue = if (isFocused) 0.4f else 1.0f,
-        animationSpec = tween(durationMillis = 400),
-        label = "background_alpha"
-    )
-    val backgroundScale by animateFloatAsState(
-        targetValue = if (isFocused) 0.95f else 1.0f,
-        animationSpec = tween(durationMillis = 400),
-        label = "background_scale"
-    )
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .graphicsLayer {
-                    alpha = backgroundAlpha
-                    scaleX = backgroundScale
-                    scaleY = backgroundScale
-                },
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            WavyGraphic(isLoading = isLoading)
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = "How can I help you today?",
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 32.dp)
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.padding(horizontal = 24.dp),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp)
+            Button(
+                onClick = onSave,
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF33A2FF))
             ) {
-                itemsIndexed(items = suggestions, key = { _, suggestion -> suggestion.title }) { index, suggestion ->
-                    AnimatedVisibility(
-                        visible = suggestionAnimatables.getOrElse(index) { mutableStateOf(false) }.value,
-                        enter = slideInVertically { it / 2 } + fadeIn(),
-                    ) {
-                        ModernSuggestionChip(
-                            text = suggestion.title,
-                            icon = suggestion.icon,
-                            onClick = { onSendMessage(suggestion.title) }
-                        )
-                    }
-                }
+                Text(stringResource(R.string.save_note), color = Color.Black)
             }
-        }
-        ChatInputBar(
-            text = text,
-            onValueChange = { text = it },
-            isAwaitingTopic = isAwaitingTopic,
-            onSendMessage = {
-                onSendMessage(text)
-                text = ""
-            },
-            onImagePickerClicked = { viewModel.requestImageForAnalysis() },
-            enabled = !isLoading,
-            onFocusChanged = { focused ->
-                isFocused = focused
+            OutlinedButton(
+                onClick = onRegenerate,
+                modifier = Modifier.weight(1f),
+                border = BorderStroke(1.dp, Color(0xFF33A2FF))
+            ) {
+                Text(stringResource(R.string.regenerate_note), color = Color(0xFF33A2FF))
             }
-        )
-    }
-}
-
-/**
- * Draws a static graph representing the wavy animation in the design.
- * A more advanced Canvas implementation is required for a performant animation.
- */
-@Composable
-fun WavyGraphic(isLoading: Boolean) {
-    val infiniteTransition = rememberInfiniteTransition(label = "rgb_wave_transition")
-    val animatedHue by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 10000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ), label = "hue_animation"
-    )
-
-    val pulsingAlpha = if (isLoading) {
-        val pulseTransition = rememberInfiniteTransition(label = "pulse_alpha_transition")
-        pulseTransition.animateFloat(
-            initialValue = 0.6f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(tween(1200), RepeatMode.Reverse),
-            label = "pulse_alpha"
-        ).value
-    } else {
-        1.0f
-    }
-
-    val animatedColor = Color.hsl(hue = animatedHue, saturation = 0.7f, lightness = 0.6f)
-
-    Box(
-        modifier = Modifier
-            .height(150.dp)
-            .fillMaxWidth(),
-        contentAlignment = Alignment.Center
-    ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidth = 4.dp.toPx()
-            val path = Path().apply {
-                moveTo(0f, size.height * 0.7f)
-                quadraticBezierTo(size.width * 0.25f, size.height * 0.2f, size.width * 0.5f, size.height * 0.6f)
-                quadraticBezierTo(size.width * 0.75f, size.height * 1.0f, size.width, size.height * 0.5f)
-            }
-            drawPath(
-                path = path,
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        animatedColor.copy(alpha = 0.3f * pulsingAlpha),
-                        animatedColor.copy(alpha = 1.0f * pulsingAlpha),
-                        animatedColor.copy(alpha = 0.3f * pulsingAlpha)
-                    )
-                ),
-                style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-            )
-
-            val path2 = Path().apply {
-                moveTo(0f, size.height * 0.5f)
-                quadraticBezierTo(size.width * 0.25f, size.height * 1.0f, size.width * 0.5f, size.height * 0.6f)
-                quadraticBezierTo(size.width * 0.75f, size.height * 0.2f, size.width, size.height * 0.7f)
-            }
-            drawPath(
-                path = path2,
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        animatedColor.copy(alpha = 1.0f * pulsingAlpha),
-                        animatedColor.copy(alpha = 0.4f * pulsingAlpha),
-                        animatedColor.copy(alpha = 1.0f * pulsingAlpha)
-                    )
-                ),
-                style = Stroke(width = strokeWidth + 2.dp.toPx(), cap = StrokeCap.Round)
-            )
         }
     }
 }
 
-
-/**
- * Modern suggestion button (chip) with icon and text, suitable for design.
- */
-@Composable
-fun ModernSuggestionChip(text: String, icon: ImageVector, onClick: () -> Unit) {
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = text,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = text,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-}
-
-/**
- * Shows a “typing...” animation with three dots jumping in sequence.
- */
 @Composable
 private fun TypingIndicator() {
     val transition = rememberInfiniteTransition(label = "typing_indicator_transition")
@@ -1586,7 +1810,7 @@ private fun TypingIndicator() {
                 .size(dotSize)
                 .offset(y = offsetY.dp)
                 .background(
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    color = Color.White.copy(alpha = 0.5f),
                     shape = CircleShape
                 )
         )
@@ -1596,7 +1820,7 @@ private fun TypingIndicator() {
         initialValue = 0f,
         targetValue = -10f,
         animationSpec = infiniteRepeatable(
-            animation = tween(400, easing = LinearOutSlowInEasing),
+            animation = tween(400),
             repeatMode = RepeatMode.Reverse
         ), label = "dot1_offset"
     )
@@ -1604,7 +1828,7 @@ private fun TypingIndicator() {
         initialValue = 0f,
         targetValue = -10f,
         animationSpec = infiniteRepeatable(
-            animation = tween(400, easing = LinearOutSlowInEasing, delayMillis = 150),
+            animation = tween(400, delayMillis = 150),
             repeatMode = RepeatMode.Reverse
         ), label = "dot2_offset"
     )
@@ -1612,7 +1836,7 @@ private fun TypingIndicator() {
         initialValue = 0f,
         targetValue = -10f,
         animationSpec = infiniteRepeatable(
-            animation = tween(400, easing = LinearOutSlowInEasing, delayMillis = 300),
+            animation = tween(400, delayMillis = 300),
             repeatMode = RepeatMode.Reverse
         ), label = "dot3_offset"
     )
@@ -1627,6 +1851,3 @@ private fun TypingIndicator() {
     }
 }
 
-private fun String.cleanMarkdown(): String {
-    return this.replace(Regex("[*#]"), "").trim()
-}
