@@ -5,7 +5,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.DesktopWindows
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.presentation.screens.settings.SettingsScaffold
 import com.babelsoftware.airnote.presentation.screens.settings.model.IconResource
 import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsViewModel
@@ -16,15 +18,15 @@ import com.babelsoftware.airnote.presentation.screens.settings.widgets.SettingsB
 fun DesktopModeSettingsScreen(navController: NavController, settingsViewModel: SettingsViewModel) {
     SettingsScaffold(
         settingsViewModel = settingsViewModel,
-        title = "Desktop Mode",
+        title = stringResource(R.string.dex_mode),
         onBackNavClicked = { navController.navigateUp() }
     ) {
         LazyColumn {
             item {
                 SettingsBox(
                     settingsViewModel = settingsViewModel,
-                    title = "Desktop UI Mode",
-                    description = "Use the desktop interface in landscape mode on large screens.",
+                    title = stringResource(R.string.dex_mode_uı),
+                    description = stringResource(R.string.dex_mode_uı_description),
                     icon = IconResource.Vector(Icons.Rounded.DesktopWindows),
                     radius = shapeManager(
                         radius = settingsViewModel.settings.value.cornerRadius,
@@ -44,8 +46,8 @@ fun DesktopModeSettingsScreen(navController: NavController, settingsViewModel: S
             item {
                 SettingsBox(
                     settingsViewModel = settingsViewModel,
-                    title = "Desktop AI Features",
-                    description = "Activate the AI assistant and its features in desktop mode.",
+                    title = stringResource(R.string.dex_ai_features),
+                    description = stringResource(R.string.dex_ai_features_description),
                     icon = IconResource.Vector(Icons.Rounded.AutoAwesome),
                     radius = shapeManager(
                         radius = settingsViewModel.settings.value.cornerRadius,

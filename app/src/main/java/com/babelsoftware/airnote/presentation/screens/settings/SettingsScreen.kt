@@ -125,8 +125,8 @@ fun MainSettings(settingsViewModel: SettingsViewModel, navController: NavControl
             }
             item {
                 SettingCategory(
-                    title = "Desktop Mode (BETA)",
-                    subTitle = "Change UI · Desktop AI control",
+                    title = stringResource(R.string.dex_mode),
+                    subTitle = stringResource(R.string.dex_mode_description),
                     icon = Icons.Rounded.DesktopWindows,
                     shape = shapeManager(radius = settingsViewModel.settings.value.cornerRadius),
                     action = { navController.navigate(NavRoutes.DesktopModeSettings.route) },
