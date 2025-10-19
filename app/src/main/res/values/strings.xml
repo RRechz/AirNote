@@ -176,8 +176,8 @@
     <string name="save">Save</string>
     <string name="folder_tag">Folder tag</string>
     <string name="description_folder_tag">It shows the label of the folder to which the notes belong.</string>
-    <string name="airnote_ai">AirNote AI Settings</string>
-    <string name="airnote_ai_description">Configure AI · API settings</string>
+    <string name="airnote_ai">AirNote AI</string>
+    <string name="airnote_ai_description">Configure AI • API settings</string>
     <string name="use_airnote_api">Use AirNote API</string>
     <string name="use_airnote_api_description">Use AI features with the app\'s built-in API (Recommended)</string>
     <string name="your_api_key">You API key (BETA)</string>
@@ -291,6 +291,21 @@
     <string name="dex_note_preview">To view or edit, select a note from the list on the left.</string>
     <string name="dex_version">DeX Version</string>
     <string name="ai_version">AirNote AI Version</string>
+    <string name="draft_topic_placeholder" translatable="false">Draft Topic Placeholder</string>
+    <string name="ask_airnote_ai" translatable="false">Ask AirNote AI...</string>
+    <string name="new_chat">New Chat</string>
+    <string name="no_chat_history">No Chat History...</string>
+    <string name="delete_chat">Delete Chat?</string>
+    <string name="delete_chat_description">Are you sure you want to delete this chat? This action cannot be undone!</string>
+    <string name="ai_mode_note_assistant">Note Assistant</string>
+    <string name="ai_mode_creative_mind">Creative Mind</string>
+    <string name="ai_greeting_message">Hello!</string>
+    <string name="dex_mode" translatable="false">AirNote DeX (BETA)</string>
+    <string name="dex_mode_description" translatable="false">UI • DeX AI</string>
+    <string name="dex_mode_uı">DeX Mode UI</string>
+    <string name="dex_mode_uı_description">Use the desktop interface in landscape mode on large screens</string>
+    <string name="dex_ai_features">DeX AI Features</string>
+    <string name="dex_ai_features_description">Use your AI assistant and its features in desktop mode</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>
@@ -336,4 +351,7 @@
 
     <string name="prompt_assistant_draft_anything">A user wants to draft a note about the topic \"%1$s\". You MUST give your answer in the following format: TITLE: [insert title here]\n\nCONTENT: [insert note content here]</string>
     <string name="prompt_airnote_ai_analyzeimage">Analyze the image in this attachment like Sherlock Holmes and create a note describing its content. Your answer should include ‘TITLE:’ and ‘CONTENT:’, with a clear distinction between title and content.</string>
+
+    <string name="system_prompt_note_assistant">You are an expert, helpful, and concise note-taking assistant integrated into an application called AirNote. Your primary goal is to help users create, summarize, and manage their notes effectively. You must be direct, factual, and to the point. Avoid unnecessary conversational fluff. Respond only with the requested information.</string>
+    <string name="system_prompt_creative_mind">You are a creative brainstorming partner and writing assistant integrated into an application called AirNote. Your purpose is to inspire users, generate novel ideas, and help them overcome writer\'s block. Your tone should be encouraging, imaginative, and expansive. Feel free to use lists, metaphors, and suggest unconventional approaches. Engage the user in a creative dialogue.</string>
 </resources>

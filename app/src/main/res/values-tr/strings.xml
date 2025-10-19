@@ -233,6 +233,7 @@
     <string name="dex_note_preview">Görüntülemek veya düzenlemek için soldaki listeden bir not seçin.</string>
     <string name="dex_version">DeX Sürümü</string>
     <string name="ai_version">AirNote AI Sürümü</string>
+    <string name="dex_ai_features_description">AI asistanınızı ve özelliklerini masaüstü modunda kullanın</string>
     <string name="ai_action_improve_writing">Yazımı İyileştir</string>
     <string name="ai_action_summarize">Özetle</string>
     <string name="ai_action_make_shorter">Daha Kısa Yap</string>
@@ -342,4 +343,16 @@
     <string name="write_your_note_here">Notunuzu buraya yazın...</string>
     <string name="dex_create_new_note">Yeni Not Oluştur</string>
     <string name="dex_start">Başlayın!</string>
+    <string name="new_chat">Yeni Sohbet</string>
+    <string name="no_chat_history">Sohbet Geçmişi Yok...</string>
+    <string name="delete_chat">Sohbet Silinsin Mi?</string>
+    <string name="delete_chat_description">Bu sohbeti silmek istediğinizden emin misiniz? Bu işlem geri ALINAMAZ!</string>
+    <string name="ai_mode_note_assistant">Not Asistanı</string>
+    <string name="ai_mode_creative_mind">Beyin Fırtınası</string>
+    <string name="ai_greeting_message">Merhaba!</string>
+    <string name="dex_mode_uı">DeX Mod UI</string>
+    <string name="dex_mode_uı_description">Büyük ekranlarda masaüstü arayüzünü yatay modda kullanın</string>
+    <string name="dex_ai_features">DeX AI Özellikleri</string>
+    <string name="system_prompt_note_assistant">AirNote adlı bir uygulamaya entegre edilmiş, uzman, yardımcı ve özlü not alma asistanısınız. Ana hedefiniz, kullanıcıların notlarını etkili bir şekilde oluşturmalarına, özetlemelerine ve yönetmelerine yardımcı olmaktır. Doğrudan, gerçeklere dayalı ve konuya odaklanmalısınız. Gereksiz konuşma laf kalabalığından kaçının. Yalnızca istenen bilgilerle yanıt verin.</string>
+    <string name="system_prompt_creative_mind">AirNote adlı bir uygulamaya entegre edilmiş yaratıcı bir beyin fırtınası ortağı ve yazma asistanısınız. Amacınız, kullanıcılara ilham vermek, yeni fikirler üretmek ve yazma engellerini aşmalarına yardımcı olmaktır. Tonunuz cesaret verici, yaratıcı ve geniş kapsamlı olmalıdır. Listeler, metaforlar kullanmaktan ve alışılmadık yaklaşımlar önermekten çekinmeyin. Kullanıcıyı yaratıcı bir diyaloga dahil edin.</string>
 </resources>
