@@ -89,11 +89,13 @@ import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Lock
@@ -107,6 +109,7 @@ import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Spa
@@ -122,6 +125,7 @@ import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.Notes
 import androidx.compose.material.icons.rounded.Psychology
 import androidx.compose.material.icons.rounded.Search
@@ -178,6 +182,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -1162,6 +1167,18 @@ fun AiMainContent(viewModel: HomeViewModel) {
     val chatState by viewModel.chatState.collectAsState()
     var text by remember { mutableStateOf("") }
     val isLoading = chatState.messages.any { it.isLoading }
+    val isChatActive = chatState.messages.isNotEmpty() || chatState.hasStartedConversation
+
+    val onSendMessage = { message: String ->
+        if (message.isNotBlank()) {
+            if (chatState.isAwaitingDraftTopic) {
+                viewModel.generateDraft(message)
+            } else {
+                viewModel.sendMessage(message)
+            }
+            text = ""
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.weight(1f)) {
@@ -1173,7 +1190,7 @@ fun AiMainContent(viewModel: HomeViewModel) {
                         onRegenerate = { viewModel.regenerateDraft() }
                     )
                 }
-                chatState.hasStartedConversation || chatState.messages.isNotEmpty() -> {
+                isChatActive -> {
                     ChatScreenContent(
                         messages = chatState.messages
                     )
@@ -1184,25 +1201,27 @@ fun AiMainContent(viewModel: HomeViewModel) {
             }
         }
 
-        RedesignedChatInputBar(
-            text = text,
-            onValueChange = { text = it },
-            onSendMessage = {
-                if (text.isNotBlank()) {
-                    if (chatState.isAwaitingDraftTopic) {
-                        viewModel.generateDraft(text)
-                    } else {
-                        viewModel.sendMessage(text)
-                    }
-                    text = ""
-                }
-            },
-            onImagePickerClicked = { viewModel.requestImageForAnalysis() },
-            enabled = !isLoading,
-            placeholderText = if (chatState.isAwaitingDraftTopic) stringResource(R.string.draft_topic_placeholder) else stringResource(R.string.ask_airnote_ai)
-        )
+        if (isChatActive) {
+            RedesignedChatInputBar(
+                text = text,
+                onValueChange = { text = it },
+                onSendMessage = { onSendMessage(text) },
+                onImagePickerClicked = { viewModel.requestImageForAnalysis() },
+                enabled = !isLoading,
+                placeholderText = if (chatState.isAwaitingDraftTopic) stringResource(R.string.draft_topic_placeholder) else stringResource(R.string.ask_airnote_ai)
+            )
+        } else {
+            PreChatInputBar(
+                text = text,
+                onValueChange = { text = it },
+                onSendMessage = onSendMessage,
+                onImagePickerClicked = { viewModel.requestImageForAnalysis() },
+                enabled = !isLoading
+            )
+        }
     }
 }
+
 
 @Composable
 fun NewAiHomeScreen(viewModel: HomeViewModel) {
@@ -1549,56 +1568,6 @@ fun AiCentralGraphic(isThinking: Boolean) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AiModeSelector(
-    currentMode: AiMode,
-    onModeSelected: (AiMode) -> Unit
-) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        @Composable
-        fun ModeChip(
-            text: String,
-            icon: ImageVector,
-            isSelected: Boolean,
-            onClick: () -> Unit
-        ) {
-            FilterChip(
-                selected = isSelected,
-                onClick = onClick,
-                label = { Text(text) },
-                leadingIcon = { Icon(icon, contentDescription = text, modifier = Modifier.size(FilterChipDefaults.IconSize)) },
-                colors = FilterChipDefaults.filterChipColors(
-                    containerColor = Color.White.copy(alpha = 0.05f),
-                    labelColor = Color.White.copy(alpha = 0.7f),
-                    iconColor = Color.White.copy(alpha = 0.7f),
-                    selectedContainerColor = Color(0xFF33A2FF).copy(alpha = 0.25f),
-                    selectedLabelColor = Color.White,
-                    selectedLeadingIconColor = Color.White
-                ),
-                border = BorderStroke(1.dp, if (isSelected) Color(0xFF33A2FF) else Color.White.copy(alpha = 0.1f))
-            )
-        }
-
-        ModeChip(
-            text = stringResource(R.string.ai_mode_note_assistant),
-            icon = Icons.Rounded.Notes,
-            isSelected = currentMode == AiMode.NOTE_ASSISTANT,
-            onClick = { onModeSelected(AiMode.NOTE_ASSISTANT) }
-        )
-
-        ModeChip(
-            text = stringResource(R.string.ai_mode_creative_mind),
-            icon = Icons.Rounded.Psychology,
-            isSelected = currentMode == AiMode.CREATIVE_MIND,
-            onClick = { onModeSelected(AiMode.CREATIVE_MIND) }
-        )
-    }
-}
-
 @Composable
 fun ActionCard(text: String, icon: ImageVector, onClick: () -> Unit) {
     Surface(
@@ -1644,31 +1613,59 @@ fun ChatMessageItem(message: com.babelsoftware.airnote.domain.model.ChatMessage)
             .fillMaxWidth(),
         horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
     ) {
-        Surface(
-            shape = RoundedCornerShape(
-                topStart = 16.dp,
-                topEnd = 16.dp,
-                bottomStart = if (isUser) 16.dp else 0.dp,
-                bottomEnd = if (isUser) 0.dp else 16.dp
-            ),
-            color = when (message.participant) {
-                Participant.USER -> Color(0xFF33A2FF).copy(alpha = 0.25f)
-                Participant.MODEL -> Color.White.copy(alpha = 0.05f)
-                Participant.ERROR -> MaterialTheme.colorScheme.errorContainer
-            },
-            border = if (message.participant == Participant.MODEL) BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)) else null,
-            tonalElevation = 1.dp
-        ) {
-            Box(modifier = Modifier.padding(12.dp)) {
-                if (message.isLoading) {
-                    TypingIndicator()
-                } else {
-                    Text(
-                        text = message.text.replace(Regex("[*#]"), "").trim(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White.copy(alpha = 0.9f)
+        val bubbleShape = RoundedCornerShape(
+            topStart = 16.dp,
+            topEnd = 16.dp,
+            bottomStart = if (isUser) 16.dp else 0.dp,
+            bottomEnd = if (isUser) 0.dp else 16.dp
+        )
+
+        val modifier = Modifier
+            .clip(bubbleShape)
+            .background(
+                brush = when (message.participant) {
+                    Participant.USER -> Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF33A2FF).copy(alpha = 0.4f),
+                            Color(0xFF33A2FF).copy(alpha = 0.1f)
+                        )
+                    )
+                    Participant.MODEL -> Brush.verticalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.15f),
+                            Color.White.copy(alpha = 0.05f)
+                        )
+                    )
+                    Participant.ERROR -> Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.error.copy(alpha = 0.4f),
+                            MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
+                        )
                     )
                 }
+            )
+            .border(
+                width = 1.dp,
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.3f),
+                        Color.Transparent
+                    )
+                ),
+                shape = bubbleShape
+            )
+
+        Box(
+            modifier = modifier.padding(12.dp)
+        ) {
+            if (message.isLoading) {
+                TypingIndicator()
+            } else {
+                Text(
+                    text = message.text.replace(Regex("[*#]"), "").trim(),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White.copy(alpha = 0.9f)
+                )
             }
         }
     }
@@ -1752,6 +1749,129 @@ fun RedesignedChatInputBar(
         }
     }
 }
+
+@Composable
+fun PreChatInputBar(
+    text: String,
+    onValueChange: (String) -> Unit,
+    onSendMessage: (String) -> Unit,
+    onImagePickerClicked: () -> Unit,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        shape = RoundedCornerShape(24.dp),
+        color = Color.White.copy(alpha = 0.05f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    value = text,
+                    onValueChange = onValueChange,
+                    modifier = Modifier.weight(1f),
+                    enabled = enabled,
+                    placeholder = {
+                        Text(stringResource(R.string.ask_airnote_ai), color = Color.White.copy(alpha = 0.6f))
+                    },
+                    leadingIcon = {
+                        Icon(Icons.Default.Search, contentDescription = null, tint = Color.White.copy(alpha = 0.6f))
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        cursorColor = Color(0xFF33A2FF),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White.copy(alpha = 0.9f),
+                    ),
+                    singleLine = true
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onImagePickerClicked, enabled = enabled) {
+                    Icon(
+                        Icons.Default.Image,
+                        contentDescription = "Attach File",
+                        tint = Color.White.copy(alpha = 0.8f)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                ) {
+                    val searchString = stringResource(R.string.ai_search)
+                    val thinkString = stringResource(R.string.ai_think)
+
+                    InputActionButton(
+                        text = searchString,
+                        icon = Icons.Rounded.AutoAwesome,
+                        onClick = { onValueChange("$searchString: ") }
+                    )
+                    InputActionButton(
+                        text = thinkString,
+                        icon = Icons.Default.Language,
+                        onClick = { onValueChange("$thinkString: ") }
+                    )
+                }
+
+                IconButton(
+                    onClick = { if (text.isNotBlank()) onSendMessage(text) },
+                    enabled = text.isNotBlank() && enabled,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape),
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = Color(0xFF33A2FF),
+                        contentColor = Color.White,
+                        disabledContainerColor = Color.White.copy(alpha = 0.1f),
+                        disabledContentColor = Color.White.copy(alpha = 0.4f)
+                    )
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.Send,
+                        contentDescription = "Send"
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InputActionButton(text: String, icon: ImageVector, onClick: () -> Unit) {
+    TextButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(24.dp),
+        colors = ButtonDefaults.textButtonColors(
+            containerColor = Color.White.copy(alpha = 0.1f),
+            contentColor = Color.White.copy(alpha = 0.9f)
+        ),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f)),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
+
 
 @Composable
 fun DraftDisplay(draft: DraftedNote?, onSave: () -> Unit, onRegenerate: () -> Unit) {
@@ -1850,4 +1970,3 @@ private fun TypingIndicator() {
         Dot(offsetY = yOffset3)
     }
 }
-

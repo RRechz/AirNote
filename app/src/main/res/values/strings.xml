@@ -306,6 +306,8 @@
     <string name="dex_mode_uı_description">Use the desktop interface in landscape mode on large screens</string>
     <string name="dex_ai_features">DeX AI Features</string>
     <string name="dex_ai_features_description">Use your AI assistant and its features in desktop mode</string>
+    <string name="ai_think">Think</string>
+    <string name="ai_search">Search</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>
