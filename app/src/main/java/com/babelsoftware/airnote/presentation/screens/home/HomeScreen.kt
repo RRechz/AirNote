@@ -65,6 +65,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Apartment
 import androidx.compose.material.icons.filled.Assessment
+import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Book
@@ -1687,7 +1688,7 @@ fun RedesignedChatInputBar(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
-        shape = CircleShape,
+        shape = RoundedCornerShape(24.dp),
         color = Color.White.copy(alpha = 0.05f),
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
@@ -1697,8 +1698,8 @@ fun RedesignedChatInputBar(
         ) {
             IconButton(onClick = onImagePickerClicked, enabled = enabled) {
                 Icon(
-                    Icons.Default.Image,
-                    contentDescription = "Add Image",
+                    Icons.Default.AttachFile,
+                    contentDescription = "Attach File",
                     tint = Color.White.copy(alpha = 0.7f)
                 )
             }
@@ -1722,28 +1723,22 @@ fun RedesignedChatInputBar(
                     disabledPlaceholderColor = Color.White.copy(alpha = 0.3f)
                 )
             )
-            AnimatedContent(
-                targetState = enabled && text.isNotBlank(),
-                transitionSpec = {
-                    (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-                            scaleIn(initialScale = 0.8f, animationSpec = tween(220, delayMillis = 90)))
-                        .togetherWith(fadeOut(animationSpec = tween(90)))
-                },
-                label = "send_button_animation"
-            ) { isSendButtonVisible ->
-                if (isSendButtonVisible) {
-                    IconButton(
-                        onClick = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onSendMessage()
-                        },
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.Send,
-                            contentDescription = "Send message",
-                            tint = Color(0xFF33A2FF)
-                        )
-                    }
+            AnimatedVisibility(visible = text.isNotBlank() && enabled) {
+                IconButton(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onSendMessage()
+                    },
+                    modifier = Modifier.padding(start = 8.dp),
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = Color(0xFF33A2FF),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.Send,
+                        contentDescription = "Send message"
+                    )
                 }
             }
         }
@@ -1806,19 +1801,19 @@ fun PreChatInputBar(
             ) {
                 IconButton(onClick = onImagePickerClicked, enabled = enabled) {
                     Icon(
-                        Icons.Default.Image,
+                        Icons.Default.AttachFile,
                         contentDescription = "Attach File",
                         tint = Color.White.copy(alpha = 0.8f)
                     )
                 }
 
+                val searchString = stringResource(R.string.ai_search)
+                val thinkString = stringResource(R.string.ai_think)
+
                 Row(
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
                 ) {
-                    val searchString = stringResource(R.string.ai_search)
-                    val thinkString = stringResource(R.string.ai_think)
-
                     InputActionButton(
                         text = searchString,
                         icon = Icons.Rounded.AutoAwesome,
