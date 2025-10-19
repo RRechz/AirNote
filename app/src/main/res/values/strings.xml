@@ -308,6 +308,9 @@
     <string name="dex_ai_features_description">Use your AI assistant and its features in desktop mode</string>
     <string name="ai_think">Think</string>
     <string name="ai_search">Search</string>
+    <string name="unleash_your_curiosity">Unleash Your Curiosity!</string>
+    <string name="ask_ai_topic">What topic piques your curiosity?</string>
+    <string name="send">Send</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>

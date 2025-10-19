@@ -195,6 +195,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.repository.AiMode
@@ -1170,6 +1171,16 @@ fun AiMainContent(viewModel: HomeViewModel) {
     val isLoading = chatState.messages.any { it.isLoading }
     val isChatActive = chatState.messages.isNotEmpty() || chatState.hasStartedConversation
 
+    if (viewModel.showAskQuestionDialog.value) {
+        AskAiQuestionDialog(
+            onDismiss = { viewModel.onDismissQuestionDialog() },
+            onConfirm = { question ->
+                viewModel.sendMessage(question)
+                viewModel.onDismissQuestionDialog()
+            }
+        )
+    }
+
     val onSendMessage = { message: String ->
         if (message.isNotBlank()) {
             if (chatState.isAwaitingDraftTopic) {
@@ -1693,7 +1704,7 @@ fun RedesignedChatInputBar(
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 8.dp),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onImagePickerClicked, enabled = enabled) {
@@ -1864,6 +1875,83 @@ private fun InputActionButton(text: String, icon: ImageVector, onClick: () -> Un
         Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(8.dp))
         Text(text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
+fun AskAiQuestionDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var question by remember { mutableStateOf("") }
+    val maxChars = 455
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = Color(0xFF10141C),
+            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.unleash_your_curiosity),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    value = question,
+                    onValueChange = { if (it.length <= maxChars) question = it },
+                    placeholder = {
+                        Text(stringResource(R.string.ask_ai_topic),
+                        color = Color.White.copy(alpha = 0.6f)) },
+                    modifier = Modifier.fillMaxWidth().height(100.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White.copy(alpha = 0.05f),
+                        unfocusedContainerColor = Color.White.copy(alpha = 0.05f),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        cursorColor = Color(0xFF33A2FF),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White.copy(alpha = 0.9f),
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                Text(
+                    text = "${question.length} / $maxChars",
+                    textAlign = TextAlign.End,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.6f),
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(R.string.cancel),
+                            color = Color.White.copy(alpha = 0.8f))
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = { onConfirm(question) },
+                        enabled = question.isNotBlank(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF33A2FF),
+                            contentColor = Color(0xFF10141C),
+                            disabledContainerColor = Color.White.copy(alpha = 0.1f)
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(stringResource(R.string.send))
+                    }
+                }
+            }
+        }
     }
 }
 

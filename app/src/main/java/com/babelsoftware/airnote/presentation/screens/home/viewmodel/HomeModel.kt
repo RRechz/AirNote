@@ -154,13 +154,24 @@ class HomeViewModel @Inject constructor(
     private val _showAiHistoryScreen = mutableStateOf(false)
     val showAiHistoryScreen: State<Boolean> = _showAiHistoryScreen
 
+    private val _showAskQuestionDialog = mutableStateOf(false)
+    val showAskQuestionDialog: State<Boolean> = _showAskQuestionDialog
+
+    fun onAskQuestionClicked() {
+        _showAskQuestionDialog.value = true
+    }
+
+    fun onDismissQuestionDialog() {
+        _showAskQuestionDialog.value = false
+    }
+
 
     val suggestions: List<AiSuggestion> by lazy {
         listOf(
             AiSuggestion(
                 title = stringProvider.getString(R.string.ask_ai),
                 icon = Icons.Rounded.Search,
-                action = { sendMessage(stringProvider.getString(R.string.ai_greeting_message)) }
+                action = { onAskQuestionClicked() }
             ),
             AiSuggestion(
                 title = stringProvider.getString(R.string.make_note),
