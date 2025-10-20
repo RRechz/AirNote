@@ -2,6 +2,7 @@ package com.babelsoftware.airnote.domain.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.util.Date
 
@@ -13,7 +14,8 @@ import java.util.Date
             childColumns = ["sessionId"],
             onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index(value = ["sessionId"])]
 )
 data class AiChatMessage(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,

@@ -236,6 +236,7 @@
     <string name="dex_ai_features_description">AI asistanınızı ve özelliklerini masaüstü modunda kullanın</string>
     <string name="ai_search">Araştır</string>
     <string name="send">Gönder</string>
+    <string name="ask_a_question">AirNote AI\'ya ne sormak istersiniz?</string>
     <string name="ai_action_improve_writing">Yazımı İyileştir</string>
     <string name="ai_action_summarize">Özetle</string>
     <string name="ai_action_make_shorter">Daha Kısa Yap</string>
@@ -360,4 +361,9 @@
     <string name="ai_think">Düşün</string>
     <string name="unleash_your_curiosity">Merakınızı Serbest Bırakın!</string>
     <string name="ask_ai_topic">Hangi konu merakınızı uyandırıyor?</string>
+    <string name="create">Oluştur</string>
+    <string name="example_question">Örn: Kuantum Fiziğine Giriş</string>
+    <string name="sample_question_request">Hangi konu hakkında not oluşturmak istersiniz? Konuyu kısaca açıklayın.</string>
+    <string name="new_ai_note_draft">Yeni Bir AI Not Taslağı</string>
+    <string name="ask_a_question_title">Merakınızı Serbest Bırakın</string>
 </resources>

@@ -167,6 +167,15 @@ private fun CompactAiChatView(viewModel: HomeViewModel) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
+    val topicForLoading = if (
+        chatState.messages.lastOrNull()?.isLoading == true &&
+        chatState.messages.getOrNull(chatState.messages.size - 2)?.participant == Participant.USER
+    ) {
+        chatState.messages.getOrNull(chatState.messages.size - 2)?.text
+    } else {
+        null
+    }
+
     LaunchedEffect(chatState.messages.size) {
         if (chatState.messages.isNotEmpty()) {
             scope.launch {
@@ -189,7 +198,7 @@ private fun CompactAiChatView(viewModel: HomeViewModel) {
                         if (message.participant == Participant.USER) fullWidth else -fullWidth
                     } + fadeIn()
                 ) {
-                    ChatMessageItem(message = message)
+                    ChatMessageItem(message = message, topicForLoading = topicForLoading)
                 }
             }
         }

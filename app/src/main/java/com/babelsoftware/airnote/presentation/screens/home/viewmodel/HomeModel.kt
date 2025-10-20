@@ -157,6 +157,9 @@ class HomeViewModel @Inject constructor(
     private val _showAskQuestionDialog = mutableStateOf(false)
     val showAskQuestionDialog: State<Boolean> = _showAskQuestionDialog
 
+    private val _showCreateDraftDialog = mutableStateOf(false)
+    val showCreateDraftDialog: State<Boolean> = _showCreateDraftDialog
+
     fun onAskQuestionClicked() {
         _showAskQuestionDialog.value = true
     }
@@ -165,6 +168,13 @@ class HomeViewModel @Inject constructor(
         _showAskQuestionDialog.value = false
     }
 
+    fun onDraftAnythingClicked() {
+        _showCreateDraftDialog.value = true
+    }
+
+    fun onDismissCreateDraftDialog() {
+        _showCreateDraftDialog.value = false
+    }
 
     val suggestions: List<AiSuggestion> by lazy {
         listOf(
@@ -203,7 +213,9 @@ class HomeViewModel @Inject constructor(
             val chatMessages = dbMessages.map { dbMessage: AiChatMessage ->
                 ChatMessage(dbMessage.text, dbMessage.participant, dbMessage.isLoading)
             }
-            _chatState.value = _chatState.value.copy(messages = chatMessages)
+            if (_chatState.value.latestDraft == null) {
+                _chatState.value = _chatState.value.copy(messages = chatMessages)
+            }
         }.launchIn(viewModelScope)
 
 
@@ -295,60 +307,66 @@ class HomeViewModel @Inject constructor(
             }
     }
 
-
-    fun onDraftAnythingClicked() {
-        startNewChat()
-        setAiMode(AiMode.NOTE_ASSISTANT)
-        val promptMessage = ChatMessage(
-            stringProvider.getString(R.string.ai_prompt_for_draft_topic),
-            Participant.MODEL
-        )
-        _chatState.value = _chatState.value.copy(
-            messages = listOf(promptMessage),
-            isAwaitingDraftTopic = true,
-            hasStartedConversation = true
-        )
-    }
-
     fun generateDraft(topic: String) = viewModelScope.launch {
-        _chatState.value = _chatState.value.copy(isAwaitingDraftTopic = false, messages = emptyList())
-        _chatState.value = _chatState.value.copy(
-            latestDraft = null,
-            messages = listOf(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true)),
-            hasStartedConversation = true
-        )
+        resetChatState()
+        setAiMode(AiMode.NOTE_ASSISTANT)
+
+        val sessionId = aiChatUseCase.startNewSession(topic.take(40), _aiMode.value)
+
+        _chatState.value = _chatState.value.copy(currentSessionId = sessionId, hasStartedConversation = true)
+
+        val userMessage = ChatMessage(text = topic, participant = Participant.USER)
+        aiChatUseCase.addMessageToSession(sessionId, userMessage)
+
+        val loadingMessage = ChatMessage("// Generating Note...", Participant.MODEL, isLoading = true)
+        val loadingMessageId = aiChatUseCase.addMessageToSession(sessionId, loadingMessage)
 
         geminiRepository.generateDraft(topic, getApiKeyToUse(), _aiMode.value)
             .onSuccess { result ->
-                parseAndSetDraft(result, topic, null)
+                val (title, content) = parseDraft(result)
+                _chatState.value = _chatState.value.copy(
+                    latestDraft = DraftedNote(
+                        topic = topic,
+                        title = title,
+                        content = content,
+                        sourceImageUri = null
+                    )
+                )
+                // 8a. Update the loading message to a confirmation message in the DB
+                val confirmationMessage = "Harika! '$title' üzerine bir not taslağı hazırladım."
+                aiChatUseCase.updateMessageById(loadingMessageId, confirmationMessage, false)
             }
             .onFailure { exception ->
-                handleFailure(exception)
+                val errorMessage = exception.message ?: stringProvider.getString(R.string.error_message_image_analysis_failed)
+                aiChatUseCase.updateMessageById(loadingMessageId, errorMessage, false, isError = true)
+                _chatState.value = _chatState.value.copy(latestDraft = null)
             }
     }
 
-    private fun parseAndSetDraft(result: String, topic: String, imageUri: Uri?) {
-        var title: String
-        var content: String
 
-        // Regex'ler başlık ve içeriği ayıklamak için
+    private fun parseDraft(result: String): Pair<String, String> {
         val titleRegex = """(TITLE:|\*\*TITLE:\*\*)\s*(.*)""".toRegex(RegexOption.IGNORE_CASE)
         val contentRegex = """(CONTENT:|\*\*CONTENT:\*\*)\s*(.*)""".toRegex(setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
 
         val titleMatch = titleRegex.find(result)
+        val title = titleMatch?.groupValues?.get(2)?.trim()?.replace(Regex("[*#]"), "") ?: "Generated Note"
+
         val contentMatch = contentRegex.find(result)
+        val content = contentMatch?.let {
+            result.substring(it.range.last + 1).trim().replace(Regex("[*#]"), "")
+        } ?: result.replace(Regex("[*#]"), "")
 
-        title = titleMatch?.groupValues?.get(2)?.trim() ?: "Generated Note"
-        content = contentMatch?.let {
-            result.substring(it.range.last + 1).trim()
-        } ?: result
+        return Pair(title, content)
+    }
 
+    private fun parseAndSetDraft(result: String, topic: String, imageUri: Uri?) {
+        val (title, content) = parseDraft(result)
         _chatState.value = _chatState.value.copy(
             messages = emptyList(),
             latestDraft = DraftedNote(
                 topic = topic,
-                title = title.replace(Regex("[*#]"), "").trim(),
-                content = content.replace(Regex("[*#]"), "").trim(),
+                title = title,
+                content = content,
                 sourceImageUri = imageUri
             )
         )

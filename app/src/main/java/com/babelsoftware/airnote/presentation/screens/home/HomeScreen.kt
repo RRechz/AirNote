@@ -190,6 +190,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -225,6 +226,7 @@ import com.babelsoftware.airnote.presentation.screens.settings.settings.Password
 import com.babelsoftware.airnote.presentation.screens.settings.settings.shapeManager
 import com.babelsoftware.airnote.presentation.theme.AiButtonColors
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalAnimationApi::class)
@@ -1169,7 +1171,7 @@ fun AiMainContent(viewModel: HomeViewModel) {
     val chatState by viewModel.chatState.collectAsState()
     var text by remember { mutableStateOf("") }
     val isLoading = chatState.messages.any { it.isLoading }
-    val isChatActive = chatState.messages.isNotEmpty() || chatState.hasStartedConversation
+    val isChatActive = chatState.hasStartedConversation || chatState.messages.isNotEmpty()
 
     if (viewModel.showAskQuestionDialog.value) {
         AskAiQuestionDialog(
@@ -1177,6 +1179,16 @@ fun AiMainContent(viewModel: HomeViewModel) {
             onConfirm = { question ->
                 viewModel.sendMessage(question)
                 viewModel.onDismissQuestionDialog()
+            }
+        )
+    }
+
+    if (viewModel.showCreateDraftDialog.value) {
+        CreateDraftDialog(
+            onDismiss = { viewModel.onDismissCreateDraftDialog() },
+            onConfirm = { topic ->
+                viewModel.generateDraft(topic)
+                viewModel.onDismissCreateDraftDialog()
             }
         )
     }
@@ -1204,7 +1216,15 @@ fun AiMainContent(viewModel: HomeViewModel) {
                 }
                 isChatActive -> {
                     ChatScreenContent(
-                        messages = chatState.messages
+                        messages = chatState.messages,
+                        topicForLoading = if (
+                            chatState.messages.lastOrNull()?.isLoading == true &&
+                            chatState.messages.getOrNull(chatState.messages.size - 2)?.participant == Participant.USER
+                        ) {
+                            chatState.messages.getOrNull(chatState.messages.size - 2)?.text
+                        } else {
+                            null
+                        }
                     )
                 }
                 else -> {
@@ -1213,7 +1233,7 @@ fun AiMainContent(viewModel: HomeViewModel) {
             }
         }
 
-        if (isChatActive) {
+        if (isChatActive && chatState.latestDraft == null) {
             RedesignedChatInputBar(
                 text = text,
                 onValueChange = { text = it },
@@ -1222,7 +1242,7 @@ fun AiMainContent(viewModel: HomeViewModel) {
                 enabled = !isLoading,
                 placeholderText = if (chatState.isAwaitingDraftTopic) stringResource(R.string.draft_topic_placeholder) else stringResource(R.string.ask_airnote_ai)
             )
-        } else {
+        } else if (!isChatActive) {
             PreChatInputBar(
                 text = text,
                 onValueChange = { text = it },
@@ -1285,7 +1305,10 @@ fun NewAiHomeScreen(viewModel: HomeViewModel) {
 
 
 @Composable
-fun ChatScreenContent(messages: List<com.babelsoftware.airnote.domain.model.ChatMessage>) {
+fun ChatScreenContent(
+    messages: List<com.babelsoftware.airnote.domain.model.ChatMessage>,
+    topicForLoading: String?
+) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
@@ -1304,7 +1327,7 @@ fun ChatScreenContent(messages: List<com.babelsoftware.airnote.domain.model.Chat
         contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp)
     ) {
         items(items = messages, key = { it.hashCode() }) { message ->
-            ChatMessageItem(message = message)
+            ChatMessageItem(message = message, topicForLoading = topicForLoading)
         }
     }
 }
@@ -1617,7 +1640,10 @@ fun ActionCard(text: String, icon: ImageVector, onClick: () -> Unit) {
 
 
 @Composable
-fun ChatMessageItem(message: com.babelsoftware.airnote.domain.model.ChatMessage) {
+fun ChatMessageItem(
+    message: com.babelsoftware.airnote.domain.model.ChatMessage,
+    topicForLoading: String?
+) {
     val isUser = message.participant == Participant.USER
     Row(
         modifier = Modifier
@@ -1625,58 +1651,61 @@ fun ChatMessageItem(message: com.babelsoftware.airnote.domain.model.ChatMessage)
             .fillMaxWidth(),
         horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
     ) {
-        val bubbleShape = RoundedCornerShape(
-            topStart = 16.dp,
-            topEnd = 16.dp,
-            bottomStart = if (isUser) 16.dp else 0.dp,
-            bottomEnd = if (isUser) 0.dp else 16.dp
-        )
-
-        val modifier = Modifier
-            .clip(bubbleShape)
-            .background(
-                brush = when (message.participant) {
-                    Participant.USER -> Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF33A2FF).copy(alpha = 0.4f),
-                            Color(0xFF33A2FF).copy(alpha = 0.1f)
-                        )
-                    )
-                    Participant.MODEL -> Brush.verticalGradient(
-                        colors = listOf(
-                            Color.White.copy(alpha = 0.15f),
-                            Color.White.copy(alpha = 0.05f)
-                        )
-                    )
-                    Participant.ERROR -> Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.error.copy(alpha = 0.4f),
-                            MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
-                        )
-                    )
-                }
-            )
-            .border(
-                width = 1.dp,
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.3f),
-                        Color.Transparent
-                    )
-                ),
-                shape = bubbleShape
-            )
-
-        Box(
-            modifier = modifier.padding(12.dp)
-        ) {
-            if (message.isLoading) {
-                TypingIndicator()
+        if (message.isLoading) {
+            if (message.text.startsWith("// Generating Note...")) {
+                TerminalLoadingIndicator(topic = topicForLoading ?: "")
             } else {
+                TypingIndicator()
+            }
+        } else {
+            val bubbleShape = RoundedCornerShape(
+                topStart = 16.dp,
+                topEnd = 16.dp,
+                bottomStart = if (isUser) 16.dp else 0.dp,
+                bottomEnd = if (isUser) 0.dp else 16.dp
+            )
+
+            val backgroundBrush = when (message.participant) {
+                Participant.USER -> Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF33A2FF).copy(alpha = 0.4f),
+                        Color(0xFF33A2FF).copy(alpha = 0.1f)
+                    )
+                )
+                Participant.MODEL -> Brush.verticalGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.15f),
+                        Color.White.copy(alpha = 0.05f)
+                    )
+                )
+                Participant.ERROR -> Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.error.copy(alpha = 0.4f),
+                        MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
+                    )
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .clip(bubbleShape)
+                    .background(brush = backgroundBrush)
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.White.copy(alpha = 0.3f),
+                                Color.Transparent
+                            )
+                        ),
+                        shape = bubbleShape
+                    )
+                    .padding(12.dp)
+            ) {
                 Text(
                     text = message.text.replace(Regex("[*#]"), "").trim(),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White.copy(alpha = 0.9f)
+                    color = if (message.participant == Participant.ERROR) Color.White else Color.White.copy(alpha = 0.9f)
                 )
             }
         }
@@ -1812,7 +1841,7 @@ fun PreChatInputBar(
             ) {
                 IconButton(onClick = onImagePickerClicked, enabled = enabled) {
                     Icon(
-                        Icons.Default.AttachFile,
+                        Icons.Default.Add,
                         contentDescription = "Attach File",
                         tint = Color.White.copy(alpha = 0.8f)
                     )
@@ -1884,7 +1913,7 @@ fun AskAiQuestionDialog(
     onConfirm: (String) -> Unit
 ) {
     var question by remember { mutableStateOf("") }
-    val maxChars = 455
+    val maxChars = 280
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -1896,7 +1925,7 @@ fun AskAiQuestionDialog(
                 modifier = Modifier.padding(24.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.unleash_your_curiosity),
+                    text = stringResource(R.string.ask_a_question_title),
                     style = MaterialTheme.typography.headlineSmall,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
@@ -1905,10 +1934,10 @@ fun AskAiQuestionDialog(
                 TextField(
                     value = question,
                     onValueChange = { if (it.length <= maxChars) question = it },
-                    placeholder = {
-                        Text(stringResource(R.string.ask_ai_topic),
-                        color = Color.White.copy(alpha = 0.6f)) },
-                    modifier = Modifier.fillMaxWidth().height(100.dp),
+                    placeholder = { Text(stringResource(R.string.ask_a_question), color = Color.White.copy(alpha = 0.6f)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.White.copy(alpha = 0.05f),
                         unfocusedContainerColor = Color.White.copy(alpha = 0.05f),
@@ -1925,7 +1954,9 @@ fun AskAiQuestionDialog(
                     textAlign = TextAlign.End,
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.6f),
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(
@@ -1933,8 +1964,7 @@ fun AskAiQuestionDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text(stringResource(R.string.cancel),
-                            color = Color.White.copy(alpha = 0.8f))
+                        Text(stringResource(R.string.cancel), color = Color.White.copy(alpha = 0.8f))
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
@@ -1955,46 +1985,158 @@ fun AskAiQuestionDialog(
     }
 }
 
+@Composable
+fun CreateDraftDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var topic by remember { mutableStateOf("") }
+    val maxChars = 100
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = Color(0xFF10141C),
+            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Rounded.Edit,
+                        contentDescription = null,
+                        tint = Color.White.copy(alpha = 0.8f),
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.new_ai_note_draft),
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.sample_question_request),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.7f)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                TextField(
+                    value = topic,
+                    onValueChange = { if (it.length <= maxChars) topic = it },
+                    placeholder = { Text(stringResource(R.string.example_question), color = Color.White.copy(alpha = 0.6f)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White.copy(alpha = 0.05f),
+                        unfocusedContainerColor = Color.White.copy(alpha = 0.05f),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        cursorColor = Color(0xFF33A2FF),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White.copy(alpha = 0.9f),
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                Text(
+                    text = "${topic.length} / $maxChars",
+                    textAlign = TextAlign.End,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.6f),
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(R.string.cancel), color = Color.White.copy(alpha = 0.8f))
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = { onConfirm(topic) },
+                        enabled = topic.isNotBlank(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF33A2FF),
+                            contentColor = Color(0xFF10141C),
+                            disabledContainerColor = Color.White.copy(alpha = 0.1f)
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(stringResource(R.string.create))
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 fun DraftDisplay(draft: DraftedNote?, onSave: () -> Unit, onRegenerate: () -> Unit) {
     if (draft == null) return
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize()) {
-        Text(
-            text = draft.title,
-            style = MaterialTheme.typography.titleLarge,
-            color = Color.White
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            item {
-                Text(
-                    text = draft.content,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White.copy(alpha = 0.8f)
-                )
-            }
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+
+    Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Button(
-                onClick = onSave,
+            Surface(
                 modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF33A2FF))
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White.copy(alpha = 0.05f),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
             ) {
-                Text(stringResource(R.string.save_note), color = Color.Black)
+                LazyColumn(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)
+                ) {
+                    item {
+                        Text(
+                            text = draft.title,
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+                    }
+                    item {
+                        Text(
+                            text = draft.content,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.White.copy(alpha = 0.8f),
+                            lineHeight = 24.sp
+                        )
+                    }
+                }
             }
-            OutlinedButton(
-                onClick = onRegenerate,
-                modifier = Modifier.weight(1f),
-                border = BorderStroke(1.dp, Color(0xFF33A2FF))
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(stringResource(R.string.regenerate_note), color = Color(0xFF33A2FF))
+                OutlinedButton(
+                    onClick = onRegenerate,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, Color(0xFF33A2FF))
+                ) {
+                    Icon(Icons.Rounded.AutoAwesome, contentDescription = null, tint = Color(0xFF33A2FF))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.regenerate_note), color = Color(0xFF33A2FF))
+                }
+                Button(
+                    onClick = onSave,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF33A2FF))
+                ) {
+                    Text(stringResource(R.string.save_note), color = Color(0xFF10141C))
+                }
             }
         }
     }
@@ -2051,5 +2193,61 @@ private fun TypingIndicator() {
         Dot(offsetY = yOffset1)
         Dot(offsetY = yOffset2)
         Dot(offsetY = yOffset3)
+    }
+}
+
+@Composable
+fun TerminalLoadingIndicator(topic: String) {
+    var displayedText by remember { mutableStateOf("") }
+    val fullText = """
+[INFO] Connecting to AirNote AI services...
+[INFO] Authentication successful.
+[PROCESS] Analyzing topic: "$topic"
+[PROCESS] Generating content blocks...
+[PROCESS] Assembling draft...
+[SUCCESS] Note draft created.
+    """.trimIndent()
+
+    LaunchedEffect(Unit) {
+        fullText.lines().forEach { line ->
+            for (char in line) {
+                displayedText += char
+                delay(10)
+            }
+            displayedText += "\n"
+            delay(280)
+        }
+    }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "cursor_blink")
+    val cursorAlpha by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(500),
+            repeatMode = RepeatMode.Reverse
+        ), label = "cursor_alpha"
+    )
+
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = Color.Black.copy(alpha = 0.5f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+    ) {
+        Row(modifier = Modifier.padding(12.dp)) {
+            Text(
+                text = displayedText,
+                color = Color.Green.copy(alpha = 0.8f),
+                fontFamily = FontFamily.Monospace,
+                fontSize = 14.sp,
+                lineHeight = 20.sp
+            )
+            Text(
+                text = "█",
+                color = Color.Green.copy(alpha = cursorAlpha),
+                fontFamily = FontFamily.Monospace,
+                fontSize = 14.sp
+            )
+        }
     }
 }

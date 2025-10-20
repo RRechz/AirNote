@@ -311,6 +311,12 @@
     <string name="unleash_your_curiosity">Unleash Your Curiosity!</string>
     <string name="ask_ai_topic">What topic piques your curiosity?</string>
     <string name="send">Send</string>
+    <string name="create">Create</string>
+    <string name="example_question">E.g.: Introduction to Quantum Physics</string>
+    <string name="sample_question_request">What topic would you like to create a note about? Briefly describe the topic.</string>
+    <string name="new_ai_note_draft">A New AI Note Draft</string>
+    <string name="ask_a_question_title">Unleash Your Curiosity</string>
+    <string name="ask_a_question">What would you like to ask AirNote AI?</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>

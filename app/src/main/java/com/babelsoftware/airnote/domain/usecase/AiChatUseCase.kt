@@ -36,8 +36,9 @@ class AiChatUseCase @Inject constructor(
         return aiChatDao.insertMessage(aiChatMessage)
     }
 
-    suspend fun updateMessageById(id: Long, text: String, isLoading: Boolean) {
-        aiChatDao.updateMessageById(id, text, isLoading)
+    suspend fun updateMessageById(id: Long, text: String, isLoading: Boolean, isError: Boolean = false) {
+        val participant = if (isError) Participant.ERROR else Participant.MODEL
+        aiChatDao.updateMessageById(id, text, isLoading, participant)
     }
 
     suspend fun getSessionById(sessionId: Long): AiChatSession? {

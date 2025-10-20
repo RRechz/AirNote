@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.babelsoftware.airnote.domain.model.AiChatMessage
 import com.babelsoftware.airnote.domain.model.AiChatSession
+import com.babelsoftware.airnote.domain.model.Participant
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -33,6 +34,11 @@ interface AiChatDao {
     @Query("SELECT * FROM ai_chat_messages WHERE sessionId = :sessionId ORDER BY timestamp ASC")
     fun getMessagesForSession(sessionId: Long): Flow<List<AiChatMessage>>
 
-    @Query("UPDATE ai_chat_messages SET text = :text, isLoading = :isLoading WHERE id = :id")
-    suspend fun updateMessageById(id: Long, text: String, isLoading: Boolean)
+    @Query("UPDATE ai_chat_messages SET text = :text, isLoading = :isLoading, participant = :participant WHERE id = :id")
+    suspend fun updateMessageById(
+        id: Long,
+        text: String,
+        isLoading: Boolean,
+        participant: Participant
+    )
 }
