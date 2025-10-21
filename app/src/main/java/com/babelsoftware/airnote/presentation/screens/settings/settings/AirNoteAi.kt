@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -306,7 +307,7 @@ private fun ModelChoicePopup(
                     .padding(bottom = 12.dp)
                     .clip(RoundedCornerShape(32.dp))
             ) {
-                itemsIndexed(models) { index, modelName ->
+                itemsIndexed(models) { index, model ->
                     val isFirst = index == 0
                     val isLast = index == models.lastIndex
                     Surface(
@@ -317,7 +318,7 @@ private fun ModelChoicePopup(
                                 radius = settings.cornerRadius
                             ))
                             .clickable {
-                                settingsViewModel.updateSelectedModel(modelName)
+                                settingsViewModel.updateSelectedModel(model.name)
                                 onDismiss()
                             },
                         color = MaterialTheme.colorScheme.surfaceContainer,
@@ -329,16 +330,22 @@ private fun ModelChoicePopup(
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            Icon(
+                                imageVector = model.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
                             Text(
-                                text = modelName,
+                                text = model.name,
                                 modifier = Modifier.weight(1f),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold
                             )
                             RadioButton(
-                                selected = settings.selectedModelName == modelName,
+                                selected = settings.selectedModelName == model.name,
                                 onClick = {
-                                    settingsViewModel.updateSelectedModel(modelName)
+                                    settingsViewModel.updateSelectedModel(model.name)
                                     onDismiss()
                                 }
                             )
