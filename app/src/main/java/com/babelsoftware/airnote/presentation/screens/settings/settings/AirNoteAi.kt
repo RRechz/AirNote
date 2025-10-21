@@ -6,8 +6,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.CheckCircle
@@ -26,18 +29,17 @@ import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -51,27 +53,28 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.repository.GeminiModels
 import com.babelsoftware.airnote.presentation.screens.settings.SettingsScaffold
+import com.babelsoftware.airnote.presentation.screens.settings.model.IconResource
 import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsViewModel
+import com.babelsoftware.airnote.presentation.screens.settings.widgets.ActionType
+import com.babelsoftware.airnote.presentation.screens.settings.widgets.SettingsBox
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: SettingsViewModel) {
-    val settings = settingsViewModel.settings.value
-    val userApiKey by settingsViewModel.userApiKey
-    val isApiKeyVerified by settingsViewModel.isApiKeyVerified
-    val isVerifyingApiKey by settingsViewModel.isVerifyingApiKey
-
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
@@ -96,112 +99,171 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         onBackNavClicked = { navController.navigateUp() }
     ) {
-        LazyColumn(modifier = Modifier.padding(top = 16.dp)) {
+        LazyColumn(modifier = Modifier.padding(top = 16.dp, start = 12.dp, end = 12.dp)) {
             item {
-                SettingsGroup(
-                    title = "1. ${stringResource(R.string.your_api_key)}",
-                    onHelpClick = { showBottomSheet = true }
-                ) {
-                    ListItem(
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                        headlineContent = {
-                            OutlinedTextField(
-                                value = userApiKey,
-                                onValueChange = { settingsViewModel.updateUserApiKey(it) },
-                                modifier = Modifier.fillMaxWidth(),
-                                label = { Text(stringResource(R.string.gemini_api_key)) },
-                                singleLine = true,
-                            )
-                        },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Rounded.Key,
-                                contentDescription = stringResource(R.string.api_key_icon_cd),
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
-                    )
-                }
+                ApiKeySetting(settingsViewModel = settingsViewModel, onHelpClick = { showBottomSheet = true })
+                Spacer(modifier = Modifier.height(18.dp))
             }
-            item { Spacer(modifier = Modifier.height(16.dp)) }
             item {
-                SettingsGroup(title = "2. ${stringResource(id = R.string.model_choice)}") {
-                    var expanded by remember { mutableStateOf(false) }
-                    val models = GeminiModels.supportedModels
-
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.model_to_use)) },
-                            supportingContent = { Text(settings.selectedModelName) },
-                            leadingContent = {
-                                Icon(
-                                    imageVector = Icons.Rounded.Memory,
-                                    contentDescription = stringResource(R.string.model_choice),
-                                    modifier = Modifier.size(32.dp)
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth().clickable { expanded = true }
-                        )
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            modifier = Modifier.fillMaxWidth(0.9f)
-                        ) {
-                            models.forEach { modelName ->
-                                DropdownMenuItem(
-                                    text = { Text(modelName) },
-                                    onClick = {
-                                        settingsViewModel.updateSelectedModel(modelName)
-                                        expanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
+                ModelChoiceSetting(settingsViewModel = settingsViewModel)
+                Spacer(modifier = Modifier.height(18.dp))
             }
-            item { Spacer(modifier = Modifier.height(16.dp)) }
             item {
                 OfflineTranslationSettings(settingsViewModel = settingsViewModel)
             }
-            item { Spacer(modifier = Modifier.height(24.dp)) }
-            item {
-                Column(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Button(
-                        onClick = { settingsViewModel.verifyUserApiKey() },
-                        enabled = !isVerifyingApiKey && userApiKey.isNotBlank(),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        if (isVerifyingApiKey) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                        } else {
-                            Text(stringResource(R.string.save_and_check))
-                        }
-                    }
+        }
+    }
+}
 
-                    AnimatedVisibility(
-                        visible = isApiKeyVerified,
-                        enter = slideInVertically { it } + fadeIn(),
-                        exit = slideOutVertically { it } + fadeOut()
+@Composable
+private fun ApiKeySetting(settingsViewModel: SettingsViewModel, onHelpClick: () -> Unit) {
+    val userApiKey by settingsViewModel.userApiKey
+
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.your_api_key),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp)
+            )
+            IconButton(onClick = onHelpClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
+                    contentDescription = stringResource(R.string.api_key_guide_title)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        SettingsBox(
+            settingsViewModel = settingsViewModel,
+            title = stringResource(id = R.string.gemini_api_key),
+            description = if (userApiKey.isNotBlank()) "••••••••••••••••••••" else stringResource(R.string.not_set),
+            icon = IconResource.Vector(Icons.Rounded.Key),
+            actionType = ActionType.CUSTOM,
+            radius = shapeManager(
+                isBoth = true,
+                radius = settingsViewModel.settings.value.cornerRadius
+            ),
+            customAction = { onDismiss ->
+                ApiKeyPopup(
+                    settingsViewModel = settingsViewModel,
+                    onDismiss = onDismiss
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun ModelChoiceSetting(settingsViewModel: SettingsViewModel) {
+    val settings = settingsViewModel.settings.value
+
+    Column {
+        Text(
+            text = stringResource(id = R.string.model_choice),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
+        )
+        SettingsBox(
+            settingsViewModel = settingsViewModel,
+            title = stringResource(id = R.string.model_to_use),
+            description = settings.selectedModelName,
+            icon = IconResource.Vector(Icons.Rounded.Memory),
+            actionType = ActionType.CUSTOM,
+            radius = shapeManager(
+                isBoth = true,
+                radius = settings.cornerRadius
+            ),
+            customAction = { onDismiss ->
+                ModelChoicePopup(
+                    settingsViewModel = settingsViewModel,
+                    onDismiss = onDismiss
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun ApiKeyPopup(
+    settingsViewModel: SettingsViewModel,
+    onDismiss: () -> Unit
+) {
+    val userApiKey by settingsViewModel.userApiKey
+    val isApiKeyVerified by settingsViewModel.isApiKeyVerified
+    val isVerifyingApiKey by settingsViewModel.isVerifyingApiKey
+    var tempApiKey by remember { mutableStateOf(userApiKey) }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .padding(16.dp),
+            shape = RoundedCornerShape(32.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            tonalElevation = 4.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(R.string.gemini_api_key),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                OutlinedTextField(
+                    value = tempApiKey,
+                    onValueChange = { tempApiKey = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.gemini_api_key)) },
+                    singleLine = true,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        settingsViewModel.updateUserApiKey(tempApiKey)
+                        settingsViewModel.verifyUserApiKey()
+                    },
+                    enabled = !isVerifyingApiKey && tempApiKey.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (isVerifyingApiKey) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Text(stringResource(R.string.save_and_check))
+                    }
+                }
+                AnimatedVisibility(
+                    visible = isApiKeyVerified && !isVerifyingApiKey,
+                    enter = slideInVertically { it } + fadeIn(),
+                    exit = slideOutVertically { it } + fadeOut()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(top = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.padding(top = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.CheckCircle,
-                                contentDescription = stringResource(R.string.successfully_verified_icon_cd),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Text(
-                                text = stringResource(R.string.successfully_verified),
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(start = 4.dp)
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Rounded.CheckCircle,
+                            contentDescription = stringResource(R.string.successfully_verified_icon_cd),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = stringResource(R.string.successfully_verified),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
                     }
                 }
             }
@@ -210,35 +272,84 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
 }
 
 @Composable
-private fun SettingsGroup(
-    title: String,
-    onHelpClick: (() -> Unit)? = null,
-    content: @Composable () -> Unit
+private fun ModelChoicePopup(
+    settingsViewModel: SettingsViewModel,
+    onDismiss: () -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.padding(start = 16.dp, end = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
+    val settings = settingsViewModel.settings.value
+    val models = GeminiModels.supportedModels
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    shape = RoundedCornerShape(32.dp)
+                )
+                .padding(12.dp)
         ) {
             Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.weight(1f)
+                text = stringResource(id = R.string.model_choice),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                fontSize = 20.sp,
             )
-            onHelpClick?.let {
-                IconButton(onClick = it) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
-                        contentDescription = stringResource(R.string.api_key_guide_title)
-                    )
+            LazyColumn(
+                modifier = Modifier
+                    .padding(bottom = 12.dp)
+                    .clip(RoundedCornerShape(32.dp))
+            ) {
+                itemsIndexed(models) { index, modelName ->
+                    val isFirst = index == 0
+                    val isLast = index == models.lastIndex
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(shapeManager(
+                                isFirst = isFirst, isLast = isLast,
+                                radius = settings.cornerRadius
+                            ))
+                            .clickable {
+                                settingsViewModel.updateSelectedModel(modelName)
+                                onDismiss()
+                            },
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        tonalElevation = 1.dp
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = modelName,
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            RadioButton(
+                                selected = settings.selectedModelName == modelName,
+                                onClick = {
+                                    settingsViewModel.updateSelectedModel(modelName)
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        content()
     }
 }
+
 
 @Composable
 private fun OfflineTranslationSettings(settingsViewModel: SettingsViewModel) {
@@ -275,46 +386,57 @@ private fun OfflineTranslationSettings(settingsViewModel: SettingsViewModel) {
         )
     }
 
-    SettingsGroup(title = "3. ${stringResource(id = R.string.offline_translation_models)}") {
-        Column {
-            settingsViewModel.geminiRepository.supportedLanguages.forEach { (code, name) ->
-                val isDownloaded = downloadedModels.contains(code)
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(id = R.string.offline_translation_models),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Column {
+                settingsViewModel.geminiRepository.supportedLanguages.forEach { (code, name) ->
+                    val isDownloaded = downloadedModels.contains(code)
 
-                ListItem(
-                    headlineContent = { Text(name) },
-                    supportingContent = {
-                        Text(if (isDownloaded) stringResource(R.string.downloaded) else stringResource(R.string.not_downloaded))
-                    },
-                    trailingContent = {
-                        if (processingLanguageCode == code) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                        } else {
-                            if (isDownloaded) {
-                                IconButton(
-                                    onClick = { showDeleteDialog = code },
-                                    enabled = processingLanguageCode == null
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Delete,
-                                        contentDescription = stringResource(R.string.delete_language_model_cd, name),
-                                        tint = MaterialTheme.colorScheme.error
-                                    )
-                                }
+                    ListItem(
+                        headlineContent = { Text(name) },
+                        supportingContent = {
+                            Text(if (isDownloaded) stringResource(R.string.downloaded) else stringResource(R.string.not_downloaded))
+                        },
+                        trailingContent = {
+                            if (processingLanguageCode == code) {
+                                CircularProgressIndicator(modifier = Modifier.size(24.dp))
                             } else {
-                                TextButton(
-                                    onClick = {
-                                        settingsViewModel.downloadLanguageModel(code) { _, message ->
-                                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                                        }
-                                    },
-                                    enabled = processingLanguageCode == null
-                                ) {
-                                    Text(stringResource(id = R.string.download))
+                                if (isDownloaded) {
+                                    IconButton(
+                                        onClick = { showDeleteDialog = code },
+                                        enabled = processingLanguageCode == null
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Delete,
+                                            contentDescription = stringResource(R.string.delete_language_model_cd, name),
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                    }
+                                } else {
+                                    TextButton(
+                                        onClick = {
+                                            settingsViewModel.downloadLanguageModel(code) { _, message ->
+                                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                            }
+                                        },
+                                        enabled = processingLanguageCode == null
+                                    ) {
+                                        Text(stringResource(id = R.string.download))
+                                    }
                                 }
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }
@@ -335,26 +457,41 @@ private fun ApiKeyGuide() {
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(bottom = 16.dp)
         )
-        Text(
-            text = stringResource(id = R.string.api_key_guide_intro),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(id = R.string.api_key_guide_step_1))
-            Button(
-                onClick = { uriHandler.openUri(geminiStudioUrl) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(id = R.string.api_key_guide_button))
+        LazyColumn {
+            item {
+                Text(
+                    text = stringResource(id = R.string.api_key_guide_intro),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
             }
-            Text(stringResource(id = R.string.api_key_guide_step_2))
-            Text(stringResource(id = R.string.api_key_guide_step_3))
-            Text(stringResource(id = R.string.api_key_guide_step_4))
-            Text(stringResource(id = R.string.api_key_guide_step_5))
-            Text(stringResource(id = R.string.api_key_guide_step_6))
+            item { Text(stringResource(id = R.string.api_key_guide_step_1)) }
+            item { Spacer(modifier = Modifier.height(12.dp)) }
+            item {
+                Button(
+                    onClick = { uriHandler.openUri(geminiStudioUrl) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(id = R.string.api_key_guide_button))
+                }
+            }
+            item { Spacer(modifier = Modifier.height(12.dp)) }
+
+            items(
+                listOf(
+                    R.string.api_key_guide_step_2,
+                    R.string.api_key_guide_step_3,
+                    R.string.api_key_guide_step_4,
+                    R.string.api_key_guide_step_5,
+                    R.string.api_key_guide_step_6
+                )
+            ) {
+                Text(
+                    stringResource(id = it),
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
         }
     }
 }
