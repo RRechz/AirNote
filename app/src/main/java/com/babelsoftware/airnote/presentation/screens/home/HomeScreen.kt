@@ -19,12 +19,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -57,6 +55,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -79,7 +78,6 @@ import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.ContentCut
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Event
@@ -90,11 +88,9 @@ import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FolderOpen
-import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lightbulb
@@ -126,7 +122,6 @@ import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.History
-import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.Notes
 import androidx.compose.material.icons.rounded.Psychology
 import androidx.compose.material.icons.rounded.Search
@@ -142,8 +137,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -183,17 +176,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -1233,6 +1230,8 @@ fun AiMainContent(viewModel: HomeViewModel) {
             }
         }
 
+        val showInputBar = (isChatActive && chatState.latestDraft == null) || !isChatActive
+
         if (isChatActive && chatState.latestDraft == null) {
             RedesignedChatInputBar(
                 text = text,
@@ -1250,6 +1249,10 @@ fun AiMainContent(viewModel: HomeViewModel) {
                 onImagePickerClicked = { viewModel.requestImageForAnalysis() },
                 enabled = !isLoading
             )
+        }
+
+        if (showInputBar) {
+            AiDisclaimerText()
         }
     }
 }
@@ -1905,6 +1908,46 @@ private fun InputActionButton(text: String, icon: ImageVector, onClick: () -> Un
         Spacer(Modifier.width(8.dp))
         Text(text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
     }
+}
+
+@Composable
+fun AiDisclaimerText() {
+    val uriHandler = LocalUriHandler.current
+    val disclaimerText = stringResource(R.string.ai_disclaimer_text)
+    val linkText = stringResource(R.string.ai_disclaimer_link_text)
+    val linkUrl = stringResource(R.string.ai_disclaimer_link_url)
+
+    val annotatedString = buildAnnotatedString {
+        append(disclaimerText)
+        pushStringAnnotation(tag = "URL", annotation = linkUrl)
+        withStyle(
+            style = SpanStyle(
+                color = Color(0xFF33A2FF), // Link color
+                textDecoration = TextDecoration.Underline
+            )
+        ) {
+            append(linkText)
+        }
+        pop()
+    }
+
+    ClickableText(
+        text = annotatedString,
+        onClick = { offset ->
+            annotatedString.getStringAnnotations(tag = "URL", start = offset, end = offset)
+                .firstOrNull()?.let { annotation ->
+                    uriHandler.openUri(annotation.item)
+                }
+        },
+        style = MaterialTheme.typography.bodySmall.copy(
+            color = Color.White.copy(alpha = 0.6f),
+            textAlign = TextAlign.Center
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .padding(bottom = 8.dp)
+    )
 }
 
 @Composable

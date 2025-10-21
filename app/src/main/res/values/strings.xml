@@ -317,6 +317,9 @@
     <string name="new_ai_note_draft">A New AI Note Draft</string>
     <string name="ask_a_question_title">Unleash Your Curiosity</string>
     <string name="ask_a_question">What would you like to ask AirNote AI?</string>
+    <string name="ai_disclaimer_text">AirNote AI may make mistakes.</string>
+    <string name="ai_disclaimer_link_text"> More information</string>
+    <string name="ai_disclaimer_link_url" translatable="false">https://github.com/RRechz/airnote-ai</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>

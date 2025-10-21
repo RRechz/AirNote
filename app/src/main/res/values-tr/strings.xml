@@ -366,4 +366,6 @@
     <string name="sample_question_request">Hangi konu hakkında not oluşturmak istersiniz? Konuyu kısaca açıklayın.</string>
     <string name="new_ai_note_draft">Yeni Bir AI Not Taslağı</string>
     <string name="ask_a_question_title">Merakınızı Serbest Bırakın</string>
+    <string name="ai_disclaimer_text">"AirNote AI hata yapabilir. "</string>
+    <string name="ai_disclaimer_link_text">Daha fazla bilgi</string>
 </resources>
