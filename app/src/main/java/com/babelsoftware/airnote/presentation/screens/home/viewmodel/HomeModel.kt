@@ -66,7 +66,8 @@ data class ChatState(
     val isAwaitingDraftTopic: Boolean = false,
     val latestDraft: DraftedNote? = null,
     val hasStartedConversation: Boolean = false,
-    val currentSessionId: Long? = null
+    val currentSessionId: Long? = null,
+    val analyzingImageUri: Uri? = null
 )
 
 @HiltViewModel
@@ -214,7 +215,9 @@ class HomeViewModel @Inject constructor(
                 ChatMessage(dbMessage.text, dbMessage.participant, dbMessage.isLoading)
             }
             if (_chatState.value.latestDraft == null) {
-                _chatState.value = _chatState.value.copy(messages = chatMessages)
+                if (!_chatState.value.messages.any { it.isLoading }) {
+                    _chatState.value = _chatState.value.copy(messages = chatMessages)
+                }
             }
         }.launchIn(viewModelScope)
 
@@ -368,7 +371,8 @@ class HomeViewModel @Inject constructor(
                 title = title,
                 content = content,
                 sourceImageUri = imageUri
-            )
+            ),
+            analyzingImageUri = null
         )
     }
 
@@ -379,7 +383,11 @@ class HomeViewModel @Inject constructor(
                 participant = Participant.ERROR
             )
         )
-        _chatState.value = _chatState.value.copy(messages = finalMessages, latestDraft = null)
+        _chatState.value = _chatState.value.copy(
+            messages = finalMessages,
+            latestDraft = null,
+            analyzingImageUri = null
+        )
     }
 
 
@@ -406,10 +414,12 @@ class HomeViewModel @Inject constructor(
     fun analyzeImageAndCreateDraft(imageUri: Uri) = viewModelScope.launch {
         startNewChat()
         val prompt = stringProvider.getString(R.string.prompt_airnote_ai_analyzeimage)
+
         _chatState.value = _chatState.value.copy(
             latestDraft = null,
             messages = listOf(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true)),
-            hasStartedConversation = true
+            hasStartedConversation = true,
+            analyzingImageUri = imageUri
         )
 
         val apiKey = getApiKeyToUse()
@@ -433,10 +443,11 @@ class HomeViewModel @Inject constructor(
 
     fun regenerateDraft() {
         val draft = _chatState.value.latestDraft ?: return
+        val sourceImageUri = draft.sourceImageUri
         _chatState.value = _chatState.value.copy(latestDraft = null)
 
-        if (draft.sourceImageUri != null) {
-            analyzeImageAndCreateDraft(draft.sourceImageUri)
+        if (sourceImageUri != null) {
+            analyzeImageAndCreateDraft(sourceImageUri)
         } else {
             generateDraft(draft.topic)
         }

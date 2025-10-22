@@ -174,11 +174,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
@@ -195,6 +198,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.repository.AiMode
 import com.babelsoftware.airnote.domain.model.AiChatSession
@@ -225,6 +229,7 @@ import com.babelsoftware.airnote.presentation.theme.AiButtonColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalAnimationApi::class)
 @Composable
@@ -1167,7 +1172,6 @@ fun AiChatContainer(viewModel: HomeViewModel) {
 fun AiMainContent(viewModel: HomeViewModel) {
     val chatState by viewModel.chatState.collectAsState()
     var text by remember { mutableStateOf("") }
-    val isLoading = chatState.messages.any { it.isLoading }
     val isChatActive = chatState.hasStartedConversation || chatState.messages.isNotEmpty()
 
     if (viewModel.showAskQuestionDialog.value) {
@@ -1203,7 +1207,25 @@ fun AiMainContent(viewModel: HomeViewModel) {
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.weight(1f)) {
+            val (isLoading, isAnalyzingImage) = remember(chatState) {
+                val loadingMessage = chatState.messages.any { it.isLoading }
+                val imageUri = chatState.analyzingImageUri
+                (loadingMessage to (imageUri != null))
+            }
+
             when {
+                chatState.latestDraft != null && chatState.latestDraft?.sourceImageUri != null -> {
+                    DraftDisplayWithImage(
+                        draft = chatState.latestDraft!!,
+                        onSave = { viewModel.saveDraftedNote() },
+                        onRegenerate = { viewModel.regenerateDraft() }
+                    )
+                }
+
+                isLoading && isAnalyzingImage -> {
+                    ImageAnalysisScreen(imageUri = chatState.analyzingImageUri!!)
+                }
+
                 chatState.latestDraft != null -> {
                     DraftDisplay(
                         draft = chatState.latestDraft,
@@ -1230,29 +1252,199 @@ fun AiMainContent(viewModel: HomeViewModel) {
             }
         }
 
-        val showInputBar = (isChatActive && chatState.latestDraft == null) || !isChatActive
+        val showInputBar = chatState.latestDraft == null && chatState.analyzingImageUri == null
+        val isLoading = chatState.messages.any { it.isLoading }
 
-        if (isChatActive && chatState.latestDraft == null) {
-            RedesignedChatInputBar(
-                text = text,
-                onValueChange = { text = it },
-                onSendMessage = { onSendMessage(text) },
-                onImagePickerClicked = { viewModel.requestImageForAnalysis() },
-                enabled = !isLoading,
-                placeholderText = if (chatState.isAwaitingDraftTopic) stringResource(R.string.draft_topic_placeholder) else stringResource(R.string.ask_airnote_ai)
+        if (showInputBar) {
+            if (isChatActive) {
+                RedesignedChatInputBar(
+                    text = text,
+                    onValueChange = { text = it },
+                    onSendMessage = { onSendMessage(text) },
+                    onImagePickerClicked = { viewModel.requestImageForAnalysis() },
+                    enabled = !isLoading,
+                    placeholderText = if (chatState.isAwaitingDraftTopic) stringResource(R.string.draft_topic_placeholder) else stringResource(R.string.ask_airnote_ai)
+                )
+            } else {
+                PreChatInputBar(
+                    text = text,
+                    onValueChange = { text = it },
+                    onSendMessage = onSendMessage,
+                    onImagePickerClicked = { viewModel.requestImageForAnalysis() },
+                    enabled = !isLoading
+                )
+            }
+            AiDisclaimerText()
+        }
+    }
+}
+
+@Composable
+fun ImageAnalysisScreen(imageUri: Uri) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        AsyncImage(
+            model = imageUri,
+            contentDescription = stringResource(R.string.image_being_analyzed),
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(16.dp)),
+            contentScale = ContentScale.Fit
+        )
+
+        MagicAnalysisAnimation()
+    }
+}
+
+@Composable
+fun MagicAnalysisAnimation() {
+    val infiniteTransition = rememberInfiniteTransition(label = "analysis_animation")
+    val scanLinePosition by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "scan_line"
+    )
+
+    val particles = remember {
+        List(50) {
+            Pair(
+                Random.nextFloat(), // x
+                Random.nextFloat()  // y
             )
-        } else if (!isChatActive) {
-            PreChatInputBar(
-                text = text,
-                onValueChange = { text = it },
-                onSendMessage = onSendMessage,
-                onImagePickerClicked = { viewModel.requestImageForAnalysis() },
-                enabled = !isLoading
+        }
+    }
+    val particleAlpha by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "particles"
+    )
+
+    val primaryColor = Color(0xFF33A2FF)
+
+    Canvas(modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp))) {
+        val canvasWidth = size.width
+        val canvasHeight = size.height
+        val y = scanLinePosition * canvasHeight
+
+        drawLine(
+            brush = Brush.verticalGradient(
+                colors = listOf(Color.Transparent, primaryColor.copy(alpha = 0.5f), Color.Transparent),
+                startY = y - 20f,
+                endY = y + 20f
+            ),
+            start = Offset(x = 0f, y = y),
+            end = Offset(x = canvasWidth, y = y),
+            strokeWidth = 4f,
+            cap = StrokeCap.Round
+        )
+
+        particles.forEach { (x, y) ->
+            drawCircle(
+                color = primaryColor,
+                radius = (Random.nextFloat() * 4f + 2f),
+                center = Offset(x * canvasWidth, y * canvasHeight),
+                alpha = particleAlpha * Random.nextFloat()
             )
         }
 
-        if (showInputBar) {
-            AiDisclaimerText()
+        val bracketSize = 30f
+        val bracketStroke = 6f
+
+        // Top left
+        drawLine(primaryColor, Offset(0f, bracketSize), Offset(0f, 0f), bracketStroke)
+        drawLine(primaryColor, Offset(0f, 0f), Offset(bracketSize, 0f), bracketStroke)
+        // Top right
+        drawLine(primaryColor, Offset(canvasWidth - bracketSize, 0f), Offset(canvasWidth, 0f), bracketStroke)
+        drawLine(primaryColor, Offset(canvasWidth, 0f), Offset(canvasWidth, bracketSize), bracketStroke)
+        // Lower Left
+        drawLine(primaryColor, Offset(0f, canvasHeight - bracketSize), Offset(0f, canvasHeight), bracketStroke)
+        drawLine(primaryColor, Offset(0f, canvasHeight), Offset(bracketSize, canvasHeight), bracketStroke)
+        // Lower Right
+        drawLine(primaryColor, Offset(canvasWidth - bracketSize, canvasHeight), Offset(canvasWidth, canvasHeight), bracketStroke)
+        drawLine(primaryColor, Offset(canvasWidth, canvasHeight), Offset(canvasWidth, canvasHeight - bracketSize), bracketStroke)
+    }
+}
+
+@Composable
+fun DraftDisplayWithImage(draft: DraftedNote, onSave: () -> Unit, onRegenerate: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        AsyncImage(
+            model = draft.sourceImageUri,
+            contentDescription = draft.title,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(150.dp)
+                .clip(RoundedCornerShape(16.dp)),
+            contentScale = ContentScale.Crop
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Surface(
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(16.dp),
+            color = Color.White.copy(alpha = 0.05f),
+            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+        ) {
+            LazyColumn(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)
+            ) {
+                item {
+                    Text(
+                        text = draft.title,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                }
+                item {
+                    Text(
+                        text = draft.content,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White.copy(alpha = 0.8f),
+                        lineHeight = 24.sp
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            OutlinedButton(
+                onClick = onRegenerate,
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, Color(0xFF33A2FF))
+            ) {
+                Icon(Icons.Rounded.AutoAwesome, contentDescription = null, tint = Color(0xFF33A2FF))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.regenerate_note), color = Color(0xFF33A2FF))
+            }
+            Button(
+                onClick = onSave,
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF33A2FF))
+            ) {
+                Text(stringResource(R.string.save_note), color = Color(0xFF10141C))
+            }
         }
     }
 }
@@ -1657,7 +1849,7 @@ fun ChatMessageItem(
         if (message.isLoading) {
             if (message.text.startsWith("// Generating Note...")) {
                 TerminalLoadingIndicator(topic = topicForLoading ?: "")
-            } else {
+            } else if (message.text.isNotBlank()) {
                 TypingIndicator()
             }
         } else {
@@ -1844,7 +2036,7 @@ fun PreChatInputBar(
             ) {
                 IconButton(onClick = onImagePickerClicked, enabled = enabled) {
                     Icon(
-                        Icons.Default.Add,
+                        Icons.Default.AttachFile,
                         contentDescription = "Attach File",
                         tint = Color.White.copy(alpha = 0.8f)
                     )

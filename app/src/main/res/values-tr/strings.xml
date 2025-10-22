@@ -238,6 +238,7 @@
     <string name="send">Gönder</string>
     <string name="ask_a_question">AirNote AI\'ya ne sormak istersiniz?</string>
     <string name="not_set">Ayarlanmadı</string>
+    <string name="image_being_analyzed">Görsel anliz ediliyor...</string>
     <string name="ai_action_improve_writing">Yazımı İyileştir</string>
     <string name="ai_action_summarize">Özetle</string>
     <string name="ai_action_make_shorter">Daha Kısa Yap</string>
