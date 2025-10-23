@@ -322,6 +322,7 @@
     <string name="ai_disclaimer_link_url" translatable="false">https://github.com/RRechz/airnote-ai</string>
     <string name="not_set">Not set</string>
     <string name="image_being_analyzed">Image being analyzed...</string>
+    <string name="back">Back</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>

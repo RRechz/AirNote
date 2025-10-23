@@ -85,7 +85,7 @@ fun TextFormattingToolbar(viewModel: EditViewModel) {
                     launcher.launch("image/*")
                 },
                 ToolbarItem(Icons.AutoMirrored.Rounded.ArrowForwardIos,"Bullet List", color = colorArrow) {
-                        currentIndex++
+                    currentIndex++
                 },
             ),
             listOf(
@@ -152,16 +152,15 @@ fun TextFormattingToolbar(viewModel: EditViewModel) {
                 .padding(horizontal = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val isTextSelected = viewModel.noteDescription.value.selection.collapsed.not()
             IconButton(
-                onClick = { viewModel.toggleAiActionSheet(true) },
-                enabled = isTextSelected
+                onClick = { viewModel.toggleMinimalAiUi(true) },
+                enabled = true
             ) {
                 Icon(
                     imageVector = Icons.Rounded.AutoAwesome,
                     contentDescription = "Edit with AI",
                     modifier = Modifier.size(20.dp),
-                    tint = if (isTextSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
             Spacer(modifier = Modifier.weight(1f))

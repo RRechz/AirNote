@@ -218,6 +218,7 @@
     <string name="save_note">Notu Kaydet</string>
     <string name="regenerate_note">Yeniden Oluştur</string>
     <string name="about_update_news">Yenilikler</string>
+    <string name="back">Geri</string>
 
     <!-- Gemini Repository Strings-->
     <string name="update_card_release_notes_title">Yenilikler</string>

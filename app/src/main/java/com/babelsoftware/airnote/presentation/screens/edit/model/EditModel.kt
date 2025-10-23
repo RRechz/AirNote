@@ -24,6 +24,8 @@ import com.babelsoftware.airnote.data.repository.AiTone
 import com.babelsoftware.airnote.data.repository.SecureStorageRepository
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
+import com.babelsoftware.airnote.domain.model.ChatMessage
+import com.babelsoftware.airnote.domain.model.Participant
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
@@ -90,6 +92,23 @@ class EditViewModel @Inject constructor(
     private val _isAiLoading = mutableStateOf(false)
     val isAiLoading: State<Boolean> = _isAiLoading
 
+    // --- NEW MINIMAL AI CHAT STATES ---
+    private val _isMinimalAiUiVisible = mutableStateOf(false)
+    val isMinimalAiUiVisible: State<Boolean> = _isMinimalAiUiVisible
+
+    private val _minimalAiChatText = mutableStateOf("")
+    val minimalAiChatText: State<String> = _minimalAiChatText
+
+    private val _minimalAiChatHistory = mutableStateOf<List<ChatMessage>>(emptyList())
+    val minimalAiChatHistory: State<List<ChatMessage>> = _minimalAiChatHistory
+
+    private val _isMinimalChatActive = mutableStateOf(false)
+    val isMinimalChatActive: State<Boolean> = _isMinimalChatActive
+
+    private val _isMinimalAiLoading = mutableStateOf(false)
+    val isMinimalAiLoading: State<Boolean> = _isMinimalAiLoading
+    // --- END NEW STATES ---
+
     private val _isAiAssistantStreaming = mutableStateOf(false)
     val isAiAssistantStreaming: State<Boolean> = _isAiAssistantStreaming
     private var _lastSelection: TextRange? = null // Tentative texts to be sent to AI
@@ -111,6 +130,93 @@ class EditViewModel @Inject constructor(
     // --- AI'S STATES | END---
 
     // --- AI FUNCTIONS ---
+
+    // --- NEW MINIMAL AI CHAT FUNCTIONS ---
+    fun toggleMinimalAiUi(isVisible: Boolean) {
+        _isMinimalAiUiVisible.value = isVisible
+        if (!isVisible) {
+            // Reset chat state when closing
+            _minimalAiChatText.value = ""
+            _minimalAiChatHistory.value = emptyList()
+            _isMinimalChatActive.value = false
+            _isMinimalAiLoading.value = false
+        }
+    }
+
+    fun updateMinimalAiChatText(newText: String) {
+        _minimalAiChatText.value = newText
+    }
+
+    fun sendMinimalAiMessage() {
+        if (isMinimalAiLoading.value || minimalAiChatText.value.isBlank()) return
+
+        val userMessageText = _minimalAiChatText.value
+        _minimalAiChatText.value = ""
+
+        val userMessage = ChatMessage(userMessageText, Participant.USER)
+        val loadingMessage = ChatMessage("", Participant.MODEL, isLoading = true)
+
+        val currentHistory = _minimalAiChatHistory.value
+        _minimalAiChatHistory.value = currentHistory + userMessage + loadingMessage
+        _isMinimalChatActive.value = true
+        _isMinimalAiLoading.value = true
+
+        val historyToSend = mutableListOf<ChatMessage>()
+
+        // If this is the first message, add the note context
+        val userMessagesCount = _minimalAiChatHistory.value.count { it.participant == Participant.USER }
+        if (userMessagesCount == 1) {
+            val noteContext = noteDescription.value.text
+            if (noteContext.isNotBlank()) {
+                // We construct a special first user message that includes context
+                historyToSend.add(ChatMessage("My note content is:\n\n\"\"\"$noteContext\"\"\"\n\nMy question is: $userMessageText", Participant.USER))
+            } else {
+                historyToSend.add(userMessage) // No context, just send the message
+            }
+        } else {
+            // For follow-up messages, build history from our state
+            // Send all messages *except* the loading one
+            _minimalAiChatHistory.value.dropLast(1).forEachIndexed { index, msg ->
+                // Reconstruct history with context if it was the first message
+                if (msg.participant == Participant.USER && index == 0) {
+                    val noteContext = noteDescription.value.text
+                    if (noteContext.isNotBlank()) {
+                        historyToSend.add(ChatMessage("My note content is:\n\n\"\"\"$noteContext\"\"\"\n\nMy question is: ${msg.text}", Participant.USER))
+                    } else {
+                        historyToSend.add(msg)
+                    }
+                } else {
+                    historyToSend.add(msg)
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            try {
+                val apiKey = getApiKeyToUse()
+                val responseBuilder = StringBuilder()
+
+                geminiRepository.generateChatResponse(historyToSend, apiKey)
+                    .onCompletion {
+                        _isMinimalAiLoading.value = false
+                        val finalResponse = ChatMessage(responseBuilder.toString(), Participant.MODEL, isLoading = false)
+                        _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + finalResponse
+                    }
+                    .collect { chunk ->
+                        responseBuilder.append(chunk)
+                        // Stream response to UI
+                        _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + ChatMessage(responseBuilder.toString(), Participant.MODEL, isLoading = true)
+                    }
+
+            } catch (e: Exception) {
+                _isMinimalAiLoading.value = false
+                val errorMessage = ChatMessage(e.message ?: stringProvider.getString(R.string.error_unknown), Participant.ERROR, isLoading = false)
+                _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + errorMessage
+            }
+        }
+    }
+    // --- END NEW FUNCTIONS ---
+
     fun toggleAiActionSheet(isVisible: Boolean) {
         if (isVisible) {
             _isSheetReadyForInteraction.value = false // Set the interaction status to “not ready” (false) each time the menu is opened.
@@ -137,7 +243,11 @@ class EditViewModel @Inject constructor(
      */
     fun executeAiAction(action: AiAction, tone: AiTone? = null) {
         val selection = _lastSelection ?: noteDescription.value.selection
-        toggleAiActionSheet(false)
+        if (action != AiAction.CHANGE_TONE && action != AiAction.TRANSLATE) {
+            toggleAiActionSheet(false)
+        } else {
+            toggleMinimalAiUi(false)
+        }
         toggleToneActionSheet(false)
 
         if (action == AiAction.CHANGE_TONE && tone == null) {
