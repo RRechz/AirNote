@@ -1,6 +1,8 @@
 package com.babelsoftware.airnote.presentation.screens.edit
 
+import android.content.Intent
 import android.icu.text.SimpleDateFormat
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -104,7 +106,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -151,7 +152,17 @@ fun EditNoteView(
 ) {
     val viewModel: EditViewModel = hiltViewModel<EditViewModel>()
     viewModel.updateIsEncrypted(encrypted)
-    viewModel.setupNoteData(id, folderId)
+    val activity = LocalActivity.current
+    val intent = activity?.intent
+
+    LaunchedEffect(key1 = id, key2 = intent) {
+        if (id == 0 && intent?.action == Intent.ACTION_SEND && "text/plain" == intent.type) {
+            viewModel.handleSharedIntent(intent)
+        } else {
+            viewModel.setupNoteData(id, folderId)
+        }
+    }
+
     ObserveLifecycleEvents(viewModel)
 
     val scope = rememberCoroutineScope()
@@ -1180,4 +1191,3 @@ private fun TranslateLanguageSheet(viewModel: EditViewModel) {
         }
     }
 }
-

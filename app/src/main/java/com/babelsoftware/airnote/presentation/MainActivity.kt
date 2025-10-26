@@ -1,5 +1,6 @@
 package com.babelsoftware.airnote.presentation
 
+import android.content.Intent
 import android.os.Bundle
 import android.provider.MediaStore
 import androidx.activity.compose.setContent
@@ -37,7 +38,11 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             settingsViewModel = hiltViewModel<SettingsViewModel>()
+            settingsViewModel!!.loadDefaultRoute()
+
             val noteId = intent?.getIntExtra("noteId", -1) ?: -1
+            val isShareIntent = intent?.action == Intent.ACTION_SEND && "text/plain" == intent.type
+            val startRoute = settingsViewModel!!.defaultRoute!!
 
             if (settingsViewModel!!.settings.value.gallerySync) {
                 contentResolver.registerContentObserver(
@@ -54,10 +59,11 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     navController = rememberNavController()
                     AppNavHost(
-                        settingsViewModel!!,
-                        navController,
-                        noteId,
-                        settingsViewModel!!.defaultRoute!!
+                        settingsModel = settingsViewModel!!,
+                        navController = navController,
+                        noteId = noteId,
+                        defaultRoute = startRoute,
+                        isShareIntent = isShareIntent
                     )
                 }
             }
@@ -67,11 +73,12 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         settingsViewModel?.let {
-            it.loadDefaultRoute()
             if (it.defaultRoute != NavRoutes.Home.route) {
                 if (it.settings.value.passcode != null || it.settings.value.fingerprint || it.settings.value.pattern != null) {
                     if (it.settings.value.lockImmediately) {
-                        navController.navigate(it.defaultRoute!!) { popUpToTop(navController) }
+                        if (::navController.isInitialized) {
+                            navController.navigate(it.defaultRoute!!) { popUpToTop(navController) }
+                        }
                     }
                 }
             }

@@ -1,5 +1,7 @@
 package com.babelsoftware.airnote.presentation.screens.edit.model
 
+import android.content.Intent
+import android.util.Patterns
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -26,16 +28,21 @@ import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
 import com.babelsoftware.airnote.domain.model.ChatMessage
 import com.babelsoftware.airnote.domain.model.Participant
+import com.babelsoftware.airnote.domain.usecase.FolderUseCase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.withContext
+import org.jsoup.Jsoup
 
 @HiltViewModel
 class EditViewModel @Inject constructor(
     private val noteUseCase: NoteUseCase,
+    private val folderUseCase: FolderUseCase,
     private val encryption: EncryptionHelper,
     private val geminiRepository: GeminiRepository,
     private val secureStorageRepository: SecureStorageRepository,
@@ -73,61 +80,176 @@ class EditViewModel @Inject constructor(
     private val _folderId = mutableStateOf<Long?>(null)
     val folderId: State<Long?> get() = _folderId
 
+    private var isShareIntentHandled = false
+
     // --- AI'S STATES ---
     private suspend fun getApiKeyToUse(): String {
         return secureStorageRepository.getUserApiKey() ?: ""
     }
     private val _isAiActionSheetVisible = mutableStateOf(false)
-    val isAiActionSheetVisible: State<Boolean> = _isAiActionSheetVisible
+    val isAiActionSheetVisible: State<Boolean> get() = _isAiActionSheetVisible
 
     private val _isSheetReadyForInteraction = mutableStateOf(false)
-    val isSheetReadyForInteraction: State<Boolean> = _isSheetReadyForInteraction
+    val isSheetReadyForInteraction: State<Boolean> get() = _isSheetReadyForInteraction
 
     private val _isToneActionSheetVisible = mutableStateOf(false)
-    val isToneActionSheetVisible: State<Boolean> = _isToneActionSheetVisible
+    val isToneActionSheetVisible: State<Boolean> get() = _isToneActionSheetVisible
 
     private val _aiResultText = mutableStateOf<String?>(null)
     val aiResultText: State<String?> = _aiResultText
 
     private val _isAiLoading = mutableStateOf(false)
-    val isAiLoading: State<Boolean> = _isAiLoading
+    val isAiLoading: State<Boolean> get() = _isAiLoading
 
     // --- NEW MINIMAL AI CHAT STATES ---
     private val _isMinimalAiUiVisible = mutableStateOf(false)
-    val isMinimalAiUiVisible: State<Boolean> = _isMinimalAiUiVisible
+    val isMinimalAiUiVisible: State<Boolean> get() = _isMinimalAiUiVisible
 
     private val _minimalAiChatText = mutableStateOf("")
-    val minimalAiChatText: State<String> = _minimalAiChatText
+    val minimalAiChatText: State<String> get() = _minimalAiChatText
 
     private val _minimalAiChatHistory = mutableStateOf<List<ChatMessage>>(emptyList())
     val minimalAiChatHistory: State<List<ChatMessage>> = _minimalAiChatHistory
 
     private val _isMinimalChatActive = mutableStateOf(false)
-    val isMinimalChatActive: State<Boolean> = _isMinimalChatActive
+    val isMinimalChatActive: State<Boolean> get() = _isMinimalChatActive
 
     private val _isMinimalAiLoading = mutableStateOf(false)
-    val isMinimalAiLoading: State<Boolean> = _isMinimalAiLoading
+    val isMinimalAiLoading: State<Boolean> get() = _isMinimalAiLoading
     // --- END NEW STATES ---
 
     private val _isAiAssistantStreaming = mutableStateOf(false)
-    val isAiAssistantStreaming: State<Boolean> = _isAiAssistantStreaming
+    val isAiAssistantStreaming: State<Boolean> get() = _isAiAssistantStreaming
     private var _lastSelection: TextRange? = null // Tentative texts to be sent to AI
     private val _uiEvent = Channel<String>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private val _isAiAssistantSheetVisible = mutableStateOf(false)
-    val isAiAssistantSheetVisible: State<Boolean> = _isAiAssistantSheetVisible
+    val isAiAssistantSheetVisible: State<Boolean> get() = _isAiAssistantSheetVisible
     private val _titleSuggestions = mutableStateOf<List<String>>(emptyList())
     val titleSuggestions: State<List<String>> = _titleSuggestions
 
     private val _isTranslateSheetVisible = mutableStateOf(false)
-    val isTranslateSheetVisible: State<Boolean> = _isTranslateSheetVisible
+    val isTranslateSheetVisible: State<Boolean> get() = _isTranslateSheetVisible
 
     private val _downloadedLanguages = mutableStateOf<List<Pair<String, String>>>(emptyList())
     val downloadedLanguages: State<List<Pair<String, String>>> = _downloadedLanguages
 
     private var _translationSelection: TextRange? = null
     // --- AI'S STATES | END---
+
+
+    // --- YENİ EKLENEN FONKSİYONLAR (PAYLAŞ VE LİNK) ---
+
+    /**
+     * "Link" adında bir klasör arar. Bulamazsa oluşturur ve ID'sini döndürür.
+     * (Daha kararlı hale getirildi)
+     */
+    private suspend fun getOrCreateLinkFolderId(): Long? {
+        val linkFolderName = "Link"
+        val foldersFlow = folderUseCase.getAllFolders()
+        var folders = foldersFlow.first() // Mevcut listeyi al
+        var linkFolder = folders.find { it.name.equals(linkFolderName, ignoreCase = true) }
+
+        if (linkFolder != null) {
+            return linkFolder.id // Klasör zaten var, ID'sini döndür
+        }
+
+        // Klasör yok, oluşturalım.
+        // iconName için HomeModel.kt'de kullanılan "Link" ikonunu varsayıyorum.
+        val newFolder = com.babelsoftware.airnote.domain.model.Folder(name = linkFolderName, iconName = "Link")
+
+        try {
+            folderUseCase.addFolder(newFolder) // suspend fonksiyon, eklemenin bitmesini bekle
+
+            // Ekleme bittiğine göre, veritabanı güncellenmiş olmalı.
+            // Flow'dan en güncel listeyi tekrar çek.
+            folders = foldersFlow.first()
+            linkFolder = folders.find { it.name.equals(linkFolderName, ignoreCase = true) }
+
+            return linkFolder?.id // Yeni oluşturulan klasörün ID'sini döndür
+
+        } catch (e: Exception) {
+            // Ekleme veya bulma sırasında hata oluştu
+            e.printStackTrace()
+            // Hata durumunda bile son bir kez daha dene
+            folders = foldersFlow.first()
+            linkFolder = folders.find { it.name.equals(linkFolderName, ignoreCase = true) }
+            return linkFolder?.id
+        }
+    }
+
+    /**
+     * Gelen paylaşım verisini (link veya metin) işler.
+     */
+    fun handleSharedIntent(intent: Intent) {
+        // Intent'in zaten işlenip işlenmediğini kontrol et
+        if (isShareIntentHandled) return
+
+        if (intent.action == Intent.ACTION_SEND && "text/plain" == intent.type) {
+            // Intent'i işlendi olarak işaretle
+            isShareIntentHandled = true
+
+            viewModelScope.launch {
+                val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT) ?: return@launch
+                val sharedTitle = intent.getStringExtra(Intent.EXTRA_SUBJECT)
+
+                // 1. Paylaşılan metin bir URL mi kontrol et
+                if (Patterns.WEB_URL.matcher(sharedText).matches()) {
+                    // EVET, BU BİR LİNK
+
+                    // 2. "Link" klasörünün ID'sini al veya oluştur
+                    val targetFolderId = getOrCreateLinkFolderId() // <-- Artık Long? döndürür
+
+                    if(targetFolderId != null) {
+                        updateFolderId(targetFolderId) // Notun folderId'sini ayarla
+                    } else {
+                        // Opsiyonel: Klasör oluşturma başarısız olursa kullanıcıyı bilgilendir
+                        _uiEvent.send("The link folder could not be created.")
+                    }
+
+                    // 3. Site başlığını çek
+                    _isAiLoading.value = true // Başlık çekilirken yükleniyor göster
+                    val title = fetchTitleFromUrl(sharedText) ?: sharedTitle ?: "Saved links"
+                    _isAiLoading.value = false
+
+                    // 4. ViewModel'i doldur
+                    updateNoteName(TextFieldValue(title))
+                    updateNoteDescription(TextFieldValue(sharedText))
+
+                } else {
+                    // HAYIR, BU DÜZ METİN
+                    // Normal davran, klasör ataması yapma (varsayılan klasörde kalsın)
+                    val title = sharedTitle ?: sharedText.take(30)
+                    updateNoteName(TextFieldValue(title))
+                    updateNoteDescription(TextFieldValue(sharedText))
+                }
+            }
+        }
+    }
+
+    /**
+     * Asenkron olarak URL'den başlık çeker.
+     * Bu bir ağ işlemidir, bu yüzden 'suspend' olmalıdır.
+     */
+    private suspend fun fetchTitleFromUrl(url: String): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val doc = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+                    .timeout(5000) // 5 saniye zaman aşımı
+                    .get()
+                // Başlığın boş olmadığını kontrol et
+                doc.title().takeIf { it.isNotBlank() }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null // Hata durumunda null döndür
+            }
+        }
+    }
+
+    // --- BİTİŞ: YENİ EKLENEN FONKSİYONLAR ---
+
 
     // --- AI FUNCTIONS ---
 
