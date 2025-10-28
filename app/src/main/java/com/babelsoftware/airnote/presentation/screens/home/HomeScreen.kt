@@ -59,6 +59,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.rounded.Notes
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Alarm
@@ -122,9 +123,12 @@ import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.FilePresent
+import androidx.compose.material.icons.rounded.GolfCourse
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Notes
+import androidx.compose.material.icons.rounded.PersonSearch
 import androidx.compose.material.icons.rounded.Psychology
+import androidx.compose.material.icons.rounded.School
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
@@ -1750,8 +1754,10 @@ fun AiTopBar(
             ) {
                 Icon(
                     imageVector = when(currentAiMode) {
-                        AiMode.NOTE_ASSISTANT -> Icons.Rounded.Notes
+                        AiMode.NOTE_ASSISTANT -> Icons.AutoMirrored.Rounded.Notes
                         AiMode.CREATIVE_MIND -> Icons.Rounded.Psychology
+                        AiMode.ACADEMIC_RESEARCHER -> Icons.Rounded.School
+                        AiMode.PROFESSIONAL_STRATEGIST -> Icons.Rounded.GolfCourse
                     },
                     contentDescription = "AI Model",
                     tint = Color(0xFF33A2FF),
@@ -1762,6 +1768,8 @@ fun AiTopBar(
                     text = when (currentAiMode) {
                         AiMode.NOTE_ASSISTANT -> stringResource(R.string.ai_mode_note_assistant)
                         AiMode.CREATIVE_MIND -> stringResource(R.string.ai_mode_creative_mind)
+                        AiMode.ACADEMIC_RESEARCHER -> stringResource(R.string.ai_mode_academic_research)
+                        AiMode.PROFESSIONAL_STRATEGIST -> stringResource(R.string.ai_mode_professional_strategy)
                     },
                     color = Color.White,
                     fontWeight = FontWeight.SemiBold,

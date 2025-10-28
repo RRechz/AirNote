@@ -39,7 +39,9 @@ import kotlin.coroutines.suspendCoroutine
  */
 enum class AiMode {
     NOTE_ASSISTANT, // For factual, note-taking tasks.
-    CREATIVE_MIND   // For brainstorming and creative writing.
+    CREATIVE_MIND,  // For brainstorming and creative writing.
+    ACADEMIC_RESEARCHER,// For structured, evidence-based academic writing.
+    PROFESSIONAL_STRATEGIST // For clear, goal-oriented business communication.
 }
 
 enum class AiAction {
@@ -115,6 +117,8 @@ class GeminiRepository @Inject constructor(
         val systemPrompt = when (aiMode) {
             AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant)
             AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind)
+            AiMode.ACADEMIC_RESEARCHER -> stringProvider.getString(R.string.system_prompt_academic_researcher)
+            AiMode.PROFESSIONAL_STRATEGIST -> stringProvider.getString(R.string.system_prompt_professional_strategist)
         }
 
         val userPrompt = when (action) {
@@ -168,6 +172,8 @@ class GeminiRepository @Inject constructor(
         val systemPrompt = when (aiMode) {
             AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant)
             AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind)
+            AiMode.ACADEMIC_RESEARCHER -> stringProvider.getString(R.string.system_prompt_academic_researcher)
+            AiMode.PROFESSIONAL_STRATEGIST -> stringProvider.getString(R.string.system_prompt_professional_strategist)
         }
 
         val userPrompt = when (action) {
@@ -211,6 +217,8 @@ class GeminiRepository @Inject constructor(
         val baseSystemPrompt = when (aiMode) {
             AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant)
             AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind)
+            AiMode.ACADEMIC_RESEARCHER -> stringProvider.getString(R.string.system_prompt_academic_researcher)
+            AiMode.PROFESSIONAL_STRATEGIST -> stringProvider.getString(R.string.system_prompt_professional_strategist)
         }
 
         val chatHistoryForModel = mutableListOf<Content>()
@@ -271,6 +279,8 @@ class GeminiRepository @Inject constructor(
         val systemPrompt = when (aiMode) {
             AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant)
             AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind)
+            AiMode.ACADEMIC_RESEARCHER -> stringProvider.getString(R.string.system_prompt_academic_researcher)
+            AiMode.PROFESSIONAL_STRATEGIST -> stringProvider.getString(R.string.system_prompt_professional_strategist)
         }
         val userPrompt = stringProvider.getString(R.string.prompt_assistant_draft_anything, topic)
         val finalPrompt = "$systemPrompt\n\n---\n\n$userPrompt"
@@ -294,6 +304,8 @@ class GeminiRepository @Inject constructor(
             val systemPrompt = when (aiMode) {
                 AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant)
                 AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind)
+                AiMode.ACADEMIC_RESEARCHER -> stringProvider.getString(R.string.system_prompt_academic_researcher)
+                AiMode.PROFESSIONAL_STRATEGIST -> stringProvider.getString(R.string.system_prompt_professional_strategist)
             }
             val temperature = if (aiMode == AiMode.CREATIVE_MIND) CREATIVE_TEMPERATURE else DEFAULT_TEMPERATURE
 
@@ -312,6 +324,8 @@ class GeminiRepository @Inject constructor(
         val finalPrompt = when (aiMode) {
             AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant) + "\n\n---\n\n" + prompt
             AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind) + "\n\n---\n\n" + prompt
+            AiMode.ACADEMIC_RESEARCHER -> stringProvider.getString(R.string.system_prompt_academic_researcher) + "\n\n---\n\n" + prompt
+            AiMode.PROFESSIONAL_STRATEGIST -> stringProvider.getString(R.string.system_prompt_professional_strategist) + "\n\n---\n\n" + prompt
         }
 
         val inputContent = content {
