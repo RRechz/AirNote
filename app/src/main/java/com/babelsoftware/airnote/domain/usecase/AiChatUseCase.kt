@@ -52,4 +52,8 @@ class AiChatUseCase @Inject constructor(
     suspend fun deleteSessionById(sessionId: Long) {
         aiChatDao.deleteSessionById(sessionId)
     }
+
+    suspend fun deleteMessageById(id: Long) {
+        aiChatDao.deleteMessageById(id)
+    }
 }

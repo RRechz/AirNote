@@ -121,6 +121,7 @@ import androidx.compose.material.icons.rounded.AddComment
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.FilePresent
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Notes
 import androidx.compose.material.icons.rounded.Psychology
@@ -1173,6 +1174,33 @@ fun AiMainContent(viewModel: HomeViewModel) {
     val chatState by viewModel.chatState.collectAsState()
     var text by remember { mutableStateOf("") }
     val isChatActive = chatState.hasStartedConversation || chatState.messages.isNotEmpty()
+    val allNotes by viewModel.allNotesForAi.collectAsState()
+
+    val (mentionQuery, showMentionSuggestions) = remember(text) {
+        val cursorPosition = text.length
+        val atIndex = text.lastIndexOf('@', cursorPosition - 1)
+
+        if (atIndex != -1) {
+            val query = text.substring(atIndex + 1, cursorPosition)
+            if (" " !in query && query.length < 30) {
+                Pair(query, true)
+            } else {
+                Pair("", false)
+            }
+        } else {
+            Pair("", false)
+        }
+    }
+
+    val mentionSuggestions = remember(mentionQuery, allNotes, showMentionSuggestions) {
+        if (showMentionSuggestions) {
+            allNotes.filter {
+                it.name.contains(mentionQuery, ignoreCase = true)
+            }.take(5)
+        } else {
+            emptyList()
+        }
+    }
 
     if (viewModel.showAskQuestionDialog.value) {
         AskAiQuestionDialog(
@@ -1248,6 +1276,51 @@ fun AiMainContent(viewModel: HomeViewModel) {
                 }
                 else -> {
                     NewAiHomeScreen(viewModel = viewModel)
+                }
+            }
+        }
+
+        AnimatedVisibility(visible = mentionSuggestions.isNotEmpty()) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .offset(y = (-8).dp),
+                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                color = Color.White.copy(alpha = 0.15f),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .heightIn(max = 150.dp)
+                        .padding(vertical = 8.dp)
+                ) {
+                    items(items = mentionSuggestions, key = { it.id }) { note ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val atIndex = text.lastIndexOf('@')
+                                    text = text.substring(0, atIndex + 1) + note.name + " "
+                                }
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Rounded.FilePresent,
+                                contentDescription = null,
+                                tint = Color.White.copy(alpha = 0.7f),
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                text = note.name,
+                                color = Color.White,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
                 }
             }
         }

@@ -41,4 +41,7 @@ interface AiChatDao {
         isLoading: Boolean,
         participant: Participant
     )
+
+    @Query("DELETE FROM ai_chat_messages WHERE id = :id")
+    suspend fun deleteMessageById(id: Long)
 }

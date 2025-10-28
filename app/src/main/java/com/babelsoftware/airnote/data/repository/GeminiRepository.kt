@@ -189,7 +189,12 @@ class GeminiRepository @Inject constructor(
         emit(stringProvider.getString(R.string.error_api_request_failed, it.message ?: "Unknown error"))
     }
 
-    fun generateChatResponse(history: List<ChatMessage>, apiKey: String, aiMode: AiMode = AiMode.NOTE_ASSISTANT): Flow<String> = flow {
+    fun generateChatResponse(
+        history: List<ChatMessage>,
+        apiKey: String,
+        aiMode: AiMode = AiMode.NOTE_ASSISTANT,
+        mentionedNote: com.babelsoftware.airnote.domain.model.Note? = null
+    ): Flow<String> = flow {
         if (apiKey.isBlank()) {
             throw ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key))
         }
@@ -203,14 +208,25 @@ class GeminiRepository @Inject constructor(
             }
         )
 
-        val systemPrompt = when (aiMode) {
+        val baseSystemPrompt = when (aiMode) {
             AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant)
             AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind)
         }
 
         val chatHistoryForModel = mutableListOf<Content>()
-        chatHistoryForModel.add(content("user") { text(systemPrompt) })
+        chatHistoryForModel.add(content("user") { text(baseSystemPrompt) })
         chatHistoryForModel.add(content("model") { text("OK.") })
+
+        if (mentionedNote != null) {
+            val noteContextPrompt = stringProvider.getString(
+                R.string.prompt_mention_context,
+                mentionedNote.name,
+                mentionedNote.description
+            )
+            chatHistoryForModel.add(content("user") { text(noteContextPrompt) })
+            val ackPrompt = stringProvider.getString(R.string.prompt_mention_ack, mentionedNote.name)
+            chatHistoryForModel.add(content("model") { text(ackPrompt) })
+        }
 
         val userHistoryContent = history
             .filter { it.participant != Participant.ERROR && !it.isLoading }

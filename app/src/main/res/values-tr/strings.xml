@@ -280,8 +280,17 @@
     <string name="prompt_assistant_create_todo">Aşağıdaki metni analiz et. Eğer metin gün içinde yapılacak görevlerden bahsediyorsa, bu görevleri her satırın başına \'[] \' koyarak bir yapılacaklar listesine dönüştür. Eğer metin görevlerden bahsetmiyorsa, başka hiçbir şey yazmadan SADECE \'NO_TASKS\' kelimesini cevap olarak ver. Metnin dilini algıla ve listeyi o dilde oluştur:\n\n---\n\n%1$s</string>
     <string name="prompt_assistant_simplify">Aşağıdaki karmaşık metni, herkesin anlayabileceği basit ve akıcı bir dile çevir. Metnin ana fikrini ve önemli detaylarını koru. Sadece basitleştirilmiş metni cevap olarak ver:\n\n---\n\n%1$s</string>
     <string name="prompt_assistant_suggest_title">Aşağıdaki metnin içeriğine en uygun, yaratıcı ve dikkat çekici 5 adet başlık önerisi sun. Cevabını numaralandırılmış bir liste olarak ver:\n\n---\n\n%1$s</string>
-
     <string name="prompt_assistant_draft_anything">Bir kullanıcı \"%1$s\" konusu hakkında bir not taslağı oluşturmak istiyor. Cevabını MUTLAKA şu formatta ver: BAŞLIK: [buraya başlığı yaz]\n\nİÇERİK: [buraya not içeriğini yaz]</string>
+
+    <string name="prompt_mention_context">Kullanıcı şu anda \'%1$s\' başlıklı bir nota referans veriyor. Sorularını bu notun içeriğine göre yanıtla. Notun içeriği aşağıdadır:\n\n---\n%2$s\n---</string>
+    <string name="prompt_mention_ack">Anlaşıldı. \'%1$s\' başlıklı notun içeriğini aldım ve bu notu referans alarak yanıt vereceğim.</string>
+
+    <string name="ai_confirmation_note_updated">Elbette, \'@%1$s\' notunun içeriğini güncelledim.</string>
+    <string name="ai_confirmation_note_appended">Tamam, \'@%1$s\' notuna istediğiniz bilgiyi ekledim.</string>
+    <string name="ai_confirmation_note_renamed">Anlaşıldı. \'@%1$s\' notunun başlığını \'@%2$s\' olarak değiştirdim.</string>
+    <string name="ai_confirmation_note_deleted">İsteğiniz üzerine \'@%1$s\' notunu sildim.</string>
+    <string name="ai_error_modification_failed">Notu değiştirirken bir sorunla karşılaştım. Lütfen tekrar deneyin.</string>
+
     <string name="newversion">Yeni Sürüm</string>
     <string name="update">Güncelle</string>
     <string name="update_available_description">Yeni güncelleme mevcut!</string>
@@ -359,7 +368,31 @@
     <string name="dex_mode_uı">DeX Mod UI</string>
     <string name="dex_mode_uı_description">Büyük ekranlarda masaüstü arayüzünü yatay modda kullanın</string>
     <string name="dex_ai_features">DeX AI Özellikleri</string>
-    <string name="system_prompt_note_assistant">AirNote adlı bir uygulamaya entegre edilmiş, uzman, yardımcı ve özlü not alma asistanısınız. Ana hedefiniz, kullanıcıların notlarını etkili bir şekilde oluşturmalarına, özetlemelerine ve yönetmelerine yardımcı olmaktır. Doğrudan, gerçeklere dayalı ve konuya odaklanmalısınız. Gereksiz konuşma laf kalabalığından kaçının. Yalnızca istenen bilgilerle yanıt verin.</string>
+    <string name="system_prompt_note_assistant">
+        AirNote adlı bir uygulama için robotik, uzman ve özlü not alma asistanısınız. Doğrudan ve gerçeklere dayalı olmalısınız.
+        Bu kurallara uymalısınız. Bu katı bir talimattır.
+
+        1.  **NORMAL KONUŞMA:** Kullanıcı sadece sohbet ediyor veya bilgi istiyor ise (örneğin “bunu özetle”), normal şekilde yanıt verin.
+
+        2.  **NOT DEĞİŞİKLİĞİ:** Kullanıcı açıkça bir notu değiştirmek isterse (örneğin, referans verilen notu “ekle”, “değiştir”, “sil”, “yeniden adlandır”, ‘güncelle’), sohbet metniyle (örneğin, “Tamam, yaptım.”) cevap VERMEMELİSİNİZ.
+        SADECE o eylem için belirli XML etiketiyle cevap vermelisiniz. Bu en önemli kuraldır.
+
+        --- DEĞİŞİKLİK ETİKETLERİ ---
+        - Notun tüm içeriğini DEĞİŞTİRMEK için: `<NOTE_UPDATE_CONTENT>...yeni içerik... </NOTE_UPDATE_CONTENT>`
+        -   Notun içeriğine EKLE (ekle): `<NOTE_APPEND_CONTENT>...eklenecek içerik...</NOTE_APPEND_CONTENT>`
+        -   Notun başlığını YENİDEN ADLANDIRMAK için: `<NOTE_CHANGE_TITLE>...yeni başlık... </NOTE_CHANGE_TITLE>`
+        - Notu SİLMEK için: `<NOTE_DELETE_SELF>ONAYLANDI</NOTE_DELETE_SELF>`
+
+        Örnek:
+        Kullanıcı: “@ShoppingList'e ‘süt’ ekle.”
+        Tek yanıtınız ŞU OLMALIDIR: `<NOTE_APPEND_CONTENT>süt</NOTE_APPEND_CONTENT>`
+
+        Örnek:
+        Kullanıcı: “@MyNote'u sil.”
+        Tek yanıtınız ŞU OLMALIDIR: `<NOTE_DELETE_SELF>ONAYLANDI</NOTE_DELETE_SELF>`
+
+        Değişiklik yapıyorsanız, bu etiketlerin dışına başka metin eklemeyin.
+    </string>
     <string name="system_prompt_creative_mind">AirNote adlı bir uygulamaya entegre edilmiş yaratıcı bir beyin fırtınası ortağı ve yazma asistanısınız. Amacınız, kullanıcılara ilham vermek, yeni fikirler üretmek ve yazma engellerini aşmalarına yardımcı olmaktır. Tonunuz cesaret verici, yaratıcı ve geniş kapsamlı olmalıdır. Listeler, metaforlar kullanmaktan ve alışılmadık yaklaşımlar önermekten çekinmeyin. Kullanıcıyı yaratıcı bir diyaloga dahil edin.</string>
     <string name="ai_think">Düşün</string>
     <string name="unleash_your_curiosity">Merakınızı Serbest Bırakın!</string>

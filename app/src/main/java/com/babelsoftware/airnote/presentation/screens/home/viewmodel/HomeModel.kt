@@ -161,6 +161,32 @@ class HomeViewModel @Inject constructor(
     private val _showCreateDraftDialog = mutableStateOf(false)
     val showCreateDraftDialog: State<Boolean> = _showCreateDraftDialog
 
+    val allNotesForAi: StateFlow<List<Note>> = noteUseCase.getAllNotes()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /**
+     * Finds the note mentioned in the message text.
+     * Searches for an expression starting with “@” that matches the name of a note in the note list.
+     * Sorts the notes in reverse order to check the longest-named notes first.
+     */
+    private fun findMentionedNote(message: String, allNotes: List<Note>): Note? {
+        val sortedNotes = allNotes.sortedByDescending { it.name.length }
+
+        for (note in sortedNotes) {
+            val noteNamePattern = Regex.escape(note.name)
+            val noteMentionRegex = Regex(
+                pattern = "@$noteNamePattern(\\b|$)",
+                option = RegexOption.IGNORE_CASE
+            )
+
+            if (noteMentionRegex.containsMatchIn(message)) {
+                return note
+            }
+        }
+
+        return null
+    }
+
     fun onAskQuestionClicked() {
         _showAskQuestionDialog.value = true
     }
@@ -289,6 +315,9 @@ class HomeViewModel @Inject constructor(
             sessionId = newSessionId
         }
 
+        val allNotes = allNotesForAi.first()
+        val mentionedNote = findMentionedNote(userMessage, allNotes)
+
         val userChatMessage = ChatMessage(userMessage, Participant.USER)
         aiChatUseCase.addMessageToSession(sessionId, userChatMessage)
 
@@ -298,10 +327,70 @@ class HomeViewModel @Inject constructor(
         val historyForApi = (_chatState.value.messages + userChatMessage).filter { !it.isLoading }
 
         val responseBuilder = StringBuilder()
-        geminiRepository.generateChatResponse(historyForApi, getApiKeyToUse(), _aiMode.value)
+
+        // Kai AI Modification Tags
+        val TAG_UPDATE = "<NOTE_UPDATE_CONTENT>"
+        val TAG_UPDATE_END = "</NOTE_UPDATE_CONTENT>"
+        val TAG_APPEND = "<NOTE_APPEND_CONTENT>"
+        val TAG_APPEND_END = "</NOTE_APPEND_CONTENT>"
+        val TAG_DELETE = "<NOTE_DELETE_SELF>"
+        val TAG_DELETE_END = "</NOTE_DELETE_SELF>"
+        val TAG_RENAME = "<NOTE_CHANGE_TITLE>"
+        val TAG_RENAME_END = "</NOTE_CHANGE_TITLE>"
+
+        geminiRepository.generateChatResponse(historyForApi, getApiKeyToUse(), _aiMode.value, mentionedNote)
             .onCompletion {
-                val finalMessage = ChatMessage(responseBuilder.toString(), Participant.MODEL, isLoading = false)
-                aiChatUseCase.updateMessageById(loadingMessageId, finalMessage.text, false)
+                val fullResponse = responseBuilder.toString().trim()
+                var confirmationMsg: String? = null
+                var isError = false
+
+                if (mentionedNote != null) {
+                    try {
+                        when {
+                            fullResponse.contains(TAG_DELETE, ignoreCase = true) -> {
+                                deleteNoteById(mentionedNote.id)
+                                confirmationMsg = stringProvider.getString(R.string.ai_confirmation_note_deleted, mentionedNote.name)
+                            }
+
+                            fullResponse.contains(TAG_RENAME, ignoreCase = true) -> {
+                                val newTitle = fullResponse.substringAfter(TAG_RENAME, "")
+                                    .substringBefore(TAG_RENAME_END, "").trim()
+                                if (newTitle.isNotBlank()) {
+                                    updateNote(mentionedNote.copy(name = newTitle))
+                                    confirmationMsg = stringProvider.getString(R.string.ai_confirmation_note_renamed, mentionedNote.name, newTitle)
+                                }
+                            }
+
+                            fullResponse.contains(TAG_APPEND, ignoreCase = true) -> {
+                                val contentToAppend = fullResponse.substringAfter(TAG_APPEND, "")
+                                    .substringBefore(TAG_APPEND_END, "").trim()
+                                val newContent = mentionedNote.description + "\n" + contentToAppend
+                                updateNote(mentionedNote.copy(description = newContent))
+                                confirmationMsg = stringProvider.getString(R.string.ai_confirmation_note_appended, mentionedNote.name)
+                            }
+
+                            fullResponse.contains(TAG_UPDATE, ignoreCase = true) -> {
+                                val newContent = fullResponse.substringAfter(TAG_UPDATE, "")
+                                    .substringBefore(TAG_UPDATE_END, "").trim()
+                                updateNote(mentionedNote.copy(description = newContent))
+                                confirmationMsg = stringProvider.getString(R.string.ai_confirmation_note_updated, mentionedNote.name)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        confirmationMsg = stringProvider.getString(R.string.ai_error_modification_failed)
+                        isError = true
+                        e.printStackTrace()
+                    }
+                }
+
+                val finalMessageText = confirmationMsg ?: fullResponse
+                if (finalMessageText.isBlank() || (confirmationMsg == null && (fullResponse.startsWith("<") && fullResponse.endsWith(">")))) {
+                    if (!isError) {
+                        aiChatUseCase.deleteMessageById(loadingMessageId)
+                    }
+                } else {
+                    aiChatUseCase.updateMessageById(loadingMessageId, finalMessageText, false, isError)
+                }
             }
             .collect { chunk ->
                 responseBuilder.append(chunk)
@@ -478,7 +567,7 @@ class HomeViewModel @Inject constructor(
             if (query.isBlank()) {
                 notesAfterVaultFilter
             } else {
-                notesAfterVaultFilter.filter { note ->
+                notesAfterFolderFilter.filter { note ->
                     note.name.contains(query, ignoreCase = true) ||
                             note.description.contains(query, ignoreCase = true)
                 }
@@ -519,6 +608,8 @@ class HomeViewModel @Inject constructor(
     fun setAddFolderDialogVisibility(isVisible: Boolean) {
         _isAddFolderDialogVisible.value = isVisible
     }
+
+
 
     fun toggleIsDeleteMode(enabled: Boolean) {
         _isDeleteMode.value = enabled
