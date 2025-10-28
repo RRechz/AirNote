@@ -215,9 +215,7 @@ class HomeViewModel @Inject constructor(
                 ChatMessage(dbMessage.text, dbMessage.participant, dbMessage.isLoading)
             }
             if (_chatState.value.latestDraft == null) {
-                if (!_chatState.value.messages.any { it.isLoading }) {
-                    _chatState.value = _chatState.value.copy(messages = chatMessages)
-                }
+                _chatState.value = _chatState.value.copy(messages = chatMessages)
             }
         }.launchIn(viewModelScope)
 

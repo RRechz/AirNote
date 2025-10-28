@@ -1849,7 +1849,7 @@ fun ChatMessageItem(
         if (message.isLoading) {
             if (message.text.startsWith("// Generating Note...")) {
                 TerminalLoadingIndicator(topic = topicForLoading ?: "")
-            } else if (message.text.isNotBlank()) {
+            } else {
                 TypingIndicator()
             }
         } else {
