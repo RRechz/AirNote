@@ -50,9 +50,11 @@ import androidx.compose.material.icons.rounded.AddComment
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.GolfCourse
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Notes
 import androidx.compose.material.icons.rounded.Psychology
+import androidx.compose.material.icons.rounded.School
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -686,6 +688,8 @@ private fun AiTopBar(
                     imageVector = when(currentAiMode) {
                         AiMode.NOTE_ASSISTANT -> Icons.Rounded.Notes
                         AiMode.CREATIVE_MIND -> Icons.Rounded.Psychology
+                        AiMode.ACADEMIC_RESEARCHER -> Icons.Rounded.School
+                        AiMode.PROFESSIONAL_STRATEGIST -> Icons.Rounded.GolfCourse
                     },
                     contentDescription = "AI Model",
                     tint = Color(0xFF33A2FF),
@@ -696,6 +700,8 @@ private fun AiTopBar(
                     text = when (currentAiMode) {
                         AiMode.NOTE_ASSISTANT -> stringResource(R.string.ai_mode_note_assistant)
                         AiMode.CREATIVE_MIND -> stringResource(R.string.ai_mode_creative_mind)
+                        AiMode.ACADEMIC_RESEARCHER -> stringResource(R.string.ai_mode_academic_research)
+                        AiMode.PROFESSIONAL_STRATEGIST -> stringResource(R.string.ai_mode_professional_strategy)
                     },
                     color = Color.White,
                     fontWeight = FontWeight.SemiBold,
