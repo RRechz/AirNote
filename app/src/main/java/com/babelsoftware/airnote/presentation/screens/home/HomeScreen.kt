@@ -10,6 +10,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
@@ -23,6 +24,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -59,6 +61,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.automirrored.rounded.Notes
 import androidx.compose.material.icons.filled.AccountBalance
@@ -101,6 +104,7 @@ import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Palette
@@ -191,6 +195,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -600,6 +605,23 @@ private fun MultiActionFloatingActionButton(
     ) { expanded ->
         if (expanded) 1f else 0.5f
     }
+    var hopTranslationY by remember { mutableStateOf(0f)
+    }
+
+    LaunchedEffect(isExpanded) {
+        if (isExpanded) {
+            delay(40)
+            launch {
+                animate(0f, -20f, animationSpec = spring(stiffness = Spring.StiffnessMedium)) { v, _ -> hopTranslationY = v }
+                animate(-20f, 0f, animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow)) { v, _ -> hopTranslationY = v }
+            }
+        } else {
+            launch {
+                animate(hopTranslationY, 0f, animationSpec = tween(100)) { v, _ -> hopTranslationY = v }
+            }
+        }
+    }
+
 
     Column(
         horizontalAlignment = Alignment.End,
@@ -644,11 +666,13 @@ private fun MultiActionFloatingActionButton(
                         Icon(
                             imageVector = Icons.Rounded.AutoAwesome,
                             contentDescription = stringResource(R.string.ai_button_texts),
-                            tint = MaterialTheme.colorScheme.onTertiaryContainer
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.graphicsLayer {
+                                translationY = hopTranslationY
+                            }
                         )
                     }
                 }
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -676,7 +700,13 @@ private fun MultiActionFloatingActionButton(
                         },
                         containerColor = MaterialTheme.colorScheme.secondaryContainer
                     ) {
-                        Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.new_note))
+                        Icon(
+                            Icons.Rounded.Edit,
+                            contentDescription = stringResource(R.string.new_note),
+                            modifier = Modifier.graphicsLayer {
+                                translationY = hopTranslationY
+                            }
+                        )
                     }
                 }
                 Row(
@@ -706,7 +736,13 @@ private fun MultiActionFloatingActionButton(
                         },
                         containerColor = MaterialTheme.colorScheme.secondaryContainer
                     ) {
-                        Icon(Icons.Default.Book, contentDescription = "Dream Journal")
+                        Icon(
+                            Icons.Default.Book,
+                            contentDescription = "Dream Journal",
+                            modifier = Modifier.graphicsLayer {
+                                translationY = hopTranslationY
+                            }
+                        )
                     }
                 }
             }
