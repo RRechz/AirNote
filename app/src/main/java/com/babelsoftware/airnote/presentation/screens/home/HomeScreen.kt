@@ -31,6 +31,7 @@ import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -336,7 +337,6 @@ fun HomeView (
                     onDismissRequest = { viewModel.toggleAiChatSheet(false) },
                     sheetState = sheetState,
                     modifier = Modifier.fillMaxWidth(),
-                    containerColor = Color.Transparent,
                     tonalElevation = 0.dp
                 ) {
                     AiChatContainer(viewModel = viewModel)
@@ -635,12 +635,12 @@ private fun MultiActionFloatingActionButton(
                             onAskAiClicked()
                             isExpanded = false
                         },
-                        containerColor = AiButtonColors.GeminiContainer
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.AutoAwesome,
                             contentDescription = stringResource(R.string.ai_button_texts),
-                            tint = AiButtonColors.GeminiOnContainer
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer
                         )
                     }
                 }
@@ -1079,6 +1079,7 @@ fun iconNameToVector(name: String): ImageVector {
 
 val materialIconsList = mapOf(
     "Folder" to Icons.Default.Folder,
+    "Inbox" to Icons.Default.FolderOpen,
     "Bookmark" to Icons.Default.Bookmark,
     "Favorite" to Icons.Default.Favorite,
     "Home" to Icons.Default.Home,
@@ -1135,15 +1136,23 @@ val materialIconsList = mapOf(
 )
 
 // =================================================================
-// === Enhanced AirNote AI Interface ===============================
+// === Enhanced AirNote AI Interface (TEMALI) ======================
 // =================================================================
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AiChatContainer(viewModel: HomeViewModel) {
-    val backgroundBrush = Brush.verticalGradient(
-        colors = listOf(Color(0xFF10141C), Color(0xFF0A0D12))
-    )
+    val isDark = isSystemInDarkTheme()
+    val backgroundBrush = if (isDark) {
+        Brush.verticalGradient(
+            colors = listOf(Color(0xFF10141C), Color(0xFF0A0D12))
+        )
+    } else {
+        Brush.verticalGradient(
+            colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceContainerLowest)
+        )
+    }
+
     val showHistoryScreen by viewModel.showAiHistoryScreen
     val allSessions by viewModel.allChatSessions.collectAsState()
 
@@ -1179,6 +1188,7 @@ fun AiMainContent(viewModel: HomeViewModel) {
     var text by remember { mutableStateOf("") }
     val isChatActive = chatState.hasStartedConversation || chatState.messages.isNotEmpty()
     val allNotes by viewModel.allNotesForAi.collectAsState()
+    val isDark = isSystemInDarkTheme()
 
     val (mentionQuery, showMentionSuggestions) = remember(text) {
         val cursorPosition = text.length
@@ -1291,8 +1301,8 @@ fun AiMainContent(viewModel: HomeViewModel) {
                     .padding(horizontal = 16.dp)
                     .offset(y = (-8).dp),
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-                color = Color.White.copy(alpha = 0.15f),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+                color = if (isDark) Color.White.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceContainerHigh,
+                border = BorderStroke(1.dp, if (isDark) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.outlineVariant)
             ) {
                 LazyColumn(
                     modifier = Modifier
@@ -1313,13 +1323,13 @@ fun AiMainContent(viewModel: HomeViewModel) {
                             Icon(
                                 Icons.Rounded.FilePresent,
                                 contentDescription = null,
-                                tint = Color.White.copy(alpha = 0.7f),
+                                tint = if (isDark) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(Modifier.width(12.dp))
                             Text(
                                 text = note.name,
-                                color = Color.White,
+                                color = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -1408,7 +1418,7 @@ fun MagicAnalysisAnimation() {
         label = "particles"
     )
 
-    val primaryColor = Color(0xFF33A2FF)
+    val primaryColor = if (isSystemInDarkTheme()) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
 
     Canvas(modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp))) {
         val canvasWidth = size.width
@@ -1456,6 +1466,9 @@ fun MagicAnalysisAnimation() {
 
 @Composable
 fun DraftDisplayWithImage(draft: DraftedNote, onSave: () -> Unit, onRegenerate: () -> Unit) {
+    val isDark = isSystemInDarkTheme()
+    val primaryAccentColor = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -1474,8 +1487,8 @@ fun DraftDisplayWithImage(draft: DraftedNote, onSave: () -> Unit, onRegenerate: 
         Surface(
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(16.dp),
-            color = Color.White.copy(alpha = 0.05f),
-            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+            color = if (isDark) Color.White.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surfaceContainer,
+            border = BorderStroke(1.dp, if (isDark) Color.White.copy(alpha = 0.1f) else MaterialTheme.colorScheme.outlineVariant)
         ) {
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)
@@ -1484,7 +1497,7 @@ fun DraftDisplayWithImage(draft: DraftedNote, onSave: () -> Unit, onRegenerate: 
                     Text(
                         text = draft.title,
                         style = MaterialTheme.typography.titleLarge,
-                        color = Color.White,
+                        color = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
@@ -1493,7 +1506,7 @@ fun DraftDisplayWithImage(draft: DraftedNote, onSave: () -> Unit, onRegenerate: 
                     Text(
                         text = draft.content,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White.copy(alpha = 0.8f),
+                        color = if (isDark) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 24.sp
                     )
                 }
@@ -1508,19 +1521,22 @@ fun DraftDisplayWithImage(draft: DraftedNote, onSave: () -> Unit, onRegenerate: 
                 onClick = onRegenerate,
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, Color(0xFF33A2FF))
+                border = BorderStroke(1.dp, primaryAccentColor)
             ) {
-                Icon(Icons.Rounded.AutoAwesome, contentDescription = null, tint = Color(0xFF33A2FF))
+                Icon(Icons.Rounded.AutoAwesome, contentDescription = null, tint = primaryAccentColor)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(R.string.regenerate_note), color = Color(0xFF33A2FF))
+                Text(stringResource(R.string.regenerate_note), color = primaryAccentColor)
             }
             Button(
                 onClick = onSave,
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF33A2FF))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = primaryAccentColor,
+                    contentColor = if (isDark) Color(0xFF10141C) else MaterialTheme.colorScheme.onPrimary
+                )
             ) {
-                Text(stringResource(R.string.save_note), color = Color(0xFF10141C))
+                Text(stringResource(R.string.save_note))
             }
         }
     }
@@ -1611,6 +1627,8 @@ fun AiHistoryScreen(
     onSessionClicked: (AiChatSession) -> Unit,
     onDeleteSession: (AiChatSession) -> Unit
 ) {
+    val isDark = isSystemInDarkTheme()
+
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -1621,8 +1639,10 @@ fun AiHistoryScreen(
                 onClick = onNewChatClicked,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f)),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
+                border = BorderStroke(1.dp, if (isDark) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.outline),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface
+                )
             ) {
                 Icon(Icons.Rounded.AddComment, contentDescription = stringResource(R.string.new_chat))
                 Spacer(modifier = Modifier.width(8.dp))
@@ -1632,7 +1652,7 @@ fun AiHistoryScreen(
             Text(
                 stringResource(R.string.history),
                 style = MaterialTheme.typography.titleMedium,
-                color = Color.White.copy(alpha = 0.8f)
+                color = if (isDark) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         if (sessions.isEmpty()) {
@@ -1644,7 +1664,7 @@ fun AiHistoryScreen(
             ) {
                 Text(
                     stringResource(R.string.no_chat_history),
-                    color = Color.White.copy(alpha = 0.6f),
+                    color = if (isDark) Color.White.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = 32.dp)
                 )
@@ -1670,6 +1690,7 @@ fun AiHistoryScreen(
 @Composable
 fun HistoryItem(session: AiChatSession, onClick: () -> Unit, onDelete: () -> Unit) {
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    val isDark = isSystemInDarkTheme()
 
     if (showDeleteConfirm) {
         AlertDialog(
@@ -1703,7 +1724,7 @@ fun HistoryItem(session: AiChatSession, onClick: () -> Unit, onDelete: () -> Uni
                 onClick = onClick,
                 onLongClick = { showDeleteConfirm = true }
             ),
-        color = Color.White.copy(alpha = 0.05f),
+        color = if (isDark) Color.White.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
@@ -1712,13 +1733,13 @@ fun HistoryItem(session: AiChatSession, onClick: () -> Unit, onDelete: () -> Uni
             Icon(
                 if (session.aiMode == AiMode.CREATIVE_MIND.name) Icons.Rounded.Psychology else Icons.Rounded.Notes,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = 0.6f),
+                tint = if (isDark) Color.White.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = session.title,
-                color = Color.White.copy(alpha = 0.9f),
+                color = if (isDark) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
@@ -1735,6 +1756,7 @@ fun AiTopBar(
 ) {
     val currentAiMode by viewModel.aiMode.collectAsState()
     var showModelMenu by remember { mutableStateOf(false) }
+    val isDark = isSystemInDarkTheme()
 
     Row(
         modifier = Modifier
@@ -1747,7 +1769,7 @@ fun AiTopBar(
             Row(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.1f))
+                    .background(if (isDark) Color.White.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surfaceContainerHigh)
                     .clickable { showModelMenu = true }
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -1760,7 +1782,7 @@ fun AiTopBar(
                         AiMode.PROFESSIONAL_STRATEGIST -> Icons.Rounded.GolfCourse
                     },
                     contentDescription = "AI Model",
-                    tint = Color(0xFF33A2FF),
+                    tint = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -1771,11 +1793,15 @@ fun AiTopBar(
                         AiMode.ACADEMIC_RESEARCHER -> stringResource(R.string.ai_mode_academic_research)
                         AiMode.PROFESSIONAL_STRATEGIST -> stringResource(R.string.ai_mode_professional_strategy)
                     },
-                    color = Color.White,
+                    color = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 14.sp
                 )
-                Icon(Icons.Rounded.ExpandMore, contentDescription = "Change Model", tint = Color.White.copy(alpha = 0.7f))
+                Icon(
+                    Icons.Rounded.ExpandMore,
+                    contentDescription = "Change Model",
+                    tint = if (isDark) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
             DropdownMenu(
@@ -1842,7 +1868,7 @@ fun AiTopBar(
             Icon(
                 if (showHistory) Icons.AutoMirrored.Filled.Chat else Icons.Rounded.History,
                 contentDescription = "Toggle History",
-                tint = Color.White.copy(alpha = 0.8f)
+                tint = if (isDark) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -1866,6 +1892,9 @@ fun AiCentralGraphic(isThinking: Boolean) {
         label = "orb_scale"
     )
 
+    val isDark = isSystemInDarkTheme()
+    val primaryColor = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
+
     Box(
         modifier = Modifier.size(120.dp),
         contentAlignment = Alignment.Center
@@ -1873,7 +1902,7 @@ fun AiCentralGraphic(isThinking: Boolean) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawCircle(
                 brush = Brush.radialGradient(
-                    colors = listOf(Color(0xFF33A2FF).copy(alpha = 0.1f), Color.Transparent),
+                    colors = listOf(primaryColor.copy(alpha = 0.1f), Color.Transparent),
                 ),
                 radius = (size.minDimension / 2.0f) * scale
             )
@@ -1889,7 +1918,7 @@ fun AiCentralGraphic(isThinking: Boolean) {
                         2.dp,
                         Brush.sweepGradient(
                             0.0f to Color.Transparent,
-                            0.7f to Color(0xFF33A2FF),
+                            0.7f to primaryColor,
                             1.0f to Color.Transparent
                         )
                     ),
@@ -1899,7 +1928,7 @@ fun AiCentralGraphic(isThinking: Boolean) {
         Icon(
             imageVector = Icons.Rounded.AutoAwesome,
             contentDescription = "AI Core",
-            tint = Color(0xFF33A2FF),
+            tint = primaryColor,
             modifier = Modifier.size(50.dp)
         )
     }
@@ -1907,11 +1936,12 @@ fun AiCentralGraphic(isThinking: Boolean) {
 
 @Composable
 fun ActionCard(text: String, icon: ImageVector, onClick: () -> Unit) {
+    val isDark = isSystemInDarkTheme()
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
-        color = Color.White.copy(alpha = 0.05f),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
+        color = if (isDark) Color.White.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surfaceContainer,
+        border = BorderStroke(1.dp, if (isDark) Color.White.copy(alpha = 0.1f) else MaterialTheme.colorScheme.outlineVariant),
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp)
@@ -1926,11 +1956,11 @@ fun ActionCard(text: String, icon: ImageVector, onClick: () -> Unit) {
             Icon(
                 imageVector = icon,
                 contentDescription = text,
-                tint = Color.White.copy(alpha = 0.8f)
+                tint = if (isDark) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = text,
-                color = Color.White,
+                color = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 2,
@@ -1947,6 +1977,8 @@ fun ChatMessageItem(
     topicForLoading: String?
 ) {
     val isUser = message.participant == Participant.USER
+    val isDark = isSystemInDarkTheme()
+
     Row(
         modifier = Modifier
             .padding(vertical = 4.dp, horizontal = 8.dp)
@@ -1967,47 +1999,72 @@ fun ChatMessageItem(
                 bottomEnd = if (isUser) 0.dp else 16.dp
             )
 
-            val backgroundBrush = when (message.participant) {
-                Participant.USER -> Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF33A2FF).copy(alpha = 0.4f),
-                        Color(0xFF33A2FF).copy(alpha = 0.1f)
-                    )
-                )
-                Participant.MODEL -> Brush.verticalGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.15f),
-                        Color.White.copy(alpha = 0.05f)
-                    )
-                )
-                Participant.ERROR -> Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.error.copy(alpha = 0.4f),
-                        MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
-                    )
-                )
+            val textColor = if (isDark) {
+                if (message.participant == Participant.ERROR) Color.White else Color.White.copy(alpha = 0.9f)
+            } else {
+                when (message.participant) {
+                    Participant.USER -> MaterialTheme.colorScheme.onPrimaryContainer
+                    Participant.MODEL -> MaterialTheme.colorScheme.onSurfaceVariant
+                    Participant.ERROR -> MaterialTheme.colorScheme.onErrorContainer
+                }
             }
 
             Box(
                 modifier = Modifier
                     .clip(bubbleShape)
-                    .background(brush = backgroundBrush)
-                    .border(
-                        width = 1.dp,
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = 0.3f),
-                                Color.Transparent
+                    .then(
+                        if (isDark) {
+                            Modifier
+                                .background(
+                                    brush = when (message.participant) {
+                                        Participant.USER -> Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color(0xFF33A2FF).copy(alpha = 0.4f),
+                                                Color(0xFF33A2FF).copy(alpha = 0.1f)
+                                            )
+                                        )
+
+                                        Participant.MODEL -> Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color.White.copy(alpha = 0.15f),
+                                                Color.White.copy(alpha = 0.05f)
+                                            )
+                                        )
+
+                                        Participant.ERROR -> Brush.verticalGradient(
+                                            colors = listOf(
+                                                MaterialTheme.colorScheme.error.copy(alpha = 0.4f),
+                                                MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
+                                            )
+                                        )
+                                    }
+                                )
+                                .border(
+                                    width = 1.dp,
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color.White.copy(alpha = 0.3f),
+                                            Color.Transparent
+                                        )
+                                    ),
+                                    shape = bubbleShape
+                                )
+                        } else {
+                            Modifier.background(
+                                color = when (message.participant) {
+                                    Participant.USER -> MaterialTheme.colorScheme.primaryContainer
+                                    Participant.MODEL -> MaterialTheme.colorScheme.surfaceVariant
+                                    Participant.ERROR -> MaterialTheme.colorScheme.errorContainer
+                                }
                             )
-                        ),
-                        shape = bubbleShape
+                        }
                     )
                     .padding(12.dp)
             ) {
                 Text(
                     text = message.text.replace(Regex("[*#]"), "").trim(),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (message.participant == Participant.ERROR) Color.White else Color.White.copy(alpha = 0.9f)
+                    color = textColor
                 )
             }
         }
@@ -2025,14 +2082,16 @@ fun RedesignedChatInputBar(
     placeholderText: String
 ) {
     val haptic = LocalHapticFeedback.current
+    val isDark = isSystemInDarkTheme()
+    val primaryAccentColor = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
         shape = RoundedCornerShape(24.dp),
-        color = Color.White.copy(alpha = 0.05f),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+        color = if (isDark) Color.White.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surfaceContainer,
+        border = BorderStroke(1.dp, if (isDark) Color.White.copy(alpha = 0.1f) else MaterialTheme.colorScheme.outline)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -2042,7 +2101,7 @@ fun RedesignedChatInputBar(
                 Icon(
                     Icons.Default.AttachFile,
                     contentDescription = "Attach File",
-                    tint = Color.White.copy(alpha = 0.7f)
+                    tint = if (isDark) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             TextField(
@@ -2051,7 +2110,7 @@ fun RedesignedChatInputBar(
                 modifier = Modifier.weight(1f),
                 enabled = enabled,
                 placeholder = {
-                    Text(placeholderText, color = Color.White.copy(alpha = 0.5f))
+                    Text(placeholderText, color = if (isDark) Color.White.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onSurfaceVariant)
                 },
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -2059,10 +2118,10 @@ fun RedesignedChatInputBar(
                     disabledContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
-                    cursorColor = Color(0xFF33A2FF),
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White.copy(alpha = 0.9f),
-                    disabledPlaceholderColor = Color.White.copy(alpha = 0.3f)
+                    cursorColor = primaryAccentColor,
+                    focusedTextColor = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = if (isDark) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurface,
+                    disabledPlaceholderColor = if (isDark) Color.White.copy(alpha = 0.3f) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                 )
             )
             AnimatedVisibility(visible = text.isNotBlank() && enabled) {
@@ -2073,8 +2132,8 @@ fun RedesignedChatInputBar(
                     },
                     modifier = Modifier.padding(start = 8.dp),
                     colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = Color(0xFF33A2FF),
-                        contentColor = Color.White
+                        containerColor = primaryAccentColor,
+                        contentColor = if (isDark) Color.White else MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
                     Icon(
@@ -2096,13 +2155,16 @@ fun PreChatInputBar(
     enabled: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val isDark = isSystemInDarkTheme()
+    val primaryAccentColor = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp),
         shape = RoundedCornerShape(24.dp),
-        color = Color.White.copy(alpha = 0.05f),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+        color = if (isDark) Color.White.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surfaceContainerHigh,
+        border = BorderStroke(1.dp, if (isDark) Color.White.copy(alpha = 0.1f) else MaterialTheme.colorScheme.outline)
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
@@ -2116,10 +2178,10 @@ fun PreChatInputBar(
                     modifier = Modifier.weight(1f),
                     enabled = enabled,
                     placeholder = {
-                        Text(stringResource(R.string.ask_airnote_ai), color = Color.White.copy(alpha = 0.6f))
+                        Text(stringResource(R.string.ask_airnote_ai), color = if (isDark) Color.White.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurfaceVariant)
                     },
                     leadingIcon = {
-                        Icon(Icons.Default.Search, contentDescription = null, tint = Color.White.copy(alpha = 0.6f))
+                        Icon(Icons.Default.Search, contentDescription = null, tint = if (isDark) Color.White.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurfaceVariant)
                     },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
@@ -2127,9 +2189,9 @@ fun PreChatInputBar(
                         disabledContainerColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        cursorColor = Color(0xFF33A2FF),
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White.copy(alpha = 0.9f),
+                        cursorColor = primaryAccentColor,
+                        focusedTextColor = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = if (isDark) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurface,
                     ),
                     singleLine = true
                 )
@@ -2145,7 +2207,7 @@ fun PreChatInputBar(
                     Icon(
                         Icons.Default.AttachFile,
                         contentDescription = "Attach File",
-                        tint = Color.White.copy(alpha = 0.8f)
+                        tint = if (isDark) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -2175,10 +2237,10 @@ fun PreChatInputBar(
                         .size(40.dp)
                         .clip(CircleShape),
                     colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = Color(0xFF33A2FF),
-                        contentColor = Color.White,
-                        disabledContainerColor = Color.White.copy(alpha = 0.1f),
-                        disabledContentColor = Color.White.copy(alpha = 0.4f)
+                        containerColor = primaryAccentColor,
+                        contentColor = if (isDark) Color.White else MaterialTheme.colorScheme.onPrimary,
+                        disabledContainerColor = (if (isDark) Color.White else MaterialTheme.colorScheme.onSurface).copy(alpha = 0.12f),
+                        disabledContentColor = (if (isDark) Color.White else MaterialTheme.colorScheme.onSurface).copy(alpha = 0.38f)
                     )
                 ) {
                     Icon(
@@ -2193,14 +2255,15 @@ fun PreChatInputBar(
 
 @Composable
 private fun InputActionButton(text: String, icon: ImageVector, onClick: () -> Unit) {
+    val isDark = isSystemInDarkTheme()
     TextButton(
         onClick = onClick,
         shape = RoundedCornerShape(24.dp),
         colors = ButtonDefaults.textButtonColors(
-            containerColor = Color.White.copy(alpha = 0.1f),
-            contentColor = Color.White.copy(alpha = 0.9f)
+            containerColor = if (isDark) Color.White.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = if (isDark) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurface
         ),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f)),
+        border = BorderStroke(1.dp, if (isDark) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.outlineVariant),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -2215,13 +2278,14 @@ fun AiDisclaimerText() {
     val disclaimerText = stringResource(R.string.ai_disclaimer_text)
     val linkText = stringResource(R.string.ai_disclaimer_link_text)
     val linkUrl = stringResource(R.string.ai_disclaimer_link_url)
+    val isDark = isSystemInDarkTheme()
 
     val annotatedString = buildAnnotatedString {
         append(disclaimerText)
         pushStringAnnotation(tag = "URL", annotation = linkUrl)
         withStyle(
             style = SpanStyle(
-                color = Color(0xFF33A2FF), // Link color
+                color = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary,
                 textDecoration = TextDecoration.Underline
             )
         ) {
@@ -2239,7 +2303,7 @@ fun AiDisclaimerText() {
                 }
         },
         style = MaterialTheme.typography.bodySmall.copy(
-            color = Color.White.copy(alpha = 0.6f),
+            color = if (isDark) Color.White.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         ),
         modifier = Modifier
@@ -2256,12 +2320,14 @@ fun AskAiQuestionDialog(
 ) {
     var question by remember { mutableStateOf("") }
     val maxChars = 280
+    val isDark = isSystemInDarkTheme()
+    val primaryAccentColor = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(24.dp),
-            color = Color(0xFF10141C),
-            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+            color = if (isDark) Color(0xFF10141C) else MaterialTheme.colorScheme.surfaceContainerHigh,
+            border = BorderStroke(1.dp, if (isDark) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.outlineVariant)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp)
@@ -2269,25 +2335,25 @@ fun AskAiQuestionDialog(
                 Text(
                     text = stringResource(R.string.ask_a_question_title),
                     style = MaterialTheme.typography.headlineSmall,
-                    color = Color.White,
+                    color = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 TextField(
                     value = question,
                     onValueChange = { if (it.length <= maxChars) question = it },
-                    placeholder = { Text(stringResource(R.string.ask_a_question), color = Color.White.copy(alpha = 0.6f)) },
+                    placeholder = { Text(stringResource(R.string.ask_a_question), color = if (isDark) Color.White.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurfaceVariant) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(100.dp),
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.White.copy(alpha = 0.05f),
-                        unfocusedContainerColor = Color.White.copy(alpha = 0.05f),
+                        focusedContainerColor = if (isDark) Color.White.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surfaceContainer,
+                        unfocusedContainerColor = if (isDark) Color.White.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surfaceContainer,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        cursorColor = Color(0xFF33A2FF),
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White.copy(alpha = 0.9f),
+                        cursorColor = primaryAccentColor,
+                        focusedTextColor = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = if (isDark) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurface,
                     ),
                     shape = RoundedCornerShape(16.dp)
                 )
@@ -2295,7 +2361,7 @@ fun AskAiQuestionDialog(
                     text = "${question.length} / $maxChars",
                     textAlign = TextAlign.End,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.6f),
+                    color = if (isDark) Color.White.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
@@ -2306,16 +2372,16 @@ fun AskAiQuestionDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text(stringResource(R.string.cancel), color = Color.White.copy(alpha = 0.8f))
+                        Text(stringResource(R.string.cancel), color = if (isDark) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = { onConfirm(question) },
                         enabled = question.isNotBlank(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF33A2FF),
-                            contentColor = Color(0xFF10141C),
-                            disabledContainerColor = Color.White.copy(alpha = 0.1f)
+                            containerColor = primaryAccentColor,
+                            contentColor = if (isDark) Color(0xFF10141C) else MaterialTheme.colorScheme.onPrimary,
+                            disabledContainerColor = (if (isDark) Color.White else MaterialTheme.colorScheme.onSurface).copy(alpha = 0.12f)
                         ),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -2334,12 +2400,14 @@ fun CreateDraftDialog(
 ) {
     var topic by remember { mutableStateOf("") }
     val maxChars = 100
+    val isDark = isSystemInDarkTheme()
+    val primaryAccentColor = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(24.dp),
-            color = Color(0xFF10141C),
-            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+            color = if (isDark) Color(0xFF10141C) else MaterialTheme.colorScheme.surfaceContainerHigh,
+            border = BorderStroke(1.dp, if (isDark) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.outlineVariant)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp)
@@ -2348,14 +2416,14 @@ fun CreateDraftDialog(
                     Icon(
                         imageVector = Icons.Rounded.Edit,
                         contentDescription = null,
-                        tint = Color.White.copy(alpha = 0.8f),
+                        tint = if (isDark) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(28.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = stringResource(R.string.new_ai_note_draft),
                         style = MaterialTheme.typography.headlineSmall,
-                        color = Color.White,
+                        color = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -2364,24 +2432,24 @@ fun CreateDraftDialog(
                 Text(
                     text = stringResource(R.string.sample_question_request),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.7f)
+                    color = if (isDark) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 TextField(
                     value = topic,
                     onValueChange = { if (it.length <= maxChars) topic = it },
-                    placeholder = { Text(stringResource(R.string.example_question), color = Color.White.copy(alpha = 0.6f)) },
+                    placeholder = { Text(stringResource(R.string.example_question), color = if (isDark) Color.White.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurfaceVariant) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.White.copy(alpha = 0.05f),
-                        unfocusedContainerColor = Color.White.copy(alpha = 0.05f),
+                        focusedContainerColor = if (isDark) Color.White.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surfaceContainer,
+                        unfocusedContainerColor = if (isDark) Color.White.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surfaceContainer,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        cursorColor = Color(0xFF33A2FF),
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White.copy(alpha = 0.9f),
+                        cursorColor = primaryAccentColor,
+                        focusedTextColor = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = if (isDark) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurface,
                     ),
                     shape = RoundedCornerShape(16.dp)
                 )
@@ -2389,7 +2457,7 @@ fun CreateDraftDialog(
                     text = "${topic.length} / $maxChars",
                     textAlign = TextAlign.End,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.6f),
+                    color = if (isDark) Color.White.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                 )
                 Spacer(modifier = Modifier.height(24.dp))
@@ -2398,16 +2466,16 @@ fun CreateDraftDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text(stringResource(R.string.cancel), color = Color.White.copy(alpha = 0.8f))
+                        Text(stringResource(R.string.cancel), color = if (isDark) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = { onConfirm(topic) },
                         enabled = topic.isNotBlank(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF33A2FF),
-                            contentColor = Color(0xFF10141C),
-                            disabledContainerColor = Color.White.copy(alpha = 0.1f)
+                            containerColor = primaryAccentColor,
+                            contentColor = if (isDark) Color(0xFF10141C) else MaterialTheme.colorScheme.onPrimary,
+                            disabledContainerColor = (if (isDark) Color.White else MaterialTheme.colorScheme.onSurface).copy(alpha = 0.12f)
                         ),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -2423,6 +2491,8 @@ fun CreateDraftDialog(
 @Composable
 fun DraftDisplay(draft: DraftedNote?, onSave: () -> Unit, onRegenerate: () -> Unit) {
     if (draft == null) return
+    val isDark = isSystemInDarkTheme()
+    val primaryAccentColor = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
 
     Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Column(
@@ -2431,8 +2501,8 @@ fun DraftDisplay(draft: DraftedNote?, onSave: () -> Unit, onRegenerate: () -> Un
             Surface(
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(16.dp),
-                color = Color.White.copy(alpha = 0.05f),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+                color = if (isDark) Color.White.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surfaceContainer,
+                border = BorderStroke(1.dp, if (isDark) Color.White.copy(alpha = 0.1f) else MaterialTheme.colorScheme.outlineVariant)
             ) {
                 LazyColumn(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)
@@ -2441,7 +2511,7 @@ fun DraftDisplay(draft: DraftedNote?, onSave: () -> Unit, onRegenerate: () -> Un
                         Text(
                             text = draft.title,
                             style = MaterialTheme.typography.titleLarge,
-                            color = Color.White,
+                            color = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(bottom = 12.dp)
                         )
@@ -2450,7 +2520,7 @@ fun DraftDisplay(draft: DraftedNote?, onSave: () -> Unit, onRegenerate: () -> Un
                         Text(
                             text = draft.content,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = Color.White.copy(alpha = 0.8f),
+                            color = if (isDark) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 24.sp
                         )
                     }
@@ -2465,19 +2535,22 @@ fun DraftDisplay(draft: DraftedNote?, onSave: () -> Unit, onRegenerate: () -> Un
                     onClick = onRegenerate,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
-                    border = BorderStroke(1.dp, Color(0xFF33A2FF))
+                    border = BorderStroke(1.dp, primaryAccentColor)
                 ) {
-                    Icon(Icons.Rounded.AutoAwesome, contentDescription = null, tint = Color(0xFF33A2FF))
+                    Icon(Icons.Rounded.AutoAwesome, contentDescription = null, tint = primaryAccentColor)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.regenerate_note), color = Color(0xFF33A2FF))
+                    Text(stringResource(R.string.regenerate_note), color = primaryAccentColor)
                 }
                 Button(
                     onClick = onSave,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF33A2FF))
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = primaryAccentColor,
+                        contentColor = if (isDark) Color(0xFF10141C) else MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
-                    Text(stringResource(R.string.save_note), color = Color(0xFF10141C))
+                    Text(stringResource(R.string.save_note))
                 }
             }
         }
@@ -2497,7 +2570,9 @@ private fun TypingIndicator() {
                 .size(dotSize)
                 .offset(y = offsetY.dp)
                 .background(
-                    color = Color.White.copy(alpha = 0.5f),
+                    color = (if (isSystemInDarkTheme()) Color.White else MaterialTheme.colorScheme.onSurfaceVariant).copy(
+                        alpha = 0.5f
+                    ),
                     shape = CircleShape
                 )
         )
@@ -2571,22 +2646,25 @@ fun TerminalLoadingIndicator(topic: String) {
         ), label = "cursor_alpha"
     )
 
+    val isDark = isSystemInDarkTheme()
+    val textColor = if (isDark) Color.Green.copy(alpha = 0.8f) else MaterialTheme.colorScheme.primary
+
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = Color.Black.copy(alpha = 0.5f),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+        color = if (isDark) Color.Black.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surfaceContainerLowest,
+        border = BorderStroke(1.dp, if (isDark) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(modifier = Modifier.padding(12.dp)) {
             Text(
                 text = displayedText,
-                color = Color.Green.copy(alpha = 0.8f),
+                color = textColor,
                 fontFamily = FontFamily.Monospace,
                 fontSize = 14.sp,
                 lineHeight = 20.sp
             )
             Text(
                 text = "█",
-                color = Color.Green.copy(alpha = cursorAlpha),
+                color = textColor.copy(alpha = cursorAlpha),
                 fontFamily = FontFamily.Monospace,
                 fontSize = 14.sp
             )
