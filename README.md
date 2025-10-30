@@ -11,6 +11,7 @@
 ## Features
 
  * **Kai AI Assistant**: Your digital assistant for your notes, powered by advanced artificial intelligence capabilities. [Learn more](https://github.com/RRechz/airnote-ai).
+ * **Dream Journal with AI**: Let Kai, with the help of artificial intelligence, clear up the confusion in your dreams. Let Kai make sense of this confusion for you :)
  * **AirNote DeX**: Desktop mode is more compatible with devices that have a large screen, such as tablets or Samsung DeX.
  * **Smart Folder Manager**: Learn how to use the folders containing your notes both as labels on the cards and as folder indicators in the search bar.
  * **Taking notes with Kai**: Easily interact with AI for situations that come to mind while taking notes or for performing actions on the text.
