@@ -1809,6 +1809,32 @@ fun AiTopBar(
                         )
                     }
                 )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.ai_mode_academic_research)) },
+                    onClick = {
+                        viewModel.setAiMode(AiMode.ACADEMIC_RESEARCHER)
+                        showModelMenu = false
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Rounded.School,
+                            contentDescription = stringResource(R.string.ai_mode_academic_research)
+                        )
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.ai_mode_professional_strategy)) },
+                    onClick = {
+                        viewModel.setAiMode(AiMode.PROFESSIONAL_STRATEGIST)
+                        showModelMenu = false
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Rounded.GolfCourse,
+                            contentDescription = stringResource(R.string.ai_mode_professional_strategy)
+                        )
+                    }
+                )
             }
         }
 
