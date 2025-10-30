@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.babelsoftware.airnote.R
@@ -475,6 +476,37 @@ class HomeViewModel @Inject constructor(
             latestDraft = null,
             analyzingImageUri = null
         )
+    }
+
+    private suspend fun getOrCreateDreamFolderId(): Long? {
+        val dreamFolderName = stringProvider.getString(R.string.dream_journal)
+        val foldersFlow = folderUseCase.getAllFolders()
+        var folders = foldersFlow.first()
+        var dreamFolder = folders.find { it.name.equals(dreamFolderName, ignoreCase = true) }
+
+        if (dreamFolder != null) {
+            return dreamFolder.id
+        }
+
+        val newFolder = Folder(name = dreamFolderName, iconName = "Book")
+        try {
+            folderUseCase.addFolder(newFolder)
+            folders = foldersFlow.first()
+            dreamFolder = folders.find { it.name.equals(dreamFolderName, ignoreCase = true) }
+            return dreamFolder?.id
+        } catch (e: Exception) {
+            e.printStackTrace()
+            folders = foldersFlow.first()
+            dreamFolder = folders.find { it.name.equals(dreamFolderName, ignoreCase = true) }
+            return dreamFolder?.id
+        }
+    }
+
+    fun onDreamJournalClicked(onNoteClicked: (noteId: Int, isVault: Boolean, folderId: Long?) -> Unit) {
+        viewModelScope.launch {
+            val folderId = getOrCreateDreamFolderId()
+            onNoteClicked(0, _isVaultMode.value, folderId)
+        }
     }
 
 

@@ -51,10 +51,14 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.EmojiEmotions
+import androidx.compose.material.icons.rounded.EmojiSymbols
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Interests
 import androidx.compose.material.icons.rounded.Numbers
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.RemoveRedEye
+import androidx.compose.material.icons.rounded.SettingsSystemDaydream
 import androidx.compose.material.icons.rounded.Spellcheck
 import androidx.compose.material.icons.rounded.Summarize
 import androidx.compose.material.icons.rounded.Translate
@@ -154,6 +158,7 @@ fun EditNoteView(
     viewModel.updateIsEncrypted(encrypted)
     val activity = LocalActivity.current
     val intent = activity?.intent
+    val isLoading by viewModel.isLoading
 
     LaunchedEffect(key1 = id, key2 = intent) {
         if (id == 0 && intent?.action == Intent.ACTION_SEND && "text/plain" == intent.type) {
@@ -205,14 +210,25 @@ fun EditNoteView(
     NotesScaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
-            if (!settingsViewModel.settings.value.minimalisticMode) TopBar(
+            if (!isLoading && !settingsViewModel.settings.value.minimalisticMode) TopBar(
                 pagerState,
                 coroutineScope,
                 onClickBack,
                 viewModel
             )
         },
-        content = { PagerContent(pagerState, viewModel, settingsViewModel, onClickBack) }
+        content = {
+            if (isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                PagerContent(pagerState, viewModel, settingsViewModel, onClickBack)
+            }
+        }
     )
 }
 
@@ -551,7 +567,7 @@ fun BottomBarContainer(viewModel: EditViewModel, settingsViewModel: SettingsView
             label = "BottomBarAnimation"
         ) { targetState ->
             if (targetState) {
-                MinimalAiChatInterface(viewModel = viewModel, settingsViewModel = settingsViewModel)
+                MinimalAiChatInterface(viewModel = viewModel, settingsViewModel = settingsViewModel, isDreamJournalMode = viewModel.isDreamJournalMode.value)
             } else {
                 TextFormattingToolbar(viewModel = viewModel)
             }
@@ -914,7 +930,7 @@ private fun ToneActionSheet(viewModel: EditViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MinimalAiChatInterface(viewModel: EditViewModel, settingsViewModel: SettingsViewModel) {
+fun MinimalAiChatInterface(viewModel: EditViewModel, settingsViewModel: SettingsViewModel, isDreamJournalMode: Boolean = false) {
     val isTextSelected = viewModel.noteDescription.value.selection.collapsed.not()
     val isChatActive = viewModel.isMinimalChatActive.value
     val chatText = viewModel.minimalAiChatText.value
@@ -946,20 +962,38 @@ fun MinimalAiChatInterface(viewModel: EditViewModel, settingsViewModel: Settings
                     .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Rounded.AutoAwesome,
-                        contentDescription = "AirNote AI",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "AirNote AI",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                if (isDreamJournalMode) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Rounded.AutoAwesome,
+                            contentDescription = "AirNote AI - Dream Edition",
+                            tint = Color(0xFFB39DDB),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.dream_journal_ai_title),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFB39DDB)
+                        )
+                    }
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Rounded.AutoAwesome,
+                            contentDescription = "AirNote AI",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "AirNote AI",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(
@@ -969,25 +1003,65 @@ fun MinimalAiChatInterface(viewModel: EditViewModel, settingsViewModel: Settings
                 }
             }
 
-
-            AnimatedVisibility(visible = !isChatActive) {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(AiAction.values()) { action ->
-                        InputActionButton(
-                            text = action.getDisplayName(),
-                            icon = action.getIcon(),
-                            enabled = isTextSelected,
-                            onClick = {
-                                viewModel.executeAiAction(action = action, tone = null)
-                                if (action == AiAction.CHANGE_TONE || action == AiAction.TRANSLATE) {
-                                    viewModel.toggleMinimalAiUi(false)
+            if (isDreamJournalMode) {
+                AnimatedVisibility(visible = !isChatActive) {
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        item {
+                            InputActionButton(
+                                text = stringResource(R.string.interpret_my_dream),
+                                icon = Icons.Rounded.Interests,
+                                enabled = true,
+                                onClick = {
+                                    viewModel.executeDreamAnalysis()
                                 }
-                            }
-                        )
+                            )
+                        }
+                        item {
+                            InputActionButton(
+                                text = stringResource(R.string.explain_symbols),
+                                icon = Icons.Rounded.EmojiSymbols,
+                                enabled = true,
+                                onClick = {
+                                    viewModel.executeDreamSymbolAnalysis()
+                                }
+                            )
+                        }
+                        item {
+                            InputActionButton(
+                                text = stringResource(R.string.emotional_analysis),
+                                icon = Icons.Rounded.EmojiEmotions,
+                                enabled = true,
+                                onClick = {
+                                    viewModel.executeDreamEmotionAnalysis()
+                                }
+                            )
+                        }
+                    }
+                }
+            } else {
+                AnimatedVisibility(visible = !isChatActive) {
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(AiAction.values()) { action ->
+                            InputActionButton(
+                                text = action.getDisplayName(),
+                                icon = action.getIcon(),
+                                enabled = isTextSelected,
+                                onClick = {
+                                    viewModel.executeAiAction(action = action, tone = null)
+                                    if (action == AiAction.CHANGE_TONE || action == AiAction.TRANSLATE) {
+                                        viewModel.toggleMinimalAiUi(false)
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }

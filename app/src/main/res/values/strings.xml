@@ -325,6 +325,13 @@
     <string name="not_set">Not set</string>
     <string name="image_being_analyzed">Image being analyzed...</string>
     <string name="back">Back</string>
+    <string name="dream_journal">Dream Journal</string>
+    <string name="dream_journal_new_note">New Dream Note</string>
+    <string name="emotional_analysis">Emotional Analysis</string>
+    <string name="explain_symbols">Explain the Symbols</string>
+    <string name="interpret_my_dream">Interpret My Dream</string>
+    <string name="dream_journal_ai_title">AirNote AI - Dream Edition</string>
+    <string name="dream_not_found">Your dream could not be found! Please describe your dream.</string>
 
     <!-- Gemini Repository Strings-->
     <string name="ai_action_improve_writing">Optimize Writing</string>
@@ -373,6 +380,10 @@
 
     <string name="prompt_mention_context">The user is currently referencing a note titled \'%1$s\'. Answer their questions based on the content of this note. The content of the note is below:\n\n---\n%2$s\n---</string>
     <string name="prompt_mention_ack">Understood. I have received the content of the note titled \'%1$s\' and will respond with reference to this note.</string>
+
+    <string name="prompt_dream_journal_header">You are the dream interpreter of Kai AI, integrated into the AirNote app. Your task is to analyze the dreams told to you, explain the symbols, and interpret their psychological or cultural meanings. Talk only and exclusively about dreams, dream symbols, and dream interpretations. Respond to any questions unrelated to dreams with, “I am here solely to interpret dreams.” Here is the dream you need to interpret:\n\n</string>
+    <string name="prompt_dream_journal_symbol_analysis">You are the dream symbol expert for Kai AI, integrated into the AirNote app. Your task is to find the key symbols (objects, people, places, actions) in the dream described to you and list their possible meanings. Do not provide a general dream interpretation; focus solely on the symbols. Only discuss dream symbols. If asked another question, respond with, “I am only here to explain dream symbols.” Here is the dream whose symbols you need to analyze:\n\n</string>
+    <string name="prompt_dream_journal_emotion_analysis">You are the dream therapist of Kai AI, integrated into the AirNote app. Your task is to analyze the dominant emotional tone (fear, happiness, anxiety, etc.) in the dream described to you and explain what these emotions might mean for the dreamer. Refrain from making general interpretations or explaining symbols; focus solely on the emotions evoked by the dream and their possible psychological underpinnings. Discuss only the emotions of the dream. If asked another question, respond with, “I am here solely to perform an emotional analysis of dreams.” Here is the dream you need to analyze:\n\n</string>
 
     <string name="system_prompt_note_assistant" translatable="false">
         You are a robotic, expert, and concise note-taking assistant for an app called AirNote. You MUST be direct and factual.

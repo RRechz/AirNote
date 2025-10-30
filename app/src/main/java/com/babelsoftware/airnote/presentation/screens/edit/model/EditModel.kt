@@ -82,6 +82,12 @@ class EditViewModel @Inject constructor(
 
     private var isShareIntentHandled = false
 
+    private val _isLoading = mutableStateOf(true) // Başlangıçta true
+    val isLoading: State<Boolean> get() = _isLoading
+
+    private val _isDreamJournalMode = mutableStateOf(false)
+    val isDreamJournalMode: State<Boolean> get() = _isDreamJournalMode
+
     // --- AI'S STATES ---
     private suspend fun getApiKeyToUse(): String {
         return secureStorageRepository.getUserApiKey() ?: ""
@@ -290,20 +296,29 @@ class EditViewModel @Inject constructor(
         if (userMessagesCount == 1) {
             val noteContext = noteDescription.value.text
             if (noteContext.isNotBlank()) {
-                // We construct a special first user message that includes context
-                historyToSend.add(ChatMessage("My note content is:\n\n\"\"\"$noteContext\"\"\"\n\nMy question is: $userMessageText", Participant.USER))
+                // Dream Journal modu için özel başlık
+                val promptHeader: String = if (_isDreamJournalMode.value) {
+                    stringProvider.getString(R.string.prompt_dream_journal_header)
+                } else {
+                    "My note content is:\n\n"
+                }
+                historyToSend.add(ChatMessage("$promptHeader\"\"\"$noteContext\"\"\"\n\nMy question is: $userMessageText", Participant.USER))
             } else {
-                historyToSend.add(userMessage) // No context, just send the message
+                historyToSend.add(userMessage) // Kontekst yok, sadece mesajı gönder
             }
         } else {
             // For follow-up messages, build history from our state
-            // Send all messages *except* the loading one
             _minimalAiChatHistory.value.dropLast(1).forEachIndexed { index, msg ->
-                // Reconstruct history with context if it was the first message
                 if (msg.participant == Participant.USER && index == 0) {
                     val noteContext = noteDescription.value.text
                     if (noteContext.isNotBlank()) {
-                        historyToSend.add(ChatMessage("My note content is:\n\n\"\"\"$noteContext\"\"\"\n\nMy question is: ${msg.text}", Participant.USER))
+                        // Dream Journal modu için özel başlık
+                        val promptHeader: String = if (_isDreamJournalMode.value) {
+                            stringProvider.getString(R.string.prompt_dream_journal_header)
+                        } else {
+                            "My note content is:\n\n"
+                        }
+                        historyToSend.add(ChatMessage("$promptHeader\"\"\"$noteContext\"\"\"\n\nMy question is: ${msg.text}", Participant.USER))
                     } else {
                         historyToSend.add(msg)
                     }
@@ -464,6 +479,150 @@ class EditViewModel @Inject constructor(
         }
     }
 
+    fun executeDreamAnalysis() {
+        toggleMinimalAiUi(true)
+        _isMinimalChatActive.value = true
+
+        val dreamText = noteDescription.value.text
+        if (dreamText.isBlank()) {
+            viewModelScope.launch {
+                _uiEvent.send(stringProvider.getString(R.string.dream_not_found))
+            }
+            return
+        }
+
+        val userMessageText = stringProvider.getString(R.string.interpret_my_dream)
+        val userMessage = ChatMessage(userMessageText, Participant.USER)
+        val loadingMessage = ChatMessage("", Participant.MODEL, isLoading = true)
+
+        _minimalAiChatHistory.value = listOf(userMessage, loadingMessage)
+        _isMinimalAiLoading.value = true
+
+        val historyToSend = mutableListOf<ChatMessage>()
+        val dreamPrompt = stringProvider.getString(R.string.prompt_dream_journal_header)
+        historyToSend.add(ChatMessage("$dreamPrompt\"\"\"$dreamText\"\"\"\n\n$userMessageText", Participant.USER))
+
+        viewModelScope.launch {
+            try {
+                val apiKey = getApiKeyToUse()
+                val responseBuilder = StringBuilder()
+
+                geminiRepository.generateChatResponse(historyToSend, apiKey)
+                    .onCompletion {
+                        _isMinimalAiLoading.value = false
+                        val finalResponse = ChatMessage(responseBuilder.toString(), Participant.MODEL, isLoading = false)
+                        _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + finalResponse
+                    }
+                    .collect { chunk ->
+                        responseBuilder.append(chunk)
+                        // Akıcı yanıtı arayüze yansıt
+                        _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + ChatMessage(responseBuilder.toString(), Participant.MODEL, isLoading = true)
+                    }
+
+            } catch (e: Exception) {
+                _isMinimalAiLoading.value = false
+                val errorMessage = ChatMessage(e.message ?: stringProvider.getString(R.string.error_unknown), Participant.ERROR, isLoading = false)
+                _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + errorMessage
+            }
+        }
+    }
+
+    fun executeDreamSymbolAnalysis() {
+        toggleMinimalAiUi(true)
+        _isMinimalChatActive.value = true
+
+        val dreamText = noteDescription.value.text
+        if (dreamText.isBlank()) {
+            viewModelScope.launch {
+                _uiEvent.send(stringProvider.getString(R.string.dream_not_found))
+            }
+            return
+        }
+
+        val userMessageText = stringProvider.getString(R.string.explain_symbols)
+        val userMessage = ChatMessage(userMessageText, Participant.USER)
+        val loadingMessage = ChatMessage("", Participant.MODEL, isLoading = true)
+
+        _minimalAiChatHistory.value = listOf(userMessage, loadingMessage)
+        _isMinimalAiLoading.value = true
+
+        val historyToSend = mutableListOf<ChatMessage>()
+        val dreamPrompt = stringProvider.getString(R.string.prompt_dream_journal_symbol_analysis)
+
+        historyToSend.add(ChatMessage("$dreamPrompt\"\"\"$dreamText\"\"\"\n\n$userMessageText", Participant.USER))
+
+        viewModelScope.launch {
+            try {
+                val apiKey = getApiKeyToUse()
+                val responseBuilder = StringBuilder()
+
+                geminiRepository.generateChatResponse(historyToSend, apiKey)
+                    .onCompletion {
+                        _isMinimalAiLoading.value = false
+                        val finalResponse = ChatMessage(responseBuilder.toString(), Participant.MODEL, isLoading = false)
+                        _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + finalResponse
+                    }
+                    .collect { chunk ->
+                        responseBuilder.append(chunk)
+                        _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + ChatMessage(responseBuilder.toString(), Participant.MODEL, isLoading = true)
+                    }
+
+            } catch (e: Exception) {
+                _isMinimalAiLoading.value = false
+                val errorMessage = ChatMessage(e.message ?: stringProvider.getString(R.string.error_unknown), Participant.ERROR, isLoading = false)
+                _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + errorMessage
+            }
+        }
+    }
+
+    fun executeDreamEmotionAnalysis() {
+        toggleMinimalAiUi(true)
+        _isMinimalChatActive.value = true
+
+        val dreamText = noteDescription.value.text
+        if (dreamText.isBlank()) {
+            viewModelScope.launch {
+                _uiEvent.send(stringProvider.getString(R.string.dream_not_found))
+            }
+            return
+        }
+
+        val userMessageText = stringProvider.getString(R.string.emotional_analysis)
+        val userMessage = ChatMessage(userMessageText, Participant.USER)
+        val loadingMessage = ChatMessage("", Participant.MODEL, isLoading = true)
+
+        _minimalAiChatHistory.value = listOf(userMessage, loadingMessage)
+        _isMinimalAiLoading.value = true
+
+        val historyToSend = mutableListOf<ChatMessage>()
+        val dreamPrompt = stringProvider.getString(R.string.prompt_dream_journal_emotion_analysis)
+
+        historyToSend.add(ChatMessage("$dreamPrompt\"\"\"$dreamText\"\"\"\n\n$userMessageText", Participant.USER))
+
+        viewModelScope.launch {
+            try {
+                val apiKey = getApiKeyToUse()
+                val responseBuilder = StringBuilder()
+
+                geminiRepository.generateChatResponse(historyToSend, apiKey)
+                    .onCompletion {
+                        _isMinimalAiLoading.value = false
+                        val finalResponse = ChatMessage(responseBuilder.toString(), Participant.MODEL, isLoading = false)
+                        _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + finalResponse
+                    }
+                    .collect { chunk ->
+                        responseBuilder.append(chunk)
+                        _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + ChatMessage(responseBuilder.toString(), Participant.MODEL, isLoading = true)
+                    }
+
+            } catch (e: Exception) {
+                _isMinimalAiLoading.value = false
+                val errorMessage = ChatMessage(e.message ?: stringProvider.getString(R.string.error_unknown), Participant.ERROR, isLoading = false)
+                _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + errorMessage
+            }
+        }
+    }
+
     /**
      * Replaces AI generated text with the selected text.
      */
@@ -604,19 +763,60 @@ class EditViewModel @Inject constructor(
         updateNotePin(note.pinned)
         updateIsEncrypted(note.encrypted)
         updateFolderId(note.folderId)
+        viewModelScope.launch {
+            // --- DÜZELTME BAŞLANGIÇ ---
+            val dreamFolderName = stringProvider.getString(R.string.dream_journal)
+            // --- DÜZELTME BİTİŞ ---
+            try {
+                val folders = folderUseCase.getAllFolders().first()
+                val folder = folders.find { it.id == note.folderId }
+                // --- DÜZELTME BAŞLANGIÇ ---
+                if (folder?.name.equals(dreamFolderName, ignoreCase = true)) {
+                    // --- DÜZELTME BİTİŞ ---
+                    _isDreamJournalMode.value = true
+                } else {
+                    _isDreamJournalMode.value = false
+                }
+            } catch (e: Exception) {
+                _isDreamJournalMode.value = false
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 
     fun setupNoteData(id : Int, folderIdFromNav: Long? = null) {
+        _isLoading.value = true
         if (id != 0) {
             viewModelScope.launch {
                 noteUseCase.getNoteById(id).collectLatest { note ->
                     if (note != null) {
                         syncNote(note)
+                    } else {
+                        _isLoading.value = false
                     }
                 }
             }
         } else {
             updateFolderId(folderIdFromNav)
+            if (folderIdFromNav != null) {
+                viewModelScope.launch {
+                    val dreamFolderName = stringProvider.getString(R.string.dream_journal)
+                    try {
+                        val folders = folderUseCase.getAllFolders().first()
+                        val folder = folders.find { it.id == folderIdFromNav }
+                        if (folder?.name.equals(dreamFolderName, ignoreCase = true)) {
+                            _isDreamJournalMode.value = true
+                        }
+                    } catch (e: Exception) {
+                        _isDreamJournalMode.value = false
+                    } finally {
+                        _isLoading.value = false
+                    }
+                }
+            } else {
+                _isLoading.value = false
+            }
         }
     }
 

@@ -69,6 +69,7 @@ import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Build
@@ -94,6 +95,7 @@ import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.KingBed
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Link
@@ -460,7 +462,8 @@ fun HomeView (
                     ) {
                         MultiActionFloatingActionButton(
                             onNewNoteClicked = { onNoteClicked(0, viewModel.isVaultMode.value, selectedFolderId) },
-                            onAskAiClicked = { viewModel.toggleAiChatSheet(true) }
+                            onAskAiClicked = { viewModel.toggleAiChatSheet(true) },
+                            onDreamJournalClicked = { viewModel.onDreamJournalClicked(onNoteClicked) }
                         )
                     }
                 },
@@ -574,7 +577,8 @@ fun getContainerColor(settingsModel: SettingsViewModel): Color {
 @Composable
 private fun MultiActionFloatingActionButton(
     onNewNoteClicked: () -> Unit,
-    onAskAiClicked: () -> Unit
+    onAskAiClicked: () -> Unit,
+    onDreamJournalClicked: () -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val transition = updateTransition(targetState = isExpanded, label = "fab_transition")
@@ -673,6 +677,36 @@ private fun MultiActionFloatingActionButton(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer
                     ) {
                         Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.new_note))
+                    }
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.graphicsLayer {
+                        alpha = secondaryButtonAlpha
+                        scaleX = secondaryButtonScale
+                        scaleY = secondaryButtonScale
+                    }
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        tonalElevation = 2.dp
+                    ) {
+                        Text(
+                            text = stringResource(R.string.dream_journal_new_note),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                    SmallFloatingActionButton(
+                        onClick = {
+                            onDreamJournalClicked()
+                            isExpanded = false
+                        },
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    ) {
+                        Icon(Icons.Default.Book, contentDescription = "Dream Journal")
                     }
                 }
             }
