@@ -20,6 +20,24 @@
  * **Organization**: Easily organize your notes through folders and highlight important notes with the pinning feature.
  * **Modern and Fluent Interface**: Jetpack Compose provides a dynamic and elegant user experience that is completely declarative.
 
+
+## Light Mode Screenshots
+<p float="left">
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_1.jpg"/>
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_2.jpg"/>
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_3.jpg"/>
+</p>
+<p float="left">
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_4.jpg"/>
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_5.jpg"/>
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_6.jpg"/>
+</p>
+<p float="left">
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_7.jpg"/>
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_8.jpg"/>
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_9.jpg"/>
+</p>
+
 ## Screenshots
 <p float="left">
   <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_home.jpg" width="200" />
