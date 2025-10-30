@@ -20,19 +20,38 @@
  * **Organization**: Easily organize your notes through folders and highlight important notes with the pinning feature.
  * **Modern and Fluent Interface**: Jetpack Compose provides a dynamic and elegant user experience that is completely declarative.
 
-## Screenshots
+## Light Mode Screenshots
 <p float="left">
-  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_home.jpg" width="200" />
-  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_edit.jpg" width="200" />
-  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_AI_space.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_1.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_2.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_3.jpg" width="200" />
 </p>
 <p float="left">
-  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_settings.jpg" width="200" />
-  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_settings_colors_styles.jpg" width="200" />
-  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_settings_api.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_4.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_5.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_6.jpg" width="200" />
 </p>
-</p float="left">
-  <img src="https://github.com/RRechz/AirNote/blob/master/image/AirNote_settings_about.jpg" width="200" />
+<p float="left">
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_7.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_8.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/light_9.jpg" width="200" />
+</p>
+
+## Dark Mode Screenshots
+<p float="left">
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/dark_1.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/dark_2.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/dark_3.jpg" width="200" />
+</p>
+<p float="left">
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/dark_4.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/dark_5.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/dark_6.jpg" width="200" />
+</p>
+<p float="left">
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/dark_7.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/dark_8.jpg" width="200" />
+  <img src="https://github.com/RRechz/AirNote/blob/master/image/dark_9.jpg" width="200" />
 </p>
 
 ## Donate
@@ -52,25 +71,3 @@ way associated with Gemini, Keep, Google LLC or any of its affiliates and subsid
 
 Any trademark, service mark, trade name, or other intellectual property rights used in this project
 are owned by the respective owners.
-
-## License
-    AirNote
-
-    Copyright (c) 2025 Babel Software
-
-    The AirNote project is based solely on the resources of Kin69's Easy Notes project. 
-    The AirNote project was developed as an alternative to other AI-powered note-taking applications.
-    
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-    
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-    
-    The above copyright notice, this permission notice, and its license shall be included in all copies or substantial portions of the Software.
-    
-    You can find a copy of the GNU General Public License v3 [here](https://www.gnu.org/licenses/)</p>
