@@ -2389,7 +2389,7 @@ fun AskAiQuestionDialog(
     onConfirm: (String) -> Unit
 ) {
     var question by remember { mutableStateOf("") }
-    val maxChars = 280
+    val maxChars = 350
     val isDark = isSystemInDarkTheme()
     val primaryAccentColor = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
 
@@ -2469,7 +2469,7 @@ fun CreateDraftDialog(
     onConfirm: (String) -> Unit
 ) {
     var topic by remember { mutableStateOf("") }
-    val maxChars = 100
+    val maxChars = 250
     val isDark = isSystemInDarkTheme()
     val primaryAccentColor = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
 
@@ -2687,7 +2687,7 @@ private fun TypingIndicator() {
 fun TerminalLoadingIndicator(topic: String) {
     var displayedText by remember { mutableStateOf("") }
     val fullText = """
-[INFO] Connecting to AirNote AI services...
+[INFO] Connecting to AirNote's Kai AI services...
 [INFO] Authentication successful.
 [PROCESS] Analyzing topic: "$topic"
 [PROCESS] Generating content blocks...

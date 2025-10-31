@@ -108,23 +108,23 @@
     <string name="terms_acceptance_title">1. Acceptance of Terms</string>
     <string name="terms_acceptance_body">By pressing "Agree" and using Easy Notes, you accept these Terms of Service. If you do not agree, do not use the application.</string>
     <string name="terms_license_title">2. License</string>
-    <string name="terms_license_body">AirNote (Easy Notes) is distributed under the **GNU General Public License (GPL) version 3**. This means:\n\n- You are free to use, modify, and share the application.\n- If you distribute the application or any modified versions, you must also distribute the source code and retain the GPL license.</string>
+    <string name="terms_license_body">AirNote is distributed under the **GNU General Public License (GPL) version 3**. This means:\n\n- You are free to use, modify, and share the application.\n- If you distribute the application or any modified versions, you must also distribute the source code and retain the GPL license.</string>
     <string name="terms_use_title">3. Use of the Application</string>
-    <string name="terms_use_body">You agree to use AirNote (Easy Notes) only for lawful purposes and in accordance with these Terms. You must **not**:\n\n- _Use the app for any unlawful purpose_\n- _Violate the rights of others_\n- _Disrupt the functionality or security of the app_</string>
+    <string name="terms_use_body">You agree to use AirNote only for lawful purposes and in accordance with these Terms. You must **not**:\n\n- _Use the app for any unlawful purpose_\n- _Violate the rights of others_\n- _Disrupt the functionality or security of the app_</string>
     <string name="terms_intellectual_property_title">4. Intellectual Property</string>
-    <string name="terms_intellectual_property_body">All intellectual property rights in AirNote (Easy Notes) are owned by us or our licensors. Your use of the app does not grant you ownership of any intellectual property rights.</string>
+    <string name="terms_intellectual_property_body">All intellectual property rights in AirNote are owned by us or our licensors. Your use of the app does not grant you ownership of any intellectual property rights.</string>
     <string name="terms_disclaimer_title">5. Disclaimer of Warranties</string>
     <string name="terms_disclaimer_body">Easy Notes is provided "as is," without any warranties. We do not guarantee that the app will be free from errors, secure, or uninterrupted.</string>
     <string name="terms_liability_title">6. Limitation of Liability</string>
-    <string name="terms_liability_body">We are not liable for any damages resulting from your use of AirNote (Easy Notes), including indirect, incidental, or consequential damages.</string>
+    <string name="terms_liability_body">We are not liable for any damages resulting from your use of AirNote, including indirect, incidental, or consequential damages.</string>
     <string name="terms_termination_title">7. Termination</string>
-    <string name="terms_termination_body">We may terminate or suspend your access to AirNote (Easy Notes) if you breach these Terms. Upon termination, your right to use the app will end immediately.</string>
+    <string name="terms_termination_body">We may terminate or suspend your access to AirNote if you breach these Terms. Upon termination, your right to use the app will end immediately.</string>
     <string name="terms_changes_title">8. Changes to Terms</string>
     <string name="terms_changes_body">We may update these Terms of Service from time to time. Your continued use of AirNote (Easy Notes) after any changes constitutes acceptance of the revised terms.</string>
     <string name="terms_contact_title">9. Contact Us</string>
-    <string name="terms_contact_body">For any questions about these Terms of Service or AirNote (Easy Notes), please contact us at</string>
+    <string name="terms_contact_body">For any questions about these Terms of Service or AirNote, please contact us at</string>
     <string name="terms_privacy_title">10. Privacy Policy</string>
-    <string name="terms_privacy_body">AirNote (Easy Notes) does not collect any personal data. For more information, please refer to our Privacy Policy available at</string>
+    <string name="terms_privacy_body">AirNote does not collect any personal data. For more information, please refer to our Privacy Policy available at</string>
     <string name="terms_effective_date">Effective Date</string>
     <string name="agree">Agree</string>
     <string name="terms_of_service">Terms of service</string>
@@ -135,13 +135,13 @@
     <string name="alert_text"> Are you sure you want to delete the selected notes</string>
     <string name="yes"> Yes</string>
     <string name="cancel">Cancel</string>
-    <string name="app_lock">App lock</string>
+    <string name="app_lock">App lock (Experimental)</string>
     <string name="app_lock_description">Lock app using password</string>
     <string name="setup_password">Setup passcode</string>
     <string name="enter_password">Enter Passcode</string>
     <string name="pin">Pin (6 numbers)</string>
     <string name="passcode">Passcode</string>
-    <string name="fingerprint">Fingerprint</string>
+    <string name="fingerprint">Fingerprint (Experimental)</string>
     <string name="fingerprint_name">Authentication required</string>
     <string name="locked">is Locked</string>
     <string name="uid">UID</string>
@@ -176,13 +176,13 @@
     <string name="save">Save</string>
     <string name="folder_tag">Folder tag</string>
     <string name="description_folder_tag">It shows the label of the folder to which the notes belong.</string>
-    <string name="airnote_ai">AirNote AI</string>
+    <string name="airnote_ai">Kai</string>
     <string name="airnote_ai_description">Configure AI • API settings</string>
     <string name="use_airnote_api">Use AirNote API</string>
     <string name="use_airnote_api_description">Use AI features with the app\'s built-in API (Recommended)</string>
     <string name="your_api_key">You API key (BETA)</string>
     <string name="check">Check</string>
-    <string name="model_to_use">Model to Use</string>
+    <string name="model_to_use">AI Models (BETA)</string>
     <string name="model_choice">Model Choice (BETA)</string>
     <string name="ai_suggestion">AI\'s Suggestion</string>
     <string name="close">Close</string>
@@ -216,7 +216,7 @@
     <string name="update_card_version_ready_to_download">Version %1$s is available for download.</string>
     <string name="update_card_download_now">Update Now</string>
     <string name="update_card_download_icon_description">Download</string>
-    <string name="update_card_downloading">Downloading... %1$d%%</string>
+    <string name="update_card_downloading">Downloading... %1$d%</string>
     <string name="update_card_install">İnstall</string>
     <string name="update_card_install_icon_description">İnstall</string>
     <string name="update_card_update_failed">Update Failed</string>
@@ -256,7 +256,7 @@
     <string name="downloaded">Downloaded</string>
     <string name="not_downloaded">Not Downloaded</string>
     <string name="download">Download</string>
-    <string name="no_downloaded_languages">No available translation language! Please download a language model from Settings > AirNote AI menu</string>
+    <string name="no_downloaded_languages">No available translation language! Please download a language model from Settings > Kai menu</string>
     <string name="translate_all_note">Translate All Note</string>
     <string name="api_key_icon_cd">API Key Icon</string>
     <string name="successfully_verified_icon_cd">Successfully Verified Icon</string>
@@ -290,9 +290,9 @@
     <string name="dex_start">Start!</string>
     <string name="dex_note_preview">To view or edit, select a note from the list on the left.</string>
     <string name="dex_version">DeX Version</string>
-    <string name="ai_version">AirNote AI Version</string>
+    <string name="ai_version">AI Service Version</string>
     <string name="draft_topic_placeholder" translatable="false">Draft Topic Placeholder</string>
-    <string name="ask_airnote_ai" translatable="false">Ask AirNote AI...</string>
+    <string name="ask_airnote_ai" translatable="false">Ask AirNote Kai...</string>
     <string name="new_chat">New Chat</string>
     <string name="no_chat_history">No Chat History...</string>
     <string name="delete_chat">Delete Chat?</string>
@@ -319,7 +319,7 @@
     <string name="new_ai_note_draft">A New AI Note Draft</string>
     <string name="ask_a_question_title">Unleash Your Curiosity</string>
     <string name="ask_a_question">What would you like to ask AirNote AI?</string>
-    <string name="ai_disclaimer_text">AirNote AI may make mistakes.</string>
+    <string name="ai_disclaimer_text">AirNote Kai may make mistakes.</string>
     <string name="ai_disclaimer_link_text"> More information</string>
     <string name="ai_disclaimer_link_url" translatable="false">https://github.com/RRechz/airnote-ai</string>
     <string name="not_set">Not set</string>
@@ -330,7 +330,7 @@
     <string name="emotional_analysis">Emotional Analysis</string>
     <string name="explain_symbols">Explain the Symbols</string>
     <string name="interpret_my_dream">Interpret My Dream</string>
-    <string name="dream_journal_ai_title">AirNote AI - Dream Edition</string>
+    <string name="dream_journal_ai_title">AirNote Kai - Dream Edition</string>
     <string name="dream_not_found">Your dream could not be found! Please describe your dream.</string>
 
     <!-- Gemini Repository Strings-->

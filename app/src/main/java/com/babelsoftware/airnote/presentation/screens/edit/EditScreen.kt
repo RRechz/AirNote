@@ -966,7 +966,7 @@ fun MinimalAiChatInterface(viewModel: EditViewModel, settingsViewModel: Settings
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Rounded.AutoAwesome,
-                            contentDescription = "AirNote AI - Dream Edition",
+                            contentDescription = "AirNote Kai - Dream Edition",
                             tint = Color(0xFFB39DDB),
                             modifier = Modifier.size(20.dp)
                         )
@@ -982,13 +982,13 @@ fun MinimalAiChatInterface(viewModel: EditViewModel, settingsViewModel: Settings
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Rounded.AutoAwesome,
-                            contentDescription = "AirNote AI",
+                            contentDescription = "AirNote Kai",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "AirNote AI",
+                            text = "AirNote Kai",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
