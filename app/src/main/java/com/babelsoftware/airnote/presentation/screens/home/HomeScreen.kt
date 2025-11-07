@@ -24,7 +24,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -61,7 +60,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.automirrored.rounded.Notes
 import androidx.compose.material.icons.filled.AccountBalance
@@ -72,7 +70,6 @@ import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Backup
-import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Build
@@ -81,9 +78,11 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.ContentCut
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Event
@@ -97,14 +96,13 @@ import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Key
-import androidx.compose.material.icons.filled.KingBed
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Palette
@@ -133,7 +131,6 @@ import androidx.compose.material.icons.rounded.FilePresent
 import androidx.compose.material.icons.rounded.GolfCourse
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Notes
-import androidx.compose.material.icons.rounded.PersonSearch
 import androidx.compose.material.icons.rounded.Psychology
 import androidx.compose.material.icons.rounded.School
 import androidx.compose.material.icons.rounded.Search
@@ -153,6 +150,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -195,9 +193,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
+import android.provider.MediaStore
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -238,7 +236,6 @@ import com.babelsoftware.airnote.presentation.screens.home.widgets.NoteFilter
 import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsViewModel
 import com.babelsoftware.airnote.presentation.screens.settings.settings.PasswordPrompt
 import com.babelsoftware.airnote.presentation.screens.settings.settings.shapeManager
-import com.babelsoftware.airnote.presentation.theme.AiButtonColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -256,6 +253,8 @@ fun HomeView (
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     if (activity != null) {
         val windowSizeClass = calculateWindowSizeClass(activity)
@@ -283,16 +282,52 @@ fun HomeView (
                 contract = ActivityResultContracts.GetContent(),
                 onResult = { uri: Uri? ->
                     if (uri != null) {
-                        viewModel.analyzeImageAndCreateDraft(uri)
+                        val mimeType = context.contentResolver.getType(uri)
+                        viewModel.onAttachmentSelected(uri, mimeType ?: "image/*")
                     }
                 }
             )
+
+            val filePickerLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent(),
+                onResult = { uri: Uri? ->
+                    if (uri != null) {
+                        val mimeType = context.contentResolver.getType(uri)
+                        if (mimeType == "text/plain") {
+                            viewModel.onAttachmentSelected(uri, mimeType)
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Currently only '.txt' files are supported.")
+                            }
+                        }
+                    }
+                }
+            )
+
+            var showAttachmentTypeSheet by remember { mutableStateOf(false) }
+            if (showAttachmentTypeSheet) {
+                AttachmentTypeBottomSheet(
+                    onDismiss = { showAttachmentTypeSheet = false },
+                    onImageClicked = {
+                        imagePickerLauncher.launch("image/*")
+                    },
+                    onFileClicked = {
+                        filePickerLauncher.launch("text/plain")
+                    }
+                )
+            }
 
             LaunchedEffect(Unit) {
                 viewModel.uiActionChannel.collect { action ->
                     when (action) {
                         is HomeViewModel.UiAction.RequestImageForAnalysis -> {
                             imagePickerLauncher.launch("image/*")
+                        }
+                        is HomeViewModel.UiAction.RequestFileForAnalysis -> {
+                            filePickerLauncher.launch("text/plain")
+                        }
+                        is HomeViewModel.UiAction.RequestAttachmentType -> {
+                            showAttachmentTypeSheet = true
                         }
                     }
                 }
@@ -439,9 +474,6 @@ fun HomeView (
                     )
                 }
             }
-
-            val snackbarHostState = remember { SnackbarHostState() }
-            val scope = rememberCoroutineScope()
 
             LaunchedEffect(key1 = true) {
                 viewModel.uiEvent.collect { message ->
@@ -913,6 +945,42 @@ private fun NotesSearchBar(
     ) {}
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AttachmentTypeBottomSheet(
+    onDismiss: () -> Unit,
+    onImageClicked: () -> Unit,
+    onFileClicked: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp, top = 16.dp)
+        ) {
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.add_image)) },
+                leadingContent = { Icon(Icons.Default.Image, contentDescription = "Image") },
+                modifier = Modifier.clickable {
+                    onImageClicked()
+                    onDismiss()
+                }
+            )
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.add_text_file)) },
+                leadingContent = { Icon(Icons.Default.Description, contentDescription = "Fİle") },
+                modifier = Modifier.clickable {
+                    onFileClicked()
+                    onDismiss()
+                }
+            )
+        }
+    }
+}
+
 private fun selectAllNotes(viewModel: HomeViewModel, allNotes: List<Note>) {
     allNotes.forEach {
         if (!viewModel.selectedNotes.contains(it)) {
@@ -1307,7 +1375,7 @@ fun AiMainContent(viewModel: HomeViewModel) {
     }
 
     val onSendMessage = { message: String ->
-        if (message.isNotBlank()) {
+        if (message.isNotBlank() || chatState.pendingAttachmentUri != null) {
             if (chatState.isAwaitingDraftTopic) {
                 viewModel.generateDraft(message)
             } else {
@@ -1409,6 +1477,14 @@ fun AiMainContent(viewModel: HomeViewModel) {
             }
         }
 
+        AnimatedVisibility(visible = chatState.pendingAttachmentUri != null) {
+            AttachedFileChip(
+                uri = chatState.pendingAttachmentUri,
+                mimeType = chatState.pendingAttachmentMimeType,
+                onRemove = { viewModel.onAttachmentRemoved() }
+            )
+        }
+
         val showInputBar = chatState.latestDraft == null && chatState.analyzingImageUri == null
         val isLoading = chatState.messages.any { it.isLoading }
 
@@ -1418,7 +1494,7 @@ fun AiMainContent(viewModel: HomeViewModel) {
                     text = text,
                     onValueChange = { text = it },
                     onSendMessage = { onSendMessage(text) },
-                    onImagePickerClicked = { viewModel.requestImageForAnalysis() },
+                    onImagePickerClicked = { viewModel.onAttachmentIconClicked() },
                     enabled = !isLoading,
                     placeholderText = if (chatState.isAwaitingDraftTopic) stringResource(R.string.draft_topic_placeholder) else stringResource(R.string.ask_airnote_ai)
                 )
@@ -1427,7 +1503,7 @@ fun AiMainContent(viewModel: HomeViewModel) {
                     text = text,
                     onValueChange = { text = it },
                     onSendMessage = onSendMessage,
-                    onImagePickerClicked = { viewModel.requestImageForAnalysis() },
+                    onImagePickerClicked = { viewModel.onAttachmentIconClicked() },
                     enabled = !isLoading
                 )
             }
@@ -1435,6 +1511,77 @@ fun AiMainContent(viewModel: HomeViewModel) {
         }
     }
 }
+
+@Composable
+fun AttachedFileChip(
+    uri: Uri?,
+    mimeType: String?,
+    onRemove: () -> Unit
+) {
+    if (uri == null || mimeType == null) return
+
+    val isDark = isSystemInDarkTheme()
+    val context = LocalContext.current
+
+    val displayName = remember(uri, mimeType) {
+        if (mimeType.startsWith("image/")) {
+            "Image"
+        } else {
+            try {
+                context.contentResolver.query(uri, arrayOf(MediaStore.Images.Media.DISPLAY_NAME), null, null, null)
+                    ?.use { cursor ->
+                        if (cursor.moveToFirst()) {
+                            cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME))
+                        } else {
+                            "File"
+                        }
+                    } ?: "File"
+            } catch (e: Exception) {
+                "File"
+            }
+        }
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .offset(y = (-8).dp),
+        shape = RoundedCornerShape(12.dp),
+        color = if (isDark) Color.White.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceContainerHigh,
+        border = BorderStroke(1.dp, if (isDark) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                Icon(
+                    imageVector = if (mimeType.startsWith("image/")) Icons.Default.Image else Icons.Default.Description,
+                    contentDescription = "File type",
+                    tint = if (isDark) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = displayName,
+                    color = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            IconButton(onClick = onRemove, modifier = Modifier.size(24.dp)) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "Remove file",
+                    tint = if (isDark) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun ImageAnalysisScreen(imageUri: Uri) {
@@ -2154,6 +2301,7 @@ fun RedesignedChatInputBar(
     val haptic = LocalHapticFeedback.current
     val isDark = isSystemInDarkTheme()
     val primaryAccentColor = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
+    val chatState by hiltViewModel<HomeViewModel>().chatState.collectAsState()
 
     Surface(
         modifier = modifier
@@ -2194,7 +2342,7 @@ fun RedesignedChatInputBar(
                     disabledPlaceholderColor = if (isDark) Color.White.copy(alpha = 0.3f) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                 )
             )
-            AnimatedVisibility(visible = text.isNotBlank() && enabled) {
+            AnimatedVisibility(visible = (text.isNotBlank() || chatState.pendingAttachmentUri != null) && enabled) {
                 IconButton(
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -2227,6 +2375,7 @@ fun PreChatInputBar(
 ) {
     val isDark = isSystemInDarkTheme()
     val primaryAccentColor = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
+    val chatState by hiltViewModel<HomeViewModel>().chatState.collectAsState()
 
     Surface(
         modifier = modifier
@@ -2301,8 +2450,8 @@ fun PreChatInputBar(
                 }
 
                 IconButton(
-                    onClick = { if (text.isNotBlank()) onSendMessage(text) },
-                    enabled = text.isNotBlank() && enabled,
+                    onClick = { if (text.isNotBlank() || chatState.pendingAttachmentUri != null) onSendMessage(text) },
+                    enabled = (text.isNotBlank() || chatState.pendingAttachmentUri != null) && enabled,
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape),

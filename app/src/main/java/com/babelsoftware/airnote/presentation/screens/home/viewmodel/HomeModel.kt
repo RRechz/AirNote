@@ -1,6 +1,7 @@
 package com.babelsoftware.airnote.presentation.screens.home.viewmodel
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -27,6 +28,9 @@ import com.babelsoftware.airnote.domain.model.AiChatMessage
 import com.babelsoftware.airnote.domain.model.AiChatSession
 import com.babelsoftware.airnote.domain.model.AiSuggestion
 import com.babelsoftware.airnote.domain.model.ChatMessage
+import com.google.ai.client.generativeai.type.ImagePart
+import com.google.ai.client.generativeai.type.TextPart
+import com.google.ai.client.generativeai.type.Part
 import com.babelsoftware.airnote.domain.model.Folder
 import com.babelsoftware.airnote.domain.model.Note
 import com.babelsoftware.airnote.domain.model.Participant
@@ -68,7 +72,9 @@ data class ChatState(
     val latestDraft: DraftedNote? = null,
     val hasStartedConversation: Boolean = false,
     val currentSessionId: Long? = null,
-    val analyzingImageUri: Uri? = null
+    val analyzingImageUri: Uri? = null,
+    val pendingAttachmentUri: Uri? = null,
+    val pendingAttachmentMimeType: String? = null
 )
 
 @HiltViewModel
@@ -85,6 +91,8 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
     sealed class UiAction {
         object RequestImageForAnalysis : UiAction()
+        object RequestFileForAnalysis : UiAction()
+        object RequestAttachmentType: UiAction()
     }
     var selectedNotes = mutableStateListOf<Note>()
 
@@ -308,7 +316,53 @@ class HomeViewModel @Inject constructor(
         _isFabExtended.value = isExtended
     }
 
+    fun onAttachmentIconClicked() {
+        viewModelScope.launch {
+            _uiActionChannel.send(UiAction.RequestAttachmentType)
+        }
+    }
+
+    fun onAttachmentSelected(uri: Uri, mimeType: String?) {
+        _chatState.value = _chatState.value.copy(
+            pendingAttachmentUri = uri,
+            pendingAttachmentMimeType = mimeType
+        )
+    }
+
+    fun onAttachmentRemoved() {
+        _chatState.value = _chatState.value.copy(
+            pendingAttachmentUri = null,
+            pendingAttachmentMimeType = null
+        )
+    }
+
+    private val createNoteTriggers = setOf(
+        stringProvider.getString(R.string.analyze_create_note),
+        stringProvider.getString(R.string.analyze_analyze),
+        stringProvider.getString(R.string.analyze_take_notes),
+        stringProvider.getString(R.string.analyze_summarize_and_take_notes),
+        stringProvider.getString(R.string.analyze_prepare_a_draft),
+        stringProvider.getString(R.string.analyze_analyze_my_file_image))
+
     fun sendMessage(userMessage: String) = viewModelScope.launch {
+        val currentState = _chatState.value
+        val attachmentUri = currentState.pendingAttachmentUri
+        val attachmentMime = currentState.pendingAttachmentMimeType
+
+        if (attachmentUri != null && attachmentMime != null) {
+            val isCreateNoteRequest = createNoteTriggers.any { userMessage.contains(it, ignoreCase = true) }
+
+            if (isCreateNoteRequest) {
+                analyzeFileAndCreateDraft(userMessage, attachmentUri, attachmentMime)
+            } else {
+                sendChatWithAttachment(userMessage, attachmentUri, attachmentMime)
+            }
+        } else {
+            sendChatOnly(userMessage)
+        }
+    }
+
+    private fun sendChatOnly(userMessage: String) = viewModelScope.launch {
         var sessionId = _chatState.value.currentSessionId
         if (sessionId == null) {
             val newSessionId = aiChatUseCase.startNewSession(userMessage.take(40), _aiMode.value)
@@ -339,7 +393,7 @@ class HomeViewModel @Inject constructor(
         val TAG_RENAME = "<NOTE_CHANGE_TITLE>"
         val TAG_RENAME_END = "</NOTE_CHANGE_TITLE>"
 
-        geminiRepository.generateChatResponse(historyForApi, getApiKeyToUse(), _aiMode.value, mentionedNote)
+        geminiRepository.generateChatResponse(historyForApi, getApiKeyToUse(), _aiMode.value, mentionedNote, null)
             .onCompletion {
                 val fullResponse = responseBuilder.toString().trim()
                 var confirmationMsg: String? = null
@@ -398,6 +452,76 @@ class HomeViewModel @Inject constructor(
             }
     }
 
+    private fun sendChatWithAttachment(userMessage: String, uri: Uri, mimeType: String) = viewModelScope.launch {
+        val currentState = _chatState.value
+        val apiKey = getApiKeyToUse()
+
+        val attachmentPart: Part? = try {
+            if (mimeType.startsWith("image/")) {
+                val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, uri))
+                } else {
+                    @Suppress("DEPRECATION")
+                    MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                }
+                ImagePart(bitmap)
+            } else if (mimeType == "text/plain") {
+                val textContent = readTextFromUri(uri)
+                if (textContent.isBlank()) throw Exception(stringProvider.getString(R.string.file_empty_or_not_read))
+                TextPart(textContent)
+            } else {
+                throw IllegalArgumentException("Unsupported file type: $mimeType")
+            }
+        } catch (e: Exception) {
+            onAttachmentRemoved()
+            sendChatOnly(userMessage)
+            return@launch
+        }
+
+        if (attachmentPart == null) {
+            onAttachmentRemoved()
+            sendChatOnly(userMessage)
+            return@launch
+        }
+
+        var sessionId = currentState.currentSessionId
+        if (sessionId == null) {
+            val newSessionId = aiChatUseCase.startNewSession(userMessage.take(40), _aiMode.value)
+            _chatState.value = currentState.copy(currentSessionId = newSessionId, hasStartedConversation = true)
+            sessionId = newSessionId
+        }
+
+        val userChatMessage = ChatMessage(userMessage, Participant.USER)
+        aiChatUseCase.addMessageToSession(sessionId, userChatMessage)
+        onAttachmentRemoved()
+
+        val loadingMessage = ChatMessage("", Participant.MODEL, isLoading = true)
+        val loadingMessageId = aiChatUseCase.addMessageToSession(sessionId, loadingMessage)
+
+        val historyForApi = (currentState.messages + userChatMessage).filter { !it.isLoading }
+        val responseBuilder = StringBuilder()
+
+        geminiRepository.generateChatResponse(
+            historyForApi,
+            apiKey,
+            _aiMode.value,
+            null,
+            attachmentPart
+        )
+            .onCompletion {
+                val fullResponse = responseBuilder.toString().trim()
+                if (fullResponse.isBlank()) {
+                    aiChatUseCase.deleteMessageById(loadingMessageId)
+                }
+                else {
+                    aiChatUseCase.updateMessageById(loadingMessageId, fullResponse, false, false)
+                }
+            }
+            .collect { chunk ->
+                responseBuilder.append(chunk)
+            }
+    }
+
     fun generateDraft(topic: String) = viewModelScope.launch {
         resetChatState()
         setAiMode(AiMode.NOTE_ASSISTANT)
@@ -434,7 +558,6 @@ class HomeViewModel @Inject constructor(
             }
     }
 
-
     private fun parseDraft(result: String): Pair<String, String> {
         val titleRegex = """(TITLE:|\*\*TITLE:\*\*)\s*(.*)""".toRegex(RegexOption.IGNORE_CASE)
         val contentRegex = """(CONTENT:|\*\*CONTENT:\*\*)\s*(.*)""".toRegex(setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
@@ -443,9 +566,7 @@ class HomeViewModel @Inject constructor(
         val title = titleMatch?.groupValues?.get(2)?.trim()?.replace(Regex("[*#]"), "") ?: "Generated Note"
 
         val contentMatch = contentRegex.find(result)
-        val content = contentMatch?.let {
-            result.substring(it.range.last + 1).trim().replace(Regex("[*#]"), "")
-        } ?: result.replace(Regex("[*#]"), "")
+        val content = contentMatch?.groupValues?.get(2)?.trim()?.replace(Regex("[*#]"), "") ?: ""
 
         return Pair(title, content)
     }
@@ -530,29 +651,44 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun analyzeImageAndCreateDraft(imageUri: Uri) = viewModelScope.launch {
-        startNewChat()
-        val prompt = stringProvider.getString(R.string.prompt_airnote_ai_analyzeimage)
-
+    fun analyzeFileAndCreateDraft(prompt: String, uri: Uri, mimeType: String) = viewModelScope.launch {
         _chatState.value = _chatState.value.copy(
             latestDraft = null,
             messages = listOf(ChatMessage(text = "", participant = Participant.MODEL, isLoading = true)),
             hasStartedConversation = true,
-            analyzingImageUri = imageUri
+            analyzingImageUri = if (mimeType.startsWith("image/")) uri else null,
+            pendingAttachmentUri = null,
+            pendingAttachmentMimeType = null
         )
 
         val apiKey = getApiKeyToUse()
 
-        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, imageUri))
-        } else {
-            @Suppress("DEPRECATION")
-            MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
+        val attachmentPart: Part? = try {
+            if (mimeType.startsWith("image/")) {
+                val bitmap: Bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, uri))
+                } else {
+                    @Suppress("DEPRECATION")
+                    MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                }
+                ImagePart(bitmap)
+            } else if (mimeType == "text/plain") {
+                val textContent = readTextFromUri(uri)
+                if (textContent.isBlank()) throw Exception(stringProvider.getString(R.string.file_empty_or_not_read))
+                TextPart(textContent)
+            } else {
+                throw IllegalArgumentException("Desteklenmeyen dosya türü: $mimeType")
+            }
+        } catch (e: Exception) {
+            handleFailure(e)
+            null
         }
 
-        geminiRepository.generateDraftFromImage(prompt, bitmap, apiKey, _aiMode.value)
+        if (attachmentPart == null) return@launch
+
+        geminiRepository.generateDraftFromAttachment(prompt, attachmentPart, apiKey, _aiMode.value)
             .onSuccess { result ->
-                parseAndSetDraft(result, prompt, imageUri)
+                parseAndSetDraft(result, prompt, if (mimeType.startsWith("image/")) uri else null)
             }
             .onFailure { exception ->
                 handleFailure(exception)
@@ -566,15 +702,34 @@ class HomeViewModel @Inject constructor(
         _chatState.value = _chatState.value.copy(latestDraft = null)
 
         if (sourceImageUri != null) {
-            analyzeImageAndCreateDraft(sourceImageUri)
+            analyzeFileAndCreateDraft(draft.topic, sourceImageUri, "image/*")
         } else {
             generateDraft(draft.topic)
         }
     }
 
     fun resetChatState() {
-        _chatState.value = ChatState()
+        _chatState.value = _chatState.value.copy(
+            messages = emptyList(),
+            isAwaitingDraftTopic = false,
+            latestDraft = null,
+            hasStartedConversation = false,
+            analyzingImageUri = null,
+            pendingAttachmentUri = null,
+            pendingAttachmentMimeType = null
+        )
         setAiMode(AiMode.NOTE_ASSISTANT)
+    }
+
+    private fun readTextFromUri(uri: Uri): String {
+        return try {
+            context.contentResolver.openInputStream(uri)?.bufferedReader().use { reader ->
+                reader?.readText()
+            } ?: ""
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ""
+        }
     }
 
     // --- Note and Folder Functions ---

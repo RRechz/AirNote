@@ -15,6 +15,8 @@ import com.babelsoftware.airnote.domain.model.Participant
 import com.babelsoftware.airnote.domain.repository.SettingsRepository
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.Content
+import com.google.ai.client.generativeai.type.Part
+import com.google.ai.client.generativeai.type.TextPart
 import com.google.ai.client.generativeai.type.content
 import com.google.ai.client.generativeai.type.generationConfig
 import com.google.mlkit.common.model.DownloadConditions
@@ -199,7 +201,8 @@ class GeminiRepository @Inject constructor(
         history: List<ChatMessage>,
         apiKey: String,
         aiMode: AiMode = AiMode.NOTE_ASSISTANT,
-        mentionedNote: com.babelsoftware.airnote.domain.model.Note? = null
+        mentionedNote: com.babelsoftware.airnote.domain.model.Note? = null,
+        attachment: Part? = null
     ): Flow<String> = flow {
         if (apiKey.isBlank()) {
             throw ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key))
@@ -246,11 +249,23 @@ class GeminiRepository @Inject constructor(
         chatHistoryForModel.addAll(userHistoryContent)
 
 
-        val lastMessage = chatHistoryForModel.lastOrNull() ?: return@flow
+        val lastMessageContent = chatHistoryForModel.lastOrNull() ?: return@flow
         val historyWithoutLast = chatHistoryForModel.dropLast(1)
         val chat = generativeModel.startChat(history = historyWithoutLast)
 
-        chat.sendMessageStream(lastMessage).collect { chunk ->
+        val finalMessageToSend: Content
+        if (attachment != null) {
+            val lastUserText = (lastMessageContent.parts.firstOrNull() as? TextPart)?.text ?: ""
+
+            finalMessageToSend = content(lastMessageContent.role) {
+                part(attachment)
+                text(lastUserText)
+            }
+        } else {
+            finalMessageToSend = lastMessageContent
+        }
+
+        chat.sendMessageStream(finalMessageToSend).collect { chunk ->
             emit(chunk.text ?: "")
         }
     }.catch {
@@ -294,19 +309,18 @@ class GeminiRepository @Inject constructor(
         }
     }
 
-    suspend fun generateDraftFromImage(prompt: String, image: Bitmap, apiKey: String, aiMode: AiMode): Result<String> {
+    suspend fun generateDraftFromAttachment(
+        prompt: String,
+        attachment: Part,
+        apiKey: String,
+        aiMode: AiMode
+    ): Result<String> {
         if (apiKey.isBlank()) {
             return Result.failure(ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key)))
         }
 
         val generativeModel: GenerativeModel = try {
             val modelName = settingsRepository.settings.first().selectedModelName
-            val systemPrompt = when (aiMode) {
-                AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant)
-                AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind)
-                AiMode.ACADEMIC_RESEARCHER -> stringProvider.getString(R.string.system_prompt_academic_researcher)
-                AiMode.PROFESSIONAL_STRATEGIST -> stringProvider.getString(R.string.system_prompt_professional_strategist)
-            }
             val temperature = if (aiMode == AiMode.CREATIVE_MIND) CREATIVE_TEMPERATURE else DEFAULT_TEMPERATURE
 
             GenerativeModel(
@@ -321,15 +335,27 @@ class GeminiRepository @Inject constructor(
             return Result.failure(e)
         }
 
-        val finalPrompt = when (aiMode) {
-            AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant) + "\n\n---\n\n" + prompt
-            AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind) + "\n\n---\n\n" + prompt
-            AiMode.ACADEMIC_RESEARCHER -> stringProvider.getString(R.string.system_prompt_academic_researcher) + "\n\n---\n\n" + prompt
-            AiMode.PROFESSIONAL_STRATEGIST -> stringProvider.getString(R.string.system_prompt_professional_strategist) + "\n\n---\n\n" + prompt
+        val systemPrompt = when (aiMode) {
+            AiMode.NOTE_ASSISTANT -> stringProvider.getString(R.string.system_prompt_note_assistant)
+            AiMode.CREATIVE_MIND -> stringProvider.getString(R.string.system_prompt_creative_mind)
+            AiMode.ACADEMIC_RESEARCHER -> stringProvider.getString(R.string.system_prompt_academic_researcher)
+            AiMode.PROFESSIONAL_STRATEGIST -> stringProvider.getString(R.string.system_prompt_professional_strategist)
         }
 
+        val userPrompt = """
+        Kullanıcı prompt'u: "$prompt"
+        
+        Ekli dosyayı/görseli analiz et ve bu prompt'a göre bir not taslağı oluştur.
+        Cevabını MUTLAKA şu formatta ver:
+        TITLE: [buraya başlığı yaz]
+        
+        CONTENT: [buraya not içeriğini yaz]
+        """.trimIndent()
+
+        val finalPrompt = "$systemPrompt\n\n---\n\n$userPrompt"
+
         val inputContent = content {
-            image(image)
+            part(attachment)
             text(finalPrompt)
         }
 
