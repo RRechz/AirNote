@@ -169,6 +169,17 @@ fun AboutScreen(
             item {
                 SettingsBox(
                     settingsViewModel = settingsViewModel,
+                    title = stringResource(id = R.string.instagram),
+                    icon = IconResource.Url("https://www.apkmirror.com/wp-content/themes/APKMirror/ap_resize/ap_resize.php?src=https%3A%2F%2Fdownloadr2.apkmirror.com%2Fwp-content%2Fuploads%2F2022%2F08%2F91%2F6309b6f6b92ef.png&w=96&h=96&q=100"),
+                    linkClicked = { uriHandler.openUri("https://instagram.com/airnoteapp") },
+                    actionType = ActionType.LINK,
+                    radius = RoundedCornerShape(topStart = cornerRadius, topEnd = cornerRadius, bottomStart = cornerRadius, bottomEnd = cornerRadius)
+                )
+                Spacer(modifier = Modifier.height(18.dp))
+            }
+            item {
+                SettingsBox(
+                    settingsViewModel = settingsViewModel,
                     title = stringResource(id = R.string.email),
                     icon = IconResource.Vector(Icons.Rounded.Email),
                     clipboardText = ConnectionConst.SUPPORT_MAIL,
