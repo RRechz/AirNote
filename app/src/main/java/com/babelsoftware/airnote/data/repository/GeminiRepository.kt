@@ -434,30 +434,6 @@ class GeminiRepository @Inject constructor(
             }
     }
 
-    private suspend fun performTranslation(text: String, sourceLang: String, targetLang: String): Result<String> = suspendCoroutine { continuation ->
-        val options = TranslatorOptions.Builder()
-            .setSourceLanguage(sourceLang)
-            .setTargetLanguage(targetLang)
-            .build()
-        val translator = Translation.getClient(options)
-
-        translator.downloadModelIfNeeded()
-            .addOnSuccessListener {
-                translator.translate(text)
-                    .addOnSuccessListener { translatedText ->
-                        continuation.resume(Result.success(translatedText))
-                        translator.close()
-                    }
-                    .addOnFailureListener { exception ->
-                        continuation.resume(Result.failure(exception))
-                        translator.close()
-                    }
-            }
-            .addOnFailureListener { exception ->
-                continuation.resume(Result.failure(exception))
-            }
-    }
-
     suspend fun translateOnDevice(text: String, targetLanguage: String): Result<String> = withContext(Dispatchers.IO) {
         if (text.isBlank()) return@withContext Result.success("")
 
@@ -471,47 +447,49 @@ class GeminiRepository @Inject constructor(
             return@withContext Result.failure(Exception("The note text is already in the language you want to translate."))
         }
 
-        val originalLines = text.split('\n')
-        val translatedParagraphs = mutableListOf<String>()
-        val currentParagraph = StringBuilder()
+        val options = TranslatorOptions.Builder()
+            .setSourceLanguage(sourceLanguageCode)
+            .setTargetLanguage(targetLanguage)
+            .build()
+        val translator = Translation.getClient(options)
 
         try {
+            val downloadResult = suspendCoroutine<Result<Unit>> { continuation ->
+                translator.downloadModelIfNeeded()
+                    .addOnSuccessListener { continuation.resume(Result.success(Unit)) }
+                    .addOnFailureListener { continuation.resume(Result.failure(it)) }
+            }
+            if (downloadResult.isFailure) {
+                throw downloadResult.exceptionOrNull()!!
+            }
+
+            val originalLines = text.split('\n')
+            val translatedLines = mutableListOf<String>()
+
             for (line in originalLines) {
                 if (line.isBlank()) {
-                    if (currentParagraph.isNotEmpty()) {
-                        val paragraphToTranslate = currentParagraph.toString()
-                        val translatedResult = performTranslation(paragraphToTranslate, sourceLanguageCode, targetLanguage)
-                        if (translatedResult.isSuccess) {
-                            translatedParagraphs.add(translatedResult.getOrThrow())
-                        } else {
-                            throw translatedResult.exceptionOrNull()!!
-                        }
-                        currentParagraph.clear()
-                    }
-                    translatedParagraphs.add(line)
+                    translatedLines.add(line)
                 } else {
-                    if (currentParagraph.isNotEmpty()) {
-                        currentParagraph.append("\n")
+                    val translatedLineResult = suspendCoroutine<Result<String>> { continuation ->
+                        translator.translate(line)
+                            .addOnSuccessListener { translatedText -> continuation.resume(Result.success(translatedText)) }
+                            .addOnFailureListener { exception -> continuation.resume(Result.failure(exception)) }
                     }
-                    currentParagraph.append(line)
+
+                    if (translatedLineResult.isSuccess) {
+                        translatedLines.add(translatedLineResult.getOrThrow())
+                    } else {
+                        throw translatedLineResult.exceptionOrNull()!!
+                    }
                 }
             }
-
-            if (currentParagraph.isNotEmpty()) {
-                val paragraphToTranslate = currentParagraph.toString()
-                val translatedResult = performTranslation(paragraphToTranslate, sourceLanguageCode, targetLanguage)
-                if (translatedResult.isSuccess) {
-                    translatedParagraphs.add(translatedResult.getOrThrow())
-                } else {
-                    throw translatedResult.exceptionOrNull()!!
-                }
-            }
-
-            Result.success(translatedParagraphs.joinToString("\n"))
+            Result.success(translatedLines.joinToString("\n"))
 
         } catch (e: Exception) {
-            Log.e("TranslateError", "Paragraf çevirilirken hata oluştu", e)
+            Log.e("TranslateError", "Satır satır çeviri sırasında hata oluştu", e)
             Result.failure(e)
+        } finally {
+            translator.close()
         }
     }
 }
