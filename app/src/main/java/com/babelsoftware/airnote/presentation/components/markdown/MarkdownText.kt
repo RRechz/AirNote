@@ -4,25 +4,32 @@ package com.babelsoftware.airnote.presentation.components.markdown
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +51,80 @@ import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsVie
 import com.babelsoftware.airnote.presentation.screens.settings.settings.shapeManager
 import com.babelsoftware.airnote.presentation.theme.linkColor
 
+@Composable
+fun MarkdownTable(
+    headers: List<String>,
+    rows: List<List<String>>,
+    fontSize: TextUnit,
+    weight: FontWeight
+) {
+    val scrollState = rememberScrollState()
+    val borderColor = MaterialTheme.colorScheme.outlineVariant
+
+    Box(
+        modifier = Modifier
+            .padding(vertical = 8.dp)
+            .fillMaxWidth()
+            .border(1.dp, borderColor, RoundedCornerShape(4.dp))
+            .horizontalScroll(scrollState)
+    ) {
+        Column {
+            Row(modifier = Modifier.height(IntrinsicSize.Min)) {
+                headers.forEachIndexed { index, header ->
+                    Box(
+                        modifier = Modifier
+                            .width(IntrinsicSize.Max)
+                            .padding(8.dp)
+                            .align(Alignment.CenterVertically)
+                    ) {
+                        Text(
+                            text = header,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = fontSize,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    if (index < headers.size - 1) {
+                        VerticalDivider(
+                            color = borderColor,
+                            modifier = Modifier.fillMaxHeight()
+                        )
+                    }
+                }
+            }
+            HorizontalDivider(color = borderColor)
+            rows.forEachIndexed { rowIndex, row ->
+                Row(modifier = Modifier.height(IntrinsicSize.Min)) {
+                    headers.indices.forEach { colIndex ->
+                        val cellText = row.getOrNull(colIndex) ?: ""
+                        Box(
+                            modifier = Modifier
+                                .width(IntrinsicSize.Max)
+                                .padding(8.dp)
+                                .align(Alignment.CenterVertically)
+                        ) {
+                            Text(
+                                text = cellText,
+                                fontSize = fontSize,
+                                fontWeight = weight,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        if (colIndex < headers.size - 1) {
+                            VerticalDivider(
+                                color = borderColor,
+                                modifier = Modifier.fillMaxHeight()
+                            )
+                        }
+                    }
+                }
+                if (rowIndex < rows.size - 1) {
+                    HorizontalDivider(color = borderColor)
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun MarkdownCodeBlock(
@@ -135,7 +216,8 @@ fun MarkdownText(
         ImageInsertionProcessor(),
         CheckboxProcessor(),
         LinkProcessor(),
-        HorizontalRuleProcessor()
+        HorizontalRuleProcessor(),
+        TableProcessor()
     )
     val markdownBuilder = MarkdownBuilder(lines, lineProcessors)
     markdownBuilder.parse()
@@ -182,19 +264,19 @@ fun MarkdownContent(
 ) {
     if (isPreview) {
         Column(modifier = modifier) {
-             content.take(4).forEachIndexed { index, _ ->
-                    RenderMarkdownElement(
-                        radius = radius,
-                        index = index,
-                        content = content,
-                        weight = weight,
-                        fontSize = fontSize,
-                        lines = lines,
-                        isPreview = true,
-                        onContentChange = onContentChange
-                    )
-                }
+            content.take(4).forEachIndexed { index, _ ->
+                RenderMarkdownElement(
+                    radius = radius,
+                    index = index,
+                    content = content,
+                    weight = weight,
+                    fontSize = fontSize,
+                    lines = lines,
+                    isPreview = true,
+                    onContentChange = onContentChange
+                )
             }
+        }
     } else {
         SelectionContainer {
             LazyColumn(modifier = modifier) {
@@ -317,34 +399,34 @@ fun RenderMarkdownElement(
                 val annotatedString = buildAnnotatedString {
                     val fullText = element.fullText
                     var lastIndex = 0
-                    
+
                     // Sort ranges to ensure correct order
                     val sortedRanges = element.urlRanges.sortedBy { it.second.first }
-                    
+
                     for ((url, range) in sortedRanges) {
                         // Add text before the URL
                         if (range.first > lastIndex) {
                             val textBefore = fullText.substring(lastIndex, range.first)
                             append(buildString(textBefore, weight))
                         }
-                        
+
                         // Add the URL with a different style and tag for clickability
                         pushStringAnnotation("URL", url)
                         withStyle(SpanStyle(color = linkColor, fontWeight = weight)) {
                             append(url)
                         }
                         pop()
-                        
+
                         lastIndex = range.last + 1
                     }
-                    
+
                     // Add any remaining text after the last URL
                     if (lastIndex < fullText.length) {
                         val textAfter = fullText.substring(lastIndex)
                         append(buildString(textAfter, weight))
                     }
                 }
-                
+
                 ClickableText(
                     text = annotatedString,
                     onClick = { offset: Int ->
@@ -361,7 +443,7 @@ fun RenderMarkdownElement(
                     )
                 )
             }
-            
+
             is HorizontalRule -> {
                 Box(
                     modifier = Modifier
@@ -371,7 +453,16 @@ fun RenderMarkdownElement(
                         .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
                 )
             }
-            
+
+            is Table -> {
+                MarkdownTable(
+                    headers = element.headers,
+                    rows = element.rows,
+                    fontSize = fontSize,
+                    weight = weight
+                )
+            }
+
             is NormalText -> {
                 Text(text = buildString(element.text, weight), fontSize = fontSize)
             }

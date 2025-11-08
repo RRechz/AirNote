@@ -259,6 +259,7 @@ fun WidgetMarkdownElement(
             }
 
             is HorizontalRule -> TODO()
+            is Table -> TODO()
         }
     }
 }

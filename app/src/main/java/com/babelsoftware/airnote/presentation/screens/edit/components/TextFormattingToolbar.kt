@@ -1,7 +1,6 @@
 package com.babelsoftware.airnote.presentation.screens.edit.components
 
 import android.content.Context
-
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,31 +10,34 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
-import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.rounded.FormatListBulleted
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.CheckBox
 import androidx.compose.material.icons.rounded.Code
+import androidx.compose.material.icons.rounded.DataObject
 import androidx.compose.material.icons.rounded.FormatBold
 import androidx.compose.material.icons.rounded.FormatItalic
+import androidx.compose.material.icons.rounded.FormatListNumbered
 import androidx.compose.material.icons.rounded.FormatQuote
 import androidx.compose.material.icons.rounded.FormatUnderlined
-import androidx.compose.material.icons.rounded.HMobiledata
 import androidx.compose.material.icons.rounded.Highlight
+import androidx.compose.material.icons.rounded.HorizontalRule
 import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.StrikethroughS
+import androidx.compose.material.icons.rounded.TableChart
+import androidx.compose.material.icons.rounded.Title
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -58,9 +60,7 @@ data class ToolbarItem(
 
 @Composable
 fun TextFormattingToolbar(viewModel: EditViewModel) {
-    val colorArrow = MaterialTheme.colorScheme.outlineVariant
-    val colorIcon = MaterialTheme.colorScheme.inverseSurface
-    var currentIndex by remember { mutableIntStateOf(0) }
+    val colorIcon = MaterialTheme.colorScheme.onSurfaceVariant
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
@@ -69,73 +69,56 @@ fun TextFormattingToolbar(viewModel: EditViewModel) {
         }
     }
 
-    val toolbarSets = remember {
+    val toolbarItems = remember {
         listOf(
-            listOf(
-                ToolbarItem(Icons.AutoMirrored.Rounded.ArrowBackIos,"Bullet List", color = colorArrow) {
-
-                },
-                ToolbarItem(Icons.AutoMirrored.Rounded.FormatListBulleted, "Bullet List", color = colorIcon) {
-                    viewModel.insertText("- ")
-                },
-                ToolbarItem(Icons.Rounded.CheckBox, "Checkbox", color = colorIcon) {
-                    viewModel.insertText("[ ] ")
-                },
-                ToolbarItem(Icons.Rounded.Image, "Insert Image", color = colorIcon) {
-                    launcher.launch("image/*")
-                },
-                ToolbarItem(Icons.AutoMirrored.Rounded.ArrowForwardIos,"Bullet List", color = colorArrow) {
-                    currentIndex++
-                },
-            ),
-            listOf(
-                ToolbarItem(Icons.AutoMirrored.Rounded.ArrowBackIos,"Bullet List", color = colorArrow) {
-                    currentIndex--
-                },
-                ToolbarItem(Icons.Rounded.FormatBold, "Bold", color = colorIcon) {
-                    viewModel.insertText("****", offset = -2, newLine = false)
-                },
-                ToolbarItem(Icons.Rounded.HMobiledata, "Header", color = colorIcon) {
-                    viewModel.insertText("# ")
-                },
-                ToolbarItem(Icons.Rounded.FormatItalic, "Italic", color = colorIcon) {
-                    viewModel.insertText("**", offset = -1, newLine = false)
-                },
-                ToolbarItem(Icons.AutoMirrored.Rounded.ArrowForwardIos,"Bullet List", color = colorArrow) {
-                    currentIndex++
-                },
-            ),
-            listOf(
-                ToolbarItem(Icons.AutoMirrored.Rounded.ArrowBackIos,"Bullet List", color = colorArrow) {
-                    currentIndex--
-                },
-                ToolbarItem(Icons.Rounded.StrikethroughS, "Strikethrough", color = colorIcon) {
-                    viewModel.insertText("~~~~", -2 , newLine = false)
-                },
-                ToolbarItem(Icons.Rounded.Highlight, "Highlight", color = colorIcon) {
-                    viewModel.insertText("====", offset = -2, newLine = false)
-                },
-                ToolbarItem(Icons.Rounded.Code, "Code Block", color = colorIcon) {
-                    viewModel.insertText("```\n\n```", -4)
-                },
-                ToolbarItem(Icons.AutoMirrored.Rounded.ArrowForwardIos,"Bullet List", color = colorArrow) {
-                    currentIndex++
-                },
-            ),
-            listOf(
-                ToolbarItem(Icons.AutoMirrored.Rounded.ArrowBackIos,"Bullet List", color = colorArrow) {
-                    currentIndex--
-                },
-                ToolbarItem(Icons.Rounded.FormatUnderlined, "Underline", color = colorIcon) {
-                    viewModel.insertText("__", -1 , newLine = false)
-                },
-                ToolbarItem(Icons.Rounded.FormatQuote, "Quote", color = colorIcon) {
-                    viewModel.insertText("> ", newLine = true)
-                },
-                ToolbarItem(Icons.AutoMirrored.Rounded.ArrowForwardIos,"Bullet List", color = colorArrow) {
-
-                },
-            ),
+            ToolbarItem(Icons.Rounded.FormatBold, "Bold", color = colorIcon) {
+                viewModel.insertText("****", offset = -2, newLine = false)
+            },
+            ToolbarItem(Icons.Rounded.FormatItalic, "Italic", color = colorIcon) {
+                viewModel.insertText("**", offset = -1, newLine = false)
+            },
+            ToolbarItem(Icons.Rounded.FormatUnderlined, "Underline", color = colorIcon) {
+                viewModel.insertText("__", -1 , newLine = false)
+            },
+            ToolbarItem(Icons.Rounded.StrikethroughS, "Strikethrough", color = colorIcon) {
+                viewModel.insertText("~~~~", -2 , newLine = false)
+            },
+            ToolbarItem(Icons.Rounded.Highlight, "Highlight", color = colorIcon) {
+                viewModel.insertText("====", offset = -2, newLine = false)
+            },
+            ToolbarItem(Icons.Rounded.Title, "Header", color = colorIcon) {
+                viewModel.insertText("# ")
+            },
+            ToolbarItem(Icons.Rounded.FormatQuote, "Quote", color = colorIcon) {
+                viewModel.insertText("> ", newLine = true)
+            },
+            ToolbarItem(Icons.Rounded.HorizontalRule, "Horizontal Rule", color = colorIcon) {
+                viewModel.insertText("\n---\n", newLine = true)
+            },
+            ToolbarItem(Icons.AutoMirrored.Rounded.FormatListBulleted, "Bullet List", color = colorIcon) {
+                viewModel.insertText("- ")
+            },
+            ToolbarItem(Icons.Rounded.FormatListNumbered, "Numbered List", color = colorIcon) {
+                viewModel.insertText("1. ")
+            },
+            ToolbarItem(Icons.Rounded.CheckBox, "Checkbox", color = colorIcon) {
+                viewModel.insertText("[ ] ")
+            },
+            ToolbarItem(Icons.Rounded.Link, "Insert Link", color = colorIcon) {
+                viewModel.insertText("[](url)", offset = -6, newLine = false)
+            },
+            ToolbarItem(Icons.Rounded.Image, "Insert Image", color = colorIcon) {
+                launcher.launch("image/*")
+            },
+            ToolbarItem(Icons.Rounded.TableChart, "Insert Table", color = colorIcon) {
+                viewModel.insertText("| Header | Header |\n| --- | --- |\n| Cell | Cell |", newLine = true)
+            },
+            ToolbarItem(Icons.Rounded.Code, "Code Block", color = colorIcon) {
+                viewModel.insertText("```\n\n```", -4)
+            },
+            ToolbarItem(Icons.Rounded.DataObject, "Inline Code", color = colorIcon) {
+                viewModel.insertText("``", -1, newLine = false)
+            },
         )
     }
 
@@ -149,7 +132,7 @@ fun TextFormattingToolbar(viewModel: EditViewModel) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 6.dp),
+                .padding(horizontal = 4.dp, vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
@@ -159,20 +142,26 @@ fun TextFormattingToolbar(viewModel: EditViewModel) {
                 Icon(
                     imageVector = Icons.Rounded.AutoAwesome,
                     contentDescription = "Edit with AI",
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(18.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
-            Spacer(modifier = Modifier.weight(1f))
-            Row {
-                toolbarSets.getOrNull(currentIndex)?.forEach { item ->
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            LazyRow(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                items(toolbarItems) { item ->
                     IconButton(
                         onClick = { item.onClickAction.invoke() },
                     ) {
                         Icon(
                             item.icon,
                             contentDescription = item.contentDescription,
-                            modifier = Modifier.size(20.dp),
+                            modifier = Modifier.size(24.dp),
                             tint = item.color,
                         )
                     }

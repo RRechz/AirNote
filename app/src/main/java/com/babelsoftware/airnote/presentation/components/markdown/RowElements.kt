@@ -61,3 +61,14 @@ data class HorizontalRule(val fullText: String) : MarkdownElement {
         builder.append("---\n\n")
     }
 }
+
+data class Table(val headers: List<String>, val rows: List<List<String>>) : MarkdownElement {
+    override fun render(builder: StringBuilder) {
+        builder.append("| ${headers.joinToString(" | ")} |\n")
+        builder.append("| ${headers.joinToString(" | ") { "---" }} |\n")
+        rows.forEach { row ->
+            builder.append("| ${row.joinToString(" | ")} |\n")
+        }
+        builder.append("\n")
+    }
+}
