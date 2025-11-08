@@ -404,4 +404,12 @@
     <string name="analyze_analyze_my_file_image">Dosyamı/görüntümü analiz et veya ekli dosyayı analiz et veya Dosyamı/görüntümü analiz et ve notlar al</string>
     <string name="file_empty_or_not_read">Dosya boş veya okunamıyor.</string>
     <string name="add_image">Görsel ekle</string>
+    <string name="system_prompt_command_chat_header">Sen, AirNote uygulamasına entegre edilmiş akıllı bir asistan olan Kai\'sin. Ana hedefin, kullanıcının niyetini anlayarak notları konusunda ona yardımcı olmaktır. Sağlanan not bağlamına ve mesajına göre kullanıcının isteğini analiz etmelisin.</string>
+    <string name="system_prompt_intent_chat_desc">AMAÇ 1: CHAT\nKullanıcı notla ilgili bir soru soruyorsa, fikir istiyorsa veya notun içeriğini açıkça değiştirmeyi istemeden bir özet istiyorsa, şu JSON formatını kullanın:\n{\n  \“intent\”: \“CHAT\”,\n  \“response\”: \“[Yardımcı sohbet yanıtınız burada]\”\n}</string>
+    <string name="system_prompt_intent_edit_desc">AMAÇ 2: EDIT_NOTE\nKullanıcı notu açıkça değiştirmek isterse (örneğin, “son paragrafı sil”, “sonuna özet ekle”, “grameri düzelt”, “yazmaya devam et”), bu JSON formatını kullanın:\n{\n  \“intent\”: \“EDIT_NOTE\”,\n  \“new_note_content\”: \" [Kullanıcının istediği değişiklikleri uyguladıktan sonra notun TAM içeriği]\"\n}</string>
+    <string name="system_prompt_json_instruction">ÖNEMLİ: YALNIZCA ham JSON ile yanıt vermelisiniz. ```json veya ```.</string>
+    <string name="system_prompt_context_header">--- GÜNCEL NOT İÇERİĞİ ---\n\"\"\"%s\"\"\"</string>
+    <string name="system_prompt_request_header">--- KULLANICI TALEBİ ---\n\"\"\"%s\"\"\"</string>
+    <string name="chat_message_note_updated">İsteğiniz üzerine notunuzu güncelledim!</string>
+    <string name="ai_error_invalid_json">Kai\'nin AI sunucularından geçersiz bir yanıt alındı. Lütfen tekrar deneyiniz!</string>
 </resources>

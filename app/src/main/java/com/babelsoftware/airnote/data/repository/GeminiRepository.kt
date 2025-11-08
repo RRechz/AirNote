@@ -368,6 +368,77 @@ class GeminiRepository @Inject constructor(
         }
     }
 
+    suspend fun generateChatOrCommandResponse(
+        noteContext: String,
+        userRequest: String,
+        chatHistory: List<ChatMessage>,
+        apiKey: String
+    ): Result<String> = withContext(Dispatchers.IO) {
+        if (apiKey.isBlank()) {
+            return@withContext Result.failure(ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key)))
+        }
+
+        try {
+            val modelName = settingsRepository.settings.first().selectedModelName
+            val generativeModel = GenerativeModel(
+                modelName = modelName,
+                apiKey = apiKey,
+                generationConfig = generationConfig {
+                    temperature = 0.4f
+                }
+            )
+
+            val systemPrompt = buildString {
+                append(stringProvider.getString(R.string.system_prompt_command_chat_header))
+                append("\n\n")
+                append(stringProvider.getString(R.string.system_prompt_intent_chat_desc))
+                append("\n\n")
+                append(stringProvider.getString(R.string.system_prompt_intent_edit_desc))
+                append("\n\n")
+                append(stringProvider.getString(R.string.system_prompt_json_instruction))
+            }
+
+            val historyForModel = mutableListOf<Content>()
+            val initialContextPrompt = buildString {
+                append(systemPrompt)
+                append("\n\n")
+                append(stringProvider.getString(R.string.system_prompt_context_header, noteContext))
+            }
+            historyForModel.add(content("user") { text(initialContextPrompt) })
+            historyForModel.add(content("model") { text("OK. I am ready. Waiting for user request.") })
+
+            val previousMessages = chatHistory
+                .filter { !it.isLoading && it.participant != Participant.ERROR }
+                .map { msg ->
+                    content(role = if (msg.participant == Participant.USER) "user" else "model") {
+                        text(msg.text)
+                    }
+                }
+            historyForModel.addAll(previousMessages)
+
+            val finalRequestPrompt = stringProvider.getString(R.string.system_prompt_request_header, userRequest)
+            val chat = generativeModel.startChat(history = historyForModel)
+            val response = chat.sendMessage(finalRequestPrompt)
+            val responseText = response.text
+
+            if (responseText.isNullOrBlank()) {
+                Result.failure(Exception("API'den boş yanıt alındı."))
+            } else {
+                val cleanJson = responseText.trim()
+                    .removePrefix("```json")
+                    .removePrefix("```")
+                    .removeSuffix("```")
+                    .trim()
+
+                Result.success(cleanJson)
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
     val supportedLanguages = mapOf(
         TranslateLanguage.ENGLISH to "English",
         TranslateLanguage.TURKISH to "Türkçe",

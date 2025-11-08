@@ -28,7 +28,10 @@ import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
 import com.babelsoftware.airnote.domain.model.ChatMessage
 import com.babelsoftware.airnote.domain.model.Participant
+import com.babelsoftware.airnote.domain.model.AiResponse
 import com.babelsoftware.airnote.domain.usecase.FolderUseCase
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
@@ -38,6 +41,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
+import kotlin.onSuccess
 
 @HiltViewModel
 class EditViewModel @Inject constructor(
@@ -280,79 +284,75 @@ class EditViewModel @Inject constructor(
 
         val userMessageText = _minimalAiChatText.value
         _minimalAiChatText.value = ""
-
         val userMessage = ChatMessage(userMessageText, Participant.USER)
         val loadingMessage = ChatMessage("", Participant.MODEL, isLoading = true)
 
-        val currentHistory = _minimalAiChatHistory.value
-        _minimalAiChatHistory.value = currentHistory + userMessage + loadingMessage
+        _minimalAiChatHistory.value = _minimalAiChatHistory.value + userMessage + loadingMessage
         _isMinimalChatActive.value = true
         _isMinimalAiLoading.value = true
-
-        val historyToSend = mutableListOf<ChatMessage>()
-
-        // If this is the first message, add the note context
-        val userMessagesCount = _minimalAiChatHistory.value.count { it.participant == Participant.USER }
-        if (userMessagesCount == 1) {
-            val noteContext = noteDescription.value.text
-            if (noteContext.isNotBlank()) {
-                // Dream Journal modu için özel başlık
-                val promptHeader: String = if (_isDreamJournalMode.value) {
-                    stringProvider.getString(R.string.prompt_dream_journal_header)
-                } else {
-                    "My note content is:\n\n"
-                }
-                historyToSend.add(ChatMessage("$promptHeader\"\"\"$noteContext\"\"\"\n\nMy question is: $userMessageText", Participant.USER))
-            } else {
-                historyToSend.add(userMessage) // Kontekst yok, sadece mesajı gönder
-            }
-        } else {
-            // For follow-up messages, build history from our state
-            _minimalAiChatHistory.value.dropLast(1).forEachIndexed { index, msg ->
-                if (msg.participant == Participant.USER && index == 0) {
-                    val noteContext = noteDescription.value.text
-                    if (noteContext.isNotBlank()) {
-                        // Dream Journal modu için özel başlık
-                        val promptHeader: String = if (_isDreamJournalMode.value) {
-                            stringProvider.getString(R.string.prompt_dream_journal_header)
-                        } else {
-                            "My note content is:\n\n"
-                        }
-                        historyToSend.add(ChatMessage("$promptHeader\"\"\"$noteContext\"\"\"\n\nMy question is: ${msg.text}", Participant.USER))
-                    } else {
-                        historyToSend.add(msg)
-                    }
-                } else {
-                    historyToSend.add(msg)
-                }
-            }
-        }
 
         viewModelScope.launch {
             try {
                 val apiKey = getApiKeyToUse()
-                val responseBuilder = StringBuilder()
+                val noteContext = noteDescription.value.text
+                val currentHistoryForApi = _minimalAiChatHistory.value.dropLast(2)
+                val result = geminiRepository.generateChatOrCommandResponse(
+                    noteContext = noteContext,
+                    userRequest = userMessageText,
+                    chatHistory = currentHistoryForApi,
+                    apiKey = apiKey
+                )
 
-                geminiRepository.generateChatResponse(historyToSend, apiKey)
-                    .onCompletion {
-                        _isMinimalAiLoading.value = false
-                        val finalResponse = ChatMessage(responseBuilder.toString(), Participant.MODEL, isLoading = false)
-                        _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + finalResponse
+                _isMinimalAiLoading.value = false
+                _minimalAiChatHistory.value = _minimalAiChatHistory.value.filter { !it.isLoading }
+
+                result.onSuccess { jsonResponse ->
+                    try {
+                        val aiResponse = Gson().fromJson(jsonResponse, AiResponse::class.java)
+
+                        when (aiResponse.intent) {
+                            "CHAT" -> {
+                                val responseText = aiResponse.response ?: "..."
+                                val modelMessage = ChatMessage(responseText, Participant.MODEL)
+                                _minimalAiChatHistory.value = _minimalAiChatHistory.value + modelMessage
+                            }
+                            "EDIT_NOTE" -> {
+                                aiResponse.newNoteContent?.let { newContent ->
+                                    undoRedoState.onInput(noteDescription.value)
+                                    updateNoteDescription(TextFieldValue(newContent))
+
+                                    val successMessage = ChatMessage(
+                                        stringProvider.getString(R.string.chat_message_note_updated),
+                                        Participant.MODEL
+                                    )
+                                    _minimalAiChatHistory.value = _minimalAiChatHistory.value + successMessage
+                                }
+                            }
+                            else -> {
+                                val errorMessage = ChatMessage("AI garip bir yanıt verdi: ${aiResponse.intent}", Participant.ERROR)
+                                _minimalAiChatHistory.value = _minimalAiChatHistory.value + errorMessage
+                            }
+                        }
+                    } catch (e: JsonSyntaxException) {
+                        e.printStackTrace()
+                        val errorMessage = ChatMessage(stringProvider.getString(R.string.ai_error_invalid_json), Participant.ERROR)
+                        _minimalAiChatHistory.value = _minimalAiChatHistory.value + errorMessage
                     }
-                    .collect { chunk ->
-                        responseBuilder.append(chunk)
-                        // Stream response to UI
-                        _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + ChatMessage(responseBuilder.toString(), Participant.MODEL, isLoading = true)
-                    }
+                }
+
+                result.onFailure { e ->
+                    val errorMessage = ChatMessage(e.message ?: stringProvider.getString(R.string.error_unknown), Participant.ERROR)
+                    _minimalAiChatHistory.value = _minimalAiChatHistory.value + errorMessage
+                }
 
             } catch (e: Exception) {
                 _isMinimalAiLoading.value = false
-                val errorMessage = ChatMessage(e.message ?: stringProvider.getString(R.string.error_unknown), Participant.ERROR, isLoading = false)
-                _minimalAiChatHistory.value = _minimalAiChatHistory.value.dropLast(1) + errorMessage
+                _minimalAiChatHistory.value = _minimalAiChatHistory.value.filter { !it.isLoading }
+                val errorMessage = ChatMessage(e.message ?: stringProvider.getString(R.string.error_unknown), Participant.ERROR)
+                _minimalAiChatHistory.value = _minimalAiChatHistory.value + errorMessage
             }
         }
     }
-    // --- END NEW FUNCTIONS ---
 
     fun toggleAiActionSheet(isVisible: Boolean) {
         if (isVisible) {
