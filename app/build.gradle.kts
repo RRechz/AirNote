@@ -34,7 +34,7 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = 1
-        versionName = "v1.5"
+        versionName = "v1.6"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -105,6 +105,7 @@ dependencies {
     implementation("com.google.mlkit:language-id:17.0.6")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
     implementation("org.jsoup:jsoup:1.21.2")
+    implementation("com.google.code.gson:gson:2.13.2")
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.datastore.preferences)

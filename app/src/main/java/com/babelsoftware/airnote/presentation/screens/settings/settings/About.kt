@@ -139,7 +139,7 @@ fun AboutScreen(
                 SettingsBox(
                     settingsViewModel = settingsViewModel,
                     title = stringResource(R.string.ai_version),
-                    description = "v1.2 build v0.9.0",
+                    description = "v1.3 build v0.9.0",
                     icon = IconResource.Vector(Icons.Rounded.AutoAwesome),
                     actionType = ActionType.TEXT,
                     radius = RoundedCornerShape(0.dp)

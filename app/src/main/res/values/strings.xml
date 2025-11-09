@@ -332,7 +332,7 @@
     <string name="interpret_my_dream">Interpret My Dream</string>
     <string name="dream_journal_ai_title">AirNote Kai - Dream Edition</string>
     <string name="dream_not_found">Your dream could not be found! Please describe your dream.</string>
-    <string name="instagram">DM me!</string>
+    <string name="instagram">Official | @AirNoteApp</string>
 
     <!-- Ai Prompt Analyze -->
     <string name="analyze_create_note">create a note or create note</string>
