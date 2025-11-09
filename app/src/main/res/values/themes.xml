@@ -4,8 +4,8 @@
     <style name="Theme.EasyNotes" parent="Theme.AppCompat.DayNight.NoActionBar" />
 
     <style name="Theme.EasySplash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/backgroundDark</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/avd_splash_draw</item>
         <item name="postSplashScreenTheme">@style/Theme.EasyNotes</item>
     </style>
 </resources>

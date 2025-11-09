@@ -2,7 +2,7 @@
 <resources>
     <color name="backgroundDark">#332f2f</color>
     <color name="iconDark">#fddbd6</color>
-    <color name="splash_background">@color/splash_bg_light</color>
+    <color name="splash_background">@color/splash_bg_dark</color>
     <color name="splash_bg_light">#FFFFFF</color>
     <color name="splash_bg_dark">#121212</color>
 </resources>

@@ -2,4 +2,7 @@
 <resources>
     <color name="backgroundDark">@android:color/system_neutral2_900</color>
     <color name="iconDark">@android:color/system_accent1_200</color>
+    <color name="splash_background">@color/splash_bg_light</color>
+    <color name="splash_bg_light">#FFFFFF</color>
+    <color name="splash_bg_dark">#121212</color>
 </resources>
