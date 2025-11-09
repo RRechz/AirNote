@@ -320,7 +320,7 @@
     <string name="prompt_airnote_ai_analyzeimage">Bu ekteki resmi Sherlock Holmes gibi analiz edin ve içeriğini açıklayan bir not oluşturun. Cevabınız, başlık ve içerik arasında net bir ayrım yaparak ‘BAŞLIK:’ ve ‘İÇERİK:’ içermelidir.</string>
     <string name="about_latest_changes">Son Değişiklikler</string>
     <string name="edit">Düzenle</string>
-    <string name="preview">Önizleme</string>
+    <string name="preview">Önizle</string>
     <string name="search_folders">Klasörlerde ara...</string>
     <string name="new_folder">Yeni Klasör</string>
     <string name="hide">Gizle</string>
