@@ -146,6 +146,7 @@ class EditViewModel @Inject constructor(
     val downloadedLanguages: State<List<Pair<String, String>>> = _downloadedLanguages
 
     private var _translationSelection: TextRange? = null
+    private var _isTranslatingSelection = false // Çevirinin seçim için mi yoksa tüm not için mi olduğunu takip eder
     // --- AI'S STATES | END---
 
 
@@ -266,7 +267,20 @@ class EditViewModel @Inject constructor(
     // --- NEW MINIMAL AI CHAT FUNCTIONS ---
     fun toggleMinimalAiUi(isVisible: Boolean) {
         _isMinimalAiUiVisible.value = isVisible
-        if (!isVisible) {
+        if (isVisible) {
+            viewModelScope.launch {
+                geminiRepository.getDownloadedModels()
+                    .onSuccess { downloadedCodes ->
+                        val availableLanguages = geminiRepository.supportedLanguages
+                            .filter { downloadedCodes.contains(it.key) }
+                            .map { it.key to it.value }
+                        _downloadedLanguages.value = availableLanguages
+                    }
+                    .onFailure {
+                        println("Dil modelleri yüklenemedi (Minimal UI): ${it.message}")
+                    }
+            }
+        } else {
             // Reset chat state when closing
             _minimalAiChatText.value = ""
             _minimalAiChatHistory.value = emptyList()
@@ -383,12 +397,10 @@ class EditViewModel @Inject constructor(
         if (action != AiAction.CHANGE_TONE && action != AiAction.TRANSLATE) {
             toggleAiActionSheet(false)
         } else {
-            toggleMinimalAiUi(false)
         }
         toggleToneActionSheet(false)
 
         if (action == AiAction.CHANGE_TONE && tone == null) {
-            toggleToneActionSheet(true)
             return
         }
 
@@ -655,6 +667,7 @@ class EditViewModel @Inject constructor(
     }
 
     fun onTranslateClicked(forSelection: Boolean) {
+        _isTranslatingSelection = forSelection
         _translationSelection = if (forSelection) {
             noteDescription.value.selection.takeIf { !it.collapsed }
         } else {
@@ -668,26 +681,32 @@ class EditViewModel @Inject constructor(
             return
         }
 
-
-        viewModelScope.launch {
-            _isAiLoading.value = true
-            geminiRepository.getDownloadedModels()
-                .onSuccess { downloadedCodes ->
-                    val availableLanguages = geminiRepository.supportedLanguages
-                        .filter { downloadedCodes.contains(it.key) }
-                        .map { it.key to it.value }
-                    _downloadedLanguages.value = availableLanguages
-                    toggleTranslateSheet(true)
-                }
-                .onFailure {
-                    _uiEvent.send(stringProvider.getString(R.string.error_fetching_downloaded_models, it.message ?: ""))
-                }
-            _isAiLoading.value = false
+        if (forSelection) {
+            toggleMinimalAiUi(true)
+        } else {
+            viewModelScope.launch {
+                _isAiLoading.value = true
+                geminiRepository.getDownloadedModels()
+                    .onSuccess { downloadedCodes ->
+                        val availableLanguages = geminiRepository.supportedLanguages
+                            .filter { downloadedCodes.contains(it.key) }
+                            .map { it.key to it.value }
+                        _downloadedLanguages.value = availableLanguages
+                        toggleTranslateSheet(true)
+                    }
+                    .onFailure {
+                        _uiEvent.send(stringProvider.getString(R.string.error_fetching_downloaded_models, it.message ?: ""))
+                    }
+                _isAiLoading.value = false
+            }
         }
     }
 
     fun executeTranslation(targetLanguageCode: String) {
-        toggleTranslateSheet(false)
+        if (_isTranslatingSelection) {
+        } else {
+            toggleTranslateSheet(false)
+        }
 
         val selection = _translationSelection
         if (selection == null || selection.end > noteDescription.value.text.length) {
@@ -710,6 +729,10 @@ class EditViewModel @Inject constructor(
                             selection = TextRange(newSelectionStart)
                         )
                     )
+
+                    if (_isTranslatingSelection) {
+                        toggleMinimalAiUi(false)
+                    }
                 }
                 .onFailure {
                     _uiEvent.send(stringProvider.getString(R.string.error_translation_failed, it.message ?: ""))

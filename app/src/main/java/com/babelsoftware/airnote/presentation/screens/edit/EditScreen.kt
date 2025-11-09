@@ -9,7 +9,9 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
@@ -42,22 +44,28 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Balance
+import androidx.compose.material.icons.rounded.BusinessCenter
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.EmojiEmotions
 import androidx.compose.material.icons.rounded.EmojiSymbols
+import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Interests
+import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Numbers
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.RemoveRedEye
@@ -75,8 +83,10 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -96,6 +106,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -192,10 +203,7 @@ fun EditNoteView(
         AiActionSheet(viewModel = viewModel)
     }
 
-    if (viewModel.isToneActionSheetVisible.value) {
-        ToneActionSheet(viewModel = viewModel)
-    }
-
+    // "Tüm Notu Çevir" için alt pencereyi geri getirdik.
     if (viewModel.isTranslateSheetVisible.value) {
         TranslateLanguageSheet(viewModel = viewModel)
     }
@@ -973,25 +981,10 @@ fun AiActionSheet(viewModel: EditViewModel) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ToneActionSheet(viewModel: EditViewModel) {
-    val tones = AiTone.values().toList()
-
-    ModalBottomSheet(
-        onDismissRequest = { viewModel.toggleToneActionSheet(false) },
-    ) {
-        LazyColumn {
-            items(items = tones) { tone ->
-                ListItem(
-                    headlineContent = { Text(tone.getDisplayName()) },
-                    modifier = Modifier.clickable {
-                        viewModel.executeAiAction(action = AiAction.CHANGE_TONE, tone = tone) // We call executeAiAction, this time with the selected tone
-                    }
-                )
-            }
-        }
-    }
+private enum class MinimalAiUiMode {
+    MAIN,
+    TONE,
+    TRANSLATE
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1004,6 +997,13 @@ fun MinimalAiChatInterface(viewModel: EditViewModel, settingsViewModel: Settings
     val isLoading = viewModel.isMinimalAiLoading.value
     val chatScrollState = rememberScrollState()
     val cornerRadius = settingsViewModel.settings.value.cornerRadius
+    var currentUiState by remember { mutableStateOf(MinimalAiUiMode.MAIN) }
+
+    LaunchedEffect(isTextSelected) {
+        if (!isTextSelected) {
+            currentUiState = MinimalAiUiMode.MAIN
+        }
+    }
 
     LaunchedEffect(chatHistory.size) {
         chatScrollState.animateScrollTo(chatScrollState.maxValue)
@@ -1063,7 +1063,10 @@ fun MinimalAiChatInterface(viewModel: EditViewModel, settingsViewModel: Settings
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(
-                    onClick = { viewModel.toggleMinimalAiUi(false) },
+                    onClick = {
+                        viewModel.toggleMinimalAiUi(false)
+                        currentUiState = MinimalAiUiMode.MAIN
+                    },
                 ) {
                     Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.close))
                 }
@@ -1110,23 +1113,121 @@ fun MinimalAiChatInterface(viewModel: EditViewModel, settingsViewModel: Settings
                 }
             } else {
                 AnimatedVisibility(visible = !isChatActive) {
-                    LazyRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(AiAction.values()) { action ->
-                            InputActionButton(
-                                text = action.getDisplayName(),
-                                icon = action.getIcon(),
-                                enabled = isTextSelected,
-                                onClick = {
-                                    viewModel.executeAiAction(action = action, tone = null)
-                                    if (action == AiAction.CHANGE_TONE || action == AiAction.TRANSLATE) {
-                                        viewModel.toggleMinimalAiUi(false)
+                    AnimatedContent(
+                        targetState = currentUiState,
+                        label = "AiActionsAnimation",
+                        transitionSpec = {
+                            if (targetState != MinimalAiUiMode.MAIN && initialState == MinimalAiUiMode.MAIN) {
+                                (slideInHorizontally { width -> width } + fadeIn()).togetherWith(slideOutHorizontally { width -> -width } + fadeOut())
+                            } else {
+                                (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(slideOutHorizontally { width -> width } + fadeOut())
+                            }
+                        }
+                    ) { state ->
+                        when (state) {
+                            MinimalAiUiMode.MAIN -> {
+                                LazyRow(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    items(AiAction.values()) { action ->
+                                        InputActionButton(
+                                            text = action.getDisplayName(),
+                                            icon = action.getIcon(),
+                                            enabled = isTextSelected,
+                                            onClick = {
+                                                when (action) {
+                                                    AiAction.CHANGE_TONE -> currentUiState = MinimalAiUiMode.TONE
+                                                    AiAction.TRANSLATE -> {
+                                                        viewModel.onTranslateClicked(forSelection = true)
+                                                        currentUiState = MinimalAiUiMode.TRANSLATE
+                                                    }
+                                                    else -> viewModel.executeAiAction(action = action, tone = null)
+                                                }
+                                            }
+                                        )
                                     }
                                 }
-                            )
+                            }
+                            MinimalAiUiMode.TONE -> {
+                                LazyRow(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    item {
+                                        FilledIconButton(
+                                            onClick = { currentUiState = MinimalAiUiMode.MAIN },
+                                            modifier = Modifier.size(34.dp),
+                                            colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                                        ) {
+                                            Icon(
+                                                Icons.AutoMirrored.Rounded.ArrowBack,
+                                                contentDescription = stringResource(R.string.back),
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
+                                    }
+                                    items(AiTone.values()) { tone ->
+                                        InputActionButton(
+                                            text = tone.getDisplayName(),
+                                            icon = tone.getIcon(),
+                                            enabled = true,
+                                            onClick = {
+                                                viewModel.executeAiAction(action = AiAction.CHANGE_TONE, tone = tone)
+                                                currentUiState = MinimalAiUiMode.MAIN
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                            MinimalAiUiMode.TRANSLATE -> {
+                                val languages = viewModel.downloadedLanguages.value
+                                LazyRow(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    item {
+                                        FilledIconButton(
+                                            onClick = { currentUiState = MinimalAiUiMode.MAIN },
+                                            modifier = Modifier.size(34.dp),
+                                            colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                                        ) {
+                                            Icon(
+                                                Icons.AutoMirrored.Rounded.ArrowBack,
+                                                contentDescription = stringResource(R.string.back),
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
+                                    }
+                                    if (languages.isEmpty()) {
+                                        item {
+                                            Text(
+                                                text = stringResource(R.string.no_downloaded_languages),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier.padding(start = 8.dp)
+                                            )
+                                        }
+                                    } else {
+                                        items(languages) { (code, name) ->
+                                            InputActionButton(
+                                                text = name,
+                                                icon = Icons.Rounded.Translate,
+                                                enabled = true,
+                                                onClick = {
+                                                    viewModel.executeTranslation(code)
+                                                    currentUiState = MinimalAiUiMode.MAIN
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -1290,6 +1391,15 @@ fun AiAction.getDisplayName(): String {
         AiAction.MAKE_LONGER -> stringResource(id = R.string.ai_action_make_longer)
         AiAction.CHANGE_TONE -> stringResource(id = R.string.ai_action_change_tone)
         AiAction.TRANSLATE -> stringResource(id = R.string.translate)
+    }
+}
+
+@Composable
+fun AiTone.getIcon(): ImageVector {
+    return when (this) {
+        AiTone.FORMAL -> Icons.Rounded.BusinessCenter
+        AiTone.BALANCED -> Icons.Rounded.Balance
+        AiTone.FRIENDLY -> Icons.Rounded.Face
     }
 }
 
