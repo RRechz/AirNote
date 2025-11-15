@@ -304,6 +304,35 @@ fun HomeView (
                 }
             )
 
+            val imageAnalysisLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent(),
+                onResult = { uri: Uri? ->
+                    if (uri != null) {
+                        val mimeType = context.contentResolver.getType(uri)
+                        val analysisPrompt = context.getString(R.string.prompt_airnote_ai_analyzeimage)
+
+                        viewModel.analyzeFileAndCreateDraft(analysisPrompt, uri, mimeType ?: "image/*")
+                    }
+                }
+            )
+
+            val fileAnalysisLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent(),
+                onResult = { uri: Uri? ->
+                    if (uri != null) {
+                        val mimeType = context.contentResolver.getType(uri)
+                        if (mimeType == "text/plain") {
+                            val analysisPrompt = context.getString(R.string.prompt_airnote_ai_analyzeimage)
+                            viewModel.analyzeFileAndCreateDraft(analysisPrompt, uri, mimeType)
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Currently only '.txt' files are supported for analysis.")
+                            }
+                        }
+                    }
+                }
+            )
+
             var showAttachmentTypeSheet by remember { mutableStateOf(false) }
             if (showAttachmentTypeSheet) {
                 AttachmentTypeBottomSheet(
@@ -321,10 +350,12 @@ fun HomeView (
                 viewModel.uiActionChannel.collect { action ->
                     when (action) {
                         is HomeViewModel.UiAction.RequestImageForAnalysis -> {
-                            imagePickerLauncher.launch("image/*")
+                            // ESKİ HALİ: imagePickerLauncher.launch("image/*")
+                            imageAnalysisLauncher.launch("image/*") // <-- YENİ HALİ
                         }
                         is HomeViewModel.UiAction.RequestFileForAnalysis -> {
-                            filePickerLauncher.launch("text/plain")
+                            // ESKİ HALİ: filePickerLauncher.launch("text/plain")
+                            fileAnalysisLauncher.launch("text/plain") // <-- YENİ HALİ
                         }
                         is HomeViewModel.UiAction.RequestAttachmentType -> {
                             showAttachmentTypeSheet = true

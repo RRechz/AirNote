@@ -709,15 +709,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun resetChatState() {
-        _chatState.value = _chatState.value.copy(
-            messages = emptyList(),
-            isAwaitingDraftTopic = false,
-            latestDraft = null,
-            hasStartedConversation = false,
-            analyzingImageUri = null,
-            pendingAttachmentUri = null,
-            pendingAttachmentMimeType = null
-        )
+        _chatState.value = ChatState()
         setAiMode(AiMode.NOTE_ASSISTANT)
     }
 
