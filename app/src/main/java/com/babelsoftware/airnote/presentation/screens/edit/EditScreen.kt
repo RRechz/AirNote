@@ -674,7 +674,10 @@ fun PreviewScreen(viewModel: EditViewModel, settingsViewModel: SettingsViewModel
                                 16.dp
                             )
                             .weight(1f),
-                        onContentChange = { viewModel.updateNoteDescription(TextFieldValue(text = it)) },
+                        onContentChange = { newText ->
+                            val synchronizedText = synchronizeStrikethroughs(newText)
+                            viewModel.updateNoteDescription(TextFieldValue(text = synchronizedText))
+                        },
                         settingsViewModel = settingsViewModel
                     )
                 }
@@ -1438,6 +1441,41 @@ private fun TranslateLanguageSheet(viewModel: EditViewModel) {
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+private fun synchronizeStrikethroughs(newMarkdown: String): String {
+    return newMarkdown.lines().joinToString("\n") { line ->
+        val checkedRegex = Regex("""^(\s*\[[xX]\]\s+)(.*)""")
+        val uncheckedRegex = Regex("""^(\s*\[ \]\s+)(.*)""")
+        val checkedMatch = checkedRegex.find(line)
+        val uncheckedMatch = uncheckedRegex.find(line)
+
+        when {
+            checkedMatch != null -> {
+                val prefix = checkedMatch.groupValues[1]
+                val content = checkedMatch.groupValues[2]
+
+                if (content.startsWith("~~") && content.endsWith("~~")) {
+                    line
+                } else {
+                    "$prefix~~$content~~"
+                }
+            }
+            uncheckedMatch != null -> {
+                val prefix = uncheckedMatch.groupValues[1]
+                val content = uncheckedMatch.groupValues[2]
+
+                if (content.startsWith("~~") && content.endsWith("~~")) {
+                    val strippedContent = content.substring(2, content.length - 2)
+                    "$prefix$strippedContent"
+                } else {
+                    line
+                }
+            }
+
+            else -> line
         }
     }
 }

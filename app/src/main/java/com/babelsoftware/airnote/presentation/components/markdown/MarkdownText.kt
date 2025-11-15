@@ -36,11 +36,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -161,8 +163,10 @@ fun MarkdownQuote(content: String, fontSize: TextUnit) {
         )
         Spacer(modifier = Modifier.width(6.dp))
         Text(
-            text = buildString(" $content"),
-            fontSize = fontSize
+            text = StyledText(
+                text = " $content",
+                baseStyle = SpanStyle(fontSize = fontSize)
+            )
         )
     }
 }
@@ -313,13 +317,15 @@ fun RenderMarkdownElement(
     Row {
         when (element) {
             is Heading -> {
-                Text(
-                    text = buildString(element.text, weight),
-                    fontSize = when (element.level) {
-                        in 1..6 -> (28 - (2 * element.level) - fontSize.value/3).sp
-                        else -> fontSize
-                    },
+                val style = SpanStyle(
                     fontWeight = weight,
+                    fontSize = when (element.level) {
+                        in 1..6 -> (28 - (2 * element.level) - fontSize.value / 3).sp
+                        else -> fontSize
+                    }
+                )
+                Text(
+                    text = StyledText(text = element.text, baseStyle = style),
                     modifier = Modifier.padding(vertical = 10.dp)
                 )
             }
@@ -328,9 +334,10 @@ fun RenderMarkdownElement(
                 MarkdownCheck(
                     content = {
                         Text(
-                            text = buildString(element.text, weight),
-                            fontSize = fontSize,
-                            fontWeight = weight,
+                            text = StyledText(
+                                text = element.text,
+                                baseStyle = SpanStyle(fontSize = fontSize, fontWeight = weight)
+                            )
                         )
                     },
                     checked = element.checked,
@@ -349,9 +356,10 @@ fun RenderMarkdownElement(
 
             is ListItem -> {
                 Text(
-                    text = buildString("• ${element.text}", weight),
-                    fontSize = fontSize,
-                    fontWeight = weight,
+                    text = StyledText(
+                        text = "• ${element.text}",
+                        baseStyle = SpanStyle(fontSize = fontSize, fontWeight = weight)
+                    )
                 )
             }
 
@@ -387,7 +395,7 @@ fun RenderMarkdownElement(
                     }
                 } else {
                     Text(
-                        text = buildString(element.firstLine, weight),
+                        text = element.firstLine,
                         fontWeight = weight,
                         fontSize = fontSize,
                     )
@@ -396,23 +404,20 @@ fun RenderMarkdownElement(
 
             is Link -> {
                 val context = LocalContext.current
+                val baseStyle = SpanStyle(fontWeight = weight, fontSize = fontSize)
                 val annotatedString = buildAnnotatedString {
                     val fullText = element.fullText
                     var lastIndex = 0
 
-                    // Sort ranges to ensure correct order
                     val sortedRanges = element.urlRanges.sortedBy { it.second.first }
 
                     for ((url, range) in sortedRanges) {
-                        // Add text before the URL
                         if (range.first > lastIndex) {
                             val textBefore = fullText.substring(lastIndex, range.first)
-                            append(buildString(textBefore, weight))
+                            append(StyledText(text = textBefore, baseStyle = baseStyle))
                         }
-
-                        // Add the URL with a different style and tag for clickability
                         pushStringAnnotation("URL", url)
-                        withStyle(SpanStyle(color = linkColor, fontWeight = weight)) {
+                        withStyle(baseStyle.plus(SpanStyle(color = linkColor))) {
                             append(url)
                         }
                         pop()
@@ -420,10 +425,9 @@ fun RenderMarkdownElement(
                         lastIndex = range.last + 1
                     }
 
-                    // Add any remaining text after the last URL
                     if (lastIndex < fullText.length) {
                         val textAfter = fullText.substring(lastIndex)
-                        append(buildString(textAfter, weight))
+                        append(StyledText(text = textAfter, baseStyle = baseStyle))
                     }
                 }
 
@@ -464,7 +468,12 @@ fun RenderMarkdownElement(
             }
 
             is NormalText -> {
-                Text(text = buildString(element.text, weight), fontSize = fontSize)
+                Text(
+                    text = StyledText(
+                        text = element.text,
+                        baseStyle = SpanStyle(fontSize = fontSize, fontWeight = weight)
+                    )
+                )
             }
         }
         // Add new line to selectionContainer but don't render it
@@ -473,6 +482,40 @@ fun RenderMarkdownElement(
                 text = "\n",
                 maxLines = 1
             )
+        }
+    }
+}
+
+@Composable
+private fun StyledText(
+    text: String,
+    baseStyle: SpanStyle
+): AnnotatedString {
+    val regex = Regex("(~~)(.*?)(~~)")
+
+    return buildAnnotatedString {
+        var lastIndex = 0
+        val matches = regex.findAll(text)
+
+        matches.forEach { match ->
+            if (match.range.first > lastIndex) {
+                withStyle(baseStyle) {
+                    append(text.substring(lastIndex, match.range.first))
+                }
+            }
+
+            val content = match.groupValues[2]
+            withStyle(baseStyle.plus(SpanStyle(textDecoration = TextDecoration.LineThrough))) {
+                append(content)
+            }
+
+            lastIndex = match.range.last + 1
+        }
+
+        if (lastIndex < text.length) {
+            withStyle(baseStyle) {
+                append(text.substring(lastIndex))
+            }
         }
     }
 }
