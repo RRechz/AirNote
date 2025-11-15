@@ -161,6 +161,18 @@ private fun ApiKeySetting(settingsViewModel: SettingsViewModel, onHelpClick: () 
 @Composable
 private fun ModelChoiceSetting(settingsViewModel: SettingsViewModel) {
     val settings = settingsViewModel.settings.value
+    val selectedModelInfo = GeminiModels.supportedModels.find {
+        it.name == settings.selectedModelName
+    }
+    val selectedModelDisplayName = if (selectedModelInfo != null) {
+        stringResource(id = selectedModelInfo.displayNameResId)
+    } else {
+        settings.selectedModelName // Fallback
+    }
+    val descriptionText = stringResource(
+        R.string.model_in_use_prefix,
+        selectedModelDisplayName
+    )
 
     Column {
         Text(
@@ -172,7 +184,7 @@ private fun ModelChoiceSetting(settingsViewModel: SettingsViewModel) {
         SettingsBox(
             settingsViewModel = settingsViewModel,
             title = stringResource(id = R.string.model_to_use),
-            description = settings.selectedModelName,
+            description = descriptionText,
             icon = IconResource.Vector(Icons.Rounded.Memory),
             actionType = ActionType.CUSTOM,
             radius = shapeManager(
@@ -330,14 +342,8 @@ private fun ModelChoicePopup(
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = model.icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
                             Text(
-                                text = model.name,
+                                text = stringResource(id = model.displayNameResId),
                                 modifier = Modifier.weight(1f),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold

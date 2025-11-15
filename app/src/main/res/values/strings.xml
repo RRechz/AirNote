@@ -333,6 +333,10 @@
     <string name="dream_journal_ai_title">AirNote Kai - Dream Edition</string>
     <string name="dream_not_found">Your dream could not be found! Please describe your dream.</string>
     <string name="instagram">Official | @AirNoteApp</string>
+    <string name="gemini_models_25" translatable="false">Gemini 2.5</string>
+    <string name="gemini_models_20" translatable="false">Gemini 2.0</string>
+    <string name="gemini_models_15" translatable="false">Gemini 1.5</string>
+    <string name="model_in_use_prefix">Active Model: %1$s</string>
 
     <!-- Ai Prompt Analyze -->
     <string name="analyze_create_note">create a note or create note</string>
