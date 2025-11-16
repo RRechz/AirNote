@@ -1178,6 +1178,18 @@ fun AddFolderDialogWithIcons(
         title = { Text(if (folderToEdit == null) stringResource(R.string.new_folder) else stringResource(R.string.edit_folder)) },
         text = {
             Column {
+                Text(
+                    text = stringResource(R.string.preview),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                FolderListItem(
+                    name = name.ifBlank { stringResource(R.string.folder_name) },
+                    iconName = selectedIconName,
+                    isSelected = false,
+                    onClick = {}
+                )
+                Spacer(modifier = Modifier.height(20.dp))
                 OutlinedTextField(
                     value = name,
                     onValueChange = { newName -> name = newName },
