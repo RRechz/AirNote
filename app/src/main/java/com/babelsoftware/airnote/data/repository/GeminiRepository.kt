@@ -103,7 +103,9 @@ data class AiActionCommand(
     @SerializedName("response")
     val response: String?,
     @SerializedName("new_content")
-    val new_content: String?
+    val new_content: String?,
+    @SerializedName("search_term")
+    val search_term: String?
 )
 
 class GeminiRepository @Inject constructor(

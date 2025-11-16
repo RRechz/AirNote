@@ -479,6 +479,38 @@ class HomeViewModel @Inject constructor(
                             }
                         }
 
+                        "QUERY_NOTES" -> {
+                            val allFolders = folderUseCase.getAllFolders().first()
+                            var notesToSearch = allNotes
+
+                            if (!action.folder_name.isNullOrBlank()) {
+                                val targetFolder = allFolders.find { it.name.equals(action.folder_name, ignoreCase = true) }
+                                if (targetFolder != null) {
+                                    notesToSearch = notesToSearch.filter { it.folderId == targetFolder.id }
+                                } else {
+                                    finalResponseMessage = stringProvider.getString(R.string.folder_not_found)
+                                    break
+                                }
+                            }
+
+                            val searchTerm = action.search_term
+                            val searchResults = if (!searchTerm.isNullOrBlank()) {
+                                notesToSearch.filter {
+                                    it.name.contains(searchTerm, ignoreCase = true) ||
+                                            it.description.contains(searchTerm, ignoreCase = true)
+                                }
+                            } else {
+                                notesToSearch
+                            }
+
+                            if (searchResults.isEmpty()) {
+                                finalResponseMessage = stringProvider.getString(R.string.not_found_note)
+                            } else {
+                                val resultsText = searchResults.joinToString("\n") { "- ${it.name}" }
+                                finalResponseMessage = stringProvider.getString(R.string.found_note, resultsText)
+                            }
+                        }
+
                         "CHAT" -> {
                             if (action.response != null) {
                                 finalResponseMessage = action.response

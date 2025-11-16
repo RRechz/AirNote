@@ -337,6 +337,9 @@
     <string name="gemini_models_20" translatable="false">Gemini 2.0</string>
     <string name="gemini_models_15" translatable="false">Gemini 1.5</string>
     <string name="model_in_use_prefix">Active Model: %1$s</string>
+    <string name="not_found_note">No notes matching your search were found.</string>
+    <string name="folder_not_found">I couldn\'t find the %1$s folder you were looking for.</string>
+    <string name="found_note">I found these notes: \n%1$s</string>
 
     <!-- Ai Prompt Analyze -->
     <string name="analyze_create_note">create a note or create note</string>
@@ -458,7 +461,7 @@
        - Description: Creates a new note folder.
        - Parameters:
          - \"name\" (String): The name of the folder.
-         - \"iconName\" (String, optional): Default is \"Folder\".
+         - \"iconName\" (String, optional): Default is "Folder".
 
     4. MOVE_NOTE_TO_FOLDER
        - Description: Moves an existing note (by title) into an existing folder (by name).
@@ -483,6 +486,12 @@
 
     8. DELETE_NOTE
        - Description: Deletes the CURRENTLY REFERENCED note. (No parameters needed)
+
+    9. QUERY_NOTES
+       - Description: Searches for notes based on criteria. Use this if the user asks to "find", "list", "search", "ara", "bul", "listele".
+       - Parameters:
+         - \"search_term\" (String, optional): A keyword to search for in the note\'s title or content.
+         - \"folder_name\" (String, optional): The name of the folder to search within.
 
     --- JSON OUTPUT FORMAT ---
     You MUST respond ONLY with a raw JSON object matching this structure:
@@ -526,10 +535,20 @@
       \"actions\": [
         {
           \"action_type\": \"CHAT\",
-          \"response\": \"Elbette, işte bahar hakkında kısa bir şiir:\n\nKuşlar cıvıldar, güneş parlar,\nAğaçlar yeşerir, çiçekler açar,\nBahar gelmiş, hoş gelmiş!\"
+          "response": "Elbette, işte bahar hakkında kısa bir şiir:\n\nKuşlar cıvıldar, güneş parlar,\nAğaçlar yeşerir, çiçekler açar,\nBahar gelmiş, hoş gelmiş!"
         }
       ],
-      \"response_message\": \"Elbette, işte bahar hakkında kısa bir şiir:\n\nKuşlar cıvıldar, güneş parlar,\nAğaçlar yeşerir, çiçekler açar,\nBahar gelmiş, hoş gelmiş!\"
+      "response_message": "Elbette, işte bahar hakkında kısa bir şiir:\n\nKuşlar cıvıldar, güneş parlar,\nAğaçlar yeşerir, çiçekler açar,\nBahar gelmiş, hoş gelmiş!"
+    }
+
+    User: \"İçinde \'toplantı\' kelimesi geçen notları bul.\"
+    Your Response:
+    {
+      \"thought\": \"User wants to find notes containing the word \'toplantı\'. I will use QUERY_NOTES.\",
+      \"actions\": [
+        { \"action_type\": \"QUERY_NOTES\", \"search_term\": \"toplantı\" }
+      ],
+      \"response_message\": \"\'toplantı\' kelimesini içeren notları arıyorum...\"
     }
 
 

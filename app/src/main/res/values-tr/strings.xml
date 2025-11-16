@@ -413,4 +413,7 @@
     <string name="system_prompt_request_header">--- KULLANICI TALEBİ ---\n\"\"\"%s\"\"\"</string>
     <string name="chat_message_note_updated">İsteğiniz üzerine notunuzu güncelledim!</string>
     <string name="ai_error_invalid_json">Kai\'nin AI sunucularından geçersiz bir yanıt alındı. Lütfen tekrar deneyiniz!</string>
+    <string name="not_found_note">Aramanızla eşleşen hiçbir not bulunamadı.</string>
+    <string name="folder_not_found">Aradığınız %1$s klasörünü bulamadım.</string>
+    <string name="found_note">Bu notları buldum; \n%1$s</string>
 </resources>
