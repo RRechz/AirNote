@@ -6,6 +6,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
@@ -20,6 +21,7 @@ import androidx.lifecycle.viewModelScope
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
 import com.babelsoftware.airnote.data.repository.AiAction
+import com.babelsoftware.airnote.data.repository.AiActionPlan
 import com.babelsoftware.airnote.data.repository.AiMode
 import com.babelsoftware.airnote.data.repository.AiTone
 import com.babelsoftware.airnote.data.repository.GeminiRepository
@@ -40,6 +42,8 @@ import com.babelsoftware.airnote.domain.usecase.FolderUseCase
 import com.babelsoftware.airnote.domain.usecase.NoteUseCase
 import com.babelsoftware.airnote.presentation.components.DecryptionResult
 import com.babelsoftware.airnote.presentation.components.EncryptionHelper
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
@@ -362,6 +366,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private val gson = Gson()
     private fun sendChatOnly(userMessage: String) = viewModelScope.launch {
         var sessionId = _chatState.value.currentSessionId
         if (sessionId == null) {
@@ -370,86 +375,93 @@ class HomeViewModel @Inject constructor(
             sessionId = newSessionId
         }
 
-        val allNotes = allNotesForAi.first()
-        val mentionedNote = findMentionedNote(userMessage, allNotes)
-
         val userChatMessage = ChatMessage(userMessage, Participant.USER)
         aiChatUseCase.addMessageToSession(sessionId, userChatMessage)
 
         val loadingMessage = ChatMessage("", Participant.MODEL, isLoading = true)
         val loadingMessageId = aiChatUseCase.addMessageToSession(sessionId, loadingMessage)
-
         val historyForApi = (_chatState.value.messages + userChatMessage).filter { !it.isLoading }
 
-        val responseBuilder = StringBuilder()
+        try {
+            val jsonResult = geminiRepository.generateActionPlan(
+                userRequest = userMessage,
+                chatHistory = historyForApi,
+                apiKey = getApiKeyToUse(),
+                aiMode = _aiMode.value
+            )
 
-        // Kai AI Modification Tags
-        val TAG_UPDATE = "<NOTE_UPDATE_CONTENT>"
-        val TAG_UPDATE_END = "</NOTE_UPDATE_CONTENT>"
-        val TAG_APPEND = "<NOTE_APPEND_CONTENT>"
-        val TAG_APPEND_END = "</NOTE_APPEND_CONTENT>"
-        val TAG_DELETE = "<NOTE_DELETE_SELF>"
-        val TAG_DELETE_END = "</NOTE_DELETE_SELF>"
-        val TAG_RENAME = "<NOTE_CHANGE_TITLE>"
-        val TAG_RENAME_END = "</NOTE_CHANGE_TITLE>"
+            if (jsonResult.isSuccess) {
+                val jsonString = jsonResult.getOrThrow()
+                val plan = gson.fromJson(jsonString, AiActionPlan::class.java)
+                var finalResponseMessage = plan.response_message
+                for (action in plan.actions) {
+                    when (action.action_type) {
 
-        geminiRepository.generateChatResponse(historyForApi, getApiKeyToUse(), _aiMode.value, mentionedNote, null)
-            .onCompletion {
-                val fullResponse = responseBuilder.toString().trim()
-                var confirmationMsg: String? = null
-                var isError = false
+                        "CREATE_NOTE" -> {
+                            val title = action.title ?: stringProvider.getString(R.string.title_dex)
+                            noteUseCase.addNote(
+                                Note(
+                                    name = title,
+                                    description = action.content ?: "",
+                                    folderId = selectedFolderId.value,
+                                    encrypted = isVaultMode.value
+                                )
+                            )
+                        }
+                        "CREATE_TODO_NOTE" -> {
+                            val todoContent = action.tasks?.joinToString("\n") { "[ ] $it" } ?: ""
+                            val title = action.title ?: stringProvider.getString(R.string.ai_command_todo)
+                            noteUseCase.addNote(
+                                Note(
+                                    name = title,
+                                    description = todoContent,
+                                    folderId = selectedFolderId.value,
+                                    encrypted = isVaultMode.value
+                                )
+                            )
+                        }
+                        "CREATE_FOLDER" -> {
+                            val folderName = action.name ?: "New Folder"
+                            folderUseCase.addFolder(
+                                Folder(name = folderName, iconName = action.iconName ?: "Folder")
+                            )
+                        }
+                        "MOVE_NOTE_TO_FOLDER" -> {
+                            val targetFolder = folderUseCase.getAllFolders().first()
+                                .find { it.name.equals(action.folder_name, ignoreCase = true) }
 
-                if (mentionedNote != null) {
-                    try {
-                        when {
-                            fullResponse.contains(TAG_DELETE, ignoreCase = true) -> {
-                                deleteNoteById(mentionedNote.id)
-                                confirmationMsg = stringProvider.getString(R.string.ai_confirmation_note_deleted, mentionedNote.name)
-                            }
+                            val targetNote = noteUseCase.getAllNotes().first()
+                                .find { it.name.equals(action.note_title, ignoreCase = true) }
 
-                            fullResponse.contains(TAG_RENAME, ignoreCase = true) -> {
-                                val newTitle = fullResponse.substringAfter(TAG_RENAME, "")
-                                    .substringBefore(TAG_RENAME_END, "").trim()
-                                if (newTitle.isNotBlank()) {
-                                    updateNote(mentionedNote.copy(name = newTitle))
-                                    confirmationMsg = stringProvider.getString(R.string.ai_confirmation_note_renamed, mentionedNote.name, newTitle)
-                                }
-                            }
-
-                            fullResponse.contains(TAG_APPEND, ignoreCase = true) -> {
-                                val contentToAppend = fullResponse.substringAfter(TAG_APPEND, "")
-                                    .substringBefore(TAG_APPEND_END, "").trim()
-                                val newContent = mentionedNote.description + "\n" + contentToAppend
-                                updateNote(mentionedNote.copy(description = newContent))
-                                confirmationMsg = stringProvider.getString(R.string.ai_confirmation_note_appended, mentionedNote.name)
-                            }
-
-                            fullResponse.contains(TAG_UPDATE, ignoreCase = true) -> {
-                                val newContent = fullResponse.substringAfter(TAG_UPDATE, "")
-                                    .substringBefore(TAG_UPDATE_END, "").trim()
-                                updateNote(mentionedNote.copy(description = newContent))
-                                confirmationMsg = stringProvider.getString(R.string.ai_confirmation_note_updated, mentionedNote.name)
+                            if (targetNote != null && targetFolder != null) {
+                                noteUseCase.addNote(targetNote.copy(folderId = targetFolder.id))
+                            } else {
+                                Log.w("HomeViewModel", "Move action failed: Note '${action.note_title}' or Folder '${action.folder_name}' not found.")
+                                finalResponseMessage = stringProvider.getString(R.string.ai_error_modification_failed)
                             }
                         }
-                    } catch (e: Exception) {
-                        confirmationMsg = stringProvider.getString(R.string.ai_error_modification_failed)
-                        isError = true
-                        e.printStackTrace()
+                        "CHAT" -> {}
+                        else -> {
+                            Log.w("HomeViewModel", "Unknown AI action type: ${action.action_type}")
+                        }
                     }
                 }
+                aiChatUseCase.updateMessageById(loadingMessageId, finalResponseMessage, false)
 
-                val finalMessageText = confirmationMsg ?: fullResponse
-                if (finalMessageText.isBlank() || (confirmationMsg == null && (fullResponse.startsWith("<") && fullResponse.endsWith(">")))) {
-                    if (!isError) {
-                        aiChatUseCase.deleteMessageById(loadingMessageId)
-                    }
-                } else {
-                    aiChatUseCase.updateMessageById(loadingMessageId, finalMessageText, false, isError)
-                }
+            } else {
+                val errorMessage = jsonResult.exceptionOrNull()?.message ?: stringProvider.getString(R.string.error_unknown)
+                aiChatUseCase.updateMessageById(loadingMessageId, errorMessage, false, true)
             }
-            .collect { chunk ->
-                responseBuilder.append(chunk)
-            }
+
+        } catch (e: JsonSyntaxException) {
+            Log.e("HomeViewModel", "JSON Syntax Error: ${e.message}")
+            aiChatUseCase.updateMessageById(loadingMessageId, stringProvider.getString(R.string.ai_error_invalid_json), false, true)
+
+        } catch (e: Exception) {
+            Log.e("HomeViewModel", "Error in sendChatOnly: ${e.message}", e)
+            val errorMessage = e.message ?: stringProvider.getString(R.string.error_unknown)
+            aiChatUseCase.updateMessageById(loadingMessageId, errorMessage, false, true)
+        }
     }
 
     private fun sendChatWithAttachment(userMessage: String, uri: Uri, mimeType: String) = viewModelScope.launch {

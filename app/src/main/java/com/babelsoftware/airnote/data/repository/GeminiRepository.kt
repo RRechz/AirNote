@@ -26,6 +26,7 @@ import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.TranslateRemoteModel
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.TranslatorOptions
+import com.google.gson.annotations.SerializedName
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -70,6 +71,52 @@ enum class AiAssistantAction {
     SIMPLIFY,
     SUGGEST_A_TITLE
 }
+
+/**
+ * AI'dan gelen JSON yanıtının ana yapısı.
+ */
+data class AiActionPlan(
+    @SerializedName("thought")
+    val thought: String?, // AI'ın ne yapmayı planladığına dair düşüncesi
+
+    @SerializedName("actions")
+    val actions: List<AiActionCommand>, // Yürütülecek eylemlerin listesi
+
+    @SerializedName("response_message")
+    val response_message: String // İşlem bitince kullanıcıya gösterilecek sohbet mesajı
+)
+
+/**
+ * Her bir eylemin komutunu ve parametrelerini temsil eder.
+ */
+data class AiActionCommand(
+    @SerializedName("action_type")
+    val action_type: String, // "CREATE_NOTE", "CREATE_FOLDER", "MOVE_NOTE_TO_FOLDER" vb.
+
+    // CREATE_NOTE & CREATE_TODO_NOTE için parametreler
+    @SerializedName("title")
+    val title: String?,
+    @SerializedName("content")
+    val content: String?,
+    @SerializedName("tasks")
+    val tasks: List<String>?,
+
+    // CREATE_FOLDER için parametreler
+    @SerializedName("name")
+    val name: String?,
+    @SerializedName("iconName")
+    val iconName: String?,
+
+    // MOVE_NOTE_TO_FOLDER için parametreler
+    @SerializedName("note_title")
+    val note_title: String?,
+    @SerializedName("folder_name")
+    val folder_name: String?,
+
+    // CHAT için parametreler
+    @SerializedName("response")
+    val response: String?
+)
 
 class GeminiRepository @Inject constructor(
     private val settingsRepository: SettingsRepository,
@@ -430,6 +477,63 @@ class GeminiRepository @Inject constructor(
                     .removeSuffix("```")
                     .trim()
 
+                Result.success(cleanJson)
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    suspend fun generateActionPlan(
+        userRequest: String,
+        chatHistory: List<ChatMessage>,
+        apiKey: String,
+        aiMode: AiMode
+    ): Result<String> = withContext(Dispatchers.IO) {
+
+        if (apiKey.isBlank()) {
+            return@withContext Result.failure(ApiKeyMissingException(stringProvider.getString(R.string.error_no_user_api_key)))
+        }
+
+        try {
+            val modelName = settingsRepository.settings.first().selectedModelName
+            val generativeModel = GenerativeModel(
+                modelName = modelName,
+                apiKey = apiKey,
+                generationConfig = generationConfig {
+                    this.temperature = if (aiMode == AiMode.CREATIVE_MIND) 0.5f else 0.2f
+                }
+            )
+            val systemPrompt = stringProvider.getString(R.string.system_prompt_automation_engine)
+            val historyForModel = mutableListOf<Content>()
+            historyForModel.add(content("user") { text(systemPrompt) })
+            historyForModel.add(content("model") { text("OK. I am ready to generate JSON action plans.") })
+
+            val previousMessages = chatHistory
+                .filter { !it.isLoading && it.participant != Participant.ERROR }
+                .map { msg ->
+                    content(role = if (msg.participant == Participant.USER) "user" else "model") {
+                        text(msg.text)
+                    }
+                }
+            historyForModel.addAll(previousMessages)
+            val chat = generativeModel.startChat(history = historyForModel)
+            val response = chat.sendMessage(userRequest)
+
+            val responseText = response.text
+
+            if (responseText.isNullOrBlank()) {
+                Result.failure(Exception("AI'den boş yanıt alındı."))
+            } else {
+                val cleanJson = responseText.trim()
+                    .removePrefix("```json")
+                    .removePrefix("```")
+                    .removeSuffix("```")
+                    .trim()
+
+                Log.d("GeminiRepository", "Raw JSON Plan: $cleanJson")
                 Result.success(cleanJson)
             }
 
