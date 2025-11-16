@@ -6,11 +6,11 @@
 
 package com.babelsoftware.airnote.data.repository
 
-import android.graphics.Bitmap
 import android.util.Log
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
 import com.babelsoftware.airnote.domain.model.ChatMessage
+import com.babelsoftware.airnote.domain.model.Note
 import com.babelsoftware.airnote.domain.model.Participant
 import com.babelsoftware.airnote.domain.repository.SettingsRepository
 import com.google.ai.client.generativeai.GenerativeModel
@@ -72,50 +72,38 @@ enum class AiAssistantAction {
     SUGGEST_A_TITLE
 }
 
-/**
- * AI'dan gelen JSON yanıtının ana yapısı.
- */
 data class AiActionPlan(
     @SerializedName("thought")
-    val thought: String?, // AI'ın ne yapmayı planladığına dair düşüncesi
+    val thought: String?,
 
     @SerializedName("actions")
-    val actions: List<AiActionCommand>, // Yürütülecek eylemlerin listesi
+    val actions: List<AiActionCommand>,
 
     @SerializedName("response_message")
-    val response_message: String // İşlem bitince kullanıcıya gösterilecek sohbet mesajı
+    val response_message: String
 )
 
-/**
- * Her bir eylemin komutunu ve parametrelerini temsil eder.
- */
 data class AiActionCommand(
     @SerializedName("action_type")
-    val action_type: String, // "CREATE_NOTE", "CREATE_FOLDER", "MOVE_NOTE_TO_FOLDER" vb.
-
-    // CREATE_NOTE & CREATE_TODO_NOTE için parametreler
+    val action_type: String,
     @SerializedName("title")
     val title: String?,
     @SerializedName("content")
     val content: String?,
     @SerializedName("tasks")
     val tasks: List<String>?,
-
-    // CREATE_FOLDER için parametreler
     @SerializedName("name")
     val name: String?,
     @SerializedName("iconName")
     val iconName: String?,
-
-    // MOVE_NOTE_TO_FOLDER için parametreler
     @SerializedName("note_title")
     val note_title: String?,
     @SerializedName("folder_name")
     val folder_name: String?,
-
-    // CHAT için parametreler
     @SerializedName("response")
-    val response: String?
+    val response: String?,
+    @SerializedName("new_content")
+    val new_content: String?
 )
 
 class GeminiRepository @Inject constructor(
@@ -490,7 +478,8 @@ class GeminiRepository @Inject constructor(
         userRequest: String,
         chatHistory: List<ChatMessage>,
         apiKey: String,
-        aiMode: AiMode
+        aiMode: AiMode,
+        mentionedNote: Note?
     ): Result<String> = withContext(Dispatchers.IO) {
 
         if (apiKey.isBlank()) {
@@ -511,6 +500,16 @@ class GeminiRepository @Inject constructor(
             historyForModel.add(content("user") { text(systemPrompt) })
             historyForModel.add(content("model") { text("OK. I am ready to generate JSON action plans.") })
 
+            if (mentionedNote != null) {
+                val noteContextPrompt = """
+                --- CURRENT NOTE CONTEXT ---
+                Title: "${mentionedNote.name}"
+                Content: "${mentionedNote.description}"
+            """.trimIndent()
+                historyForModel.add(content("user") { text(noteContextPrompt) })
+                historyForModel.add(content("model") { text("OK. Context for note '${mentionedNote.name}' has been loaded.") })
+            }
+
             val previousMessages = chatHistory
                 .filter { !it.isLoading && it.participant != Participant.ERROR }
                 .map { msg ->
@@ -519,9 +518,9 @@ class GeminiRepository @Inject constructor(
                     }
                 }
             historyForModel.addAll(previousMessages)
+
             val chat = generativeModel.startChat(history = historyForModel)
             val response = chat.sendMessage(userRequest)
-
             val responseText = response.text
 
             if (responseText.isNullOrBlank()) {
@@ -542,7 +541,6 @@ class GeminiRepository @Inject constructor(
             Result.failure(e)
         }
     }
-
     val supportedLanguages = mapOf(
         TranslateLanguage.ENGLISH to "English",
         TranslateLanguage.TURKISH to "Türkçe",

@@ -368,6 +368,7 @@ class HomeViewModel @Inject constructor(
 
     private val gson = Gson()
     private fun sendChatOnly(userMessage: String) = viewModelScope.launch {
+        // === 1. Sohbet Oturumunu Hazırla ===
         var sessionId = _chatState.value.currentSessionId
         if (sessionId == null) {
             val newSessionId = aiChatUseCase.startNewSession(userMessage.take(40), _aiMode.value)
@@ -377,24 +378,31 @@ class HomeViewModel @Inject constructor(
 
         val userChatMessage = ChatMessage(userMessage, Participant.USER)
         aiChatUseCase.addMessageToSession(sessionId, userChatMessage)
-
         val loadingMessage = ChatMessage("", Participant.MODEL, isLoading = true)
         val loadingMessageId = aiChatUseCase.addMessageToSession(sessionId, loadingMessage)
         val historyForApi = (_chatState.value.messages + userChatMessage).filter { !it.isLoading }
+        val allNotes = allNotesForAi.first()
+        val mentionedNote = findMentionedNote(userMessage, allNotes)
 
         try {
             val jsonResult = geminiRepository.generateActionPlan(
                 userRequest = userMessage,
                 chatHistory = historyForApi,
                 apiKey = getApiKeyToUse(),
-                aiMode = _aiMode.value
+                aiMode = _aiMode.value,
+                mentionedNote = mentionedNote
             )
 
             if (jsonResult.isSuccess) {
                 val jsonString = jsonResult.getOrThrow()
                 val plan = gson.fromJson(jsonString, AiActionPlan::class.java)
                 var finalResponseMessage = plan.response_message
+
                 for (action in plan.actions) {
+                    val targetNoteForModification = mentionedNote ?: allNotes.find {
+                        it.name.equals(action.note_title, ignoreCase = true)
+                    }
+
                     when (action.action_type) {
 
                         "CREATE_NOTE" -> {
@@ -408,6 +416,7 @@ class HomeViewModel @Inject constructor(
                                 )
                             )
                         }
+
                         "CREATE_TODO_NOTE" -> {
                             val todoContent = action.tasks?.joinToString("\n") { "[ ] $it" } ?: ""
                             val title = action.title ?: stringProvider.getString(R.string.ai_command_todo)
@@ -420,34 +429,68 @@ class HomeViewModel @Inject constructor(
                                 )
                             )
                         }
+
                         "CREATE_FOLDER" -> {
                             val folderName = action.name ?: "New Folder"
                             folderUseCase.addFolder(
                                 Folder(name = folderName, iconName = action.iconName ?: "Folder")
                             )
                         }
+
                         "MOVE_NOTE_TO_FOLDER" -> {
                             val targetFolder = folderUseCase.getAllFolders().first()
                                 .find { it.name.equals(action.folder_name, ignoreCase = true) }
 
-                            val targetNote = noteUseCase.getAllNotes().first()
-                                .find { it.name.equals(action.note_title, ignoreCase = true) }
-
-                            if (targetNote != null && targetFolder != null) {
-                                noteUseCase.addNote(targetNote.copy(folderId = targetFolder.id))
+                            if (targetNoteForModification != null && targetFolder != null) {
+                                noteUseCase.addNote(targetNoteForModification.copy(folderId = targetFolder.id))
                             } else {
-                                Log.w("HomeViewModel", "Move action failed: Note '${action.note_title}' or Folder '${action.folder_name}' not found.")
+                                Log.w("HomeViewModel", "Move action failed: Note or Folder not found.")
                                 finalResponseMessage = stringProvider.getString(R.string.ai_error_modification_failed)
                             }
                         }
-                        "CHAT" -> {}
+
+                        "APPEND_TO_NOTE" -> {
+                            val contentToAppend = action.content ?: ""
+                            if (targetNoteForModification != null) {
+                                val updatedDescription = targetNoteForModification.description + "\n" + contentToAppend
+                                noteUseCase.addNote(targetNoteForModification.copy(description = updatedDescription))
+                            } else {
+                                Log.w("HomeViewModel", "Append action failed: Note not found.")
+                                finalResponseMessage = stringProvider.getString(R.string.ai_error_modification_failed)
+                            }
+                        }
+
+                        "REWRITE_NOTE" -> {
+                            val newContent = action.new_content ?: ""
+                            if (targetNoteForModification != null) {
+                                noteUseCase.addNote(targetNoteForModification.copy(description = newContent))
+                            } else {
+                                Log.w("HomeViewModel", "Rewrite action failed: Note not found.")
+                                finalResponseMessage = stringProvider.getString(R.string.ai_error_modification_failed)
+                            }
+                        }
+
+                        "DELETE_NOTE" -> {
+                            if (targetNoteForModification != null) {
+                                noteUseCase.deleteNoteById(targetNoteForModification.id)
+                            } else {
+                                Log.w("HomeViewModel", "Delete action failed: Note not found.")
+                                finalResponseMessage = stringProvider.getString(R.string.ai_error_modification_failed)
+                            }
+                        }
+
+                        "CHAT" -> {
+                            if (action.response != null) {
+                                finalResponseMessage = action.response
+                            }
+                        }
+
                         else -> {
                             Log.w("HomeViewModel", "Unknown AI action type: ${action.action_type}")
                         }
                     }
                 }
                 aiChatUseCase.updateMessageById(loadingMessageId, finalResponseMessage, false)
-
             } else {
                 val errorMessage = jsonResult.exceptionOrNull()?.message ?: stringProvider.getString(R.string.error_unknown)
                 aiChatUseCase.updateMessageById(loadingMessageId, errorMessage, false, true)
