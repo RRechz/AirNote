@@ -1,6 +1,8 @@
 package com.babelsoftware.airnote.presentation.screens.settings.settings
 
+import android.content.ActivityNotFoundException // Bu importun olduğundan emin olun
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -72,14 +74,33 @@ import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsVie
 import com.babelsoftware.airnote.presentation.screens.settings.widgets.ActionType
 import com.babelsoftware.airnote.presentation.screens.settings.widgets.SettingsBox
 import kotlinx.coroutines.launch
+import java.lang.IllegalArgumentException // YENİ IMPORT
+
+private data class PerplexityModelInfo(val name: String, @StringRes val displayNameResId: Int)
+private object PerplexityModels {
+    val supportedModels = listOf(
+        PerplexityModelInfo(
+            "pplx-7b-online",
+            R.string.perplexity_models_pplx_7b_online
+        ),
+        PerplexityModelInfo(
+            "sonar-medium-online",
+            R.string.perplexity_models_sonar_medium_online
+        )
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: SettingsViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(false) }
+
+    val geminiSheetState = rememberModalBottomSheetState()
+    var showGeminiBottomSheet by remember { mutableStateOf(false) }
+    val perplexitySheetState = rememberModalBottomSheetState()
+    var showPerplexityBottomSheet by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(key1 = true) {
         settingsViewModel.uiEvent.collect { message ->
@@ -87,9 +108,16 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
         }
     }
 
-    if (showBottomSheet) {
-        ModalBottomSheet(onDismissRequest = { showBottomSheet = false }, sheetState = sheetState) {
-            ApiKeyGuide()
+    if (showGeminiBottomSheet) {
+        ModalBottomSheet(onDismissRequest = { showGeminiBottomSheet = false }, sheetState = geminiSheetState) {
+            ApiKeyGuide() // Gemini Guide
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+
+    if (showPerplexityBottomSheet) {
+        ModalBottomSheet(onDismissRequest = { showPerplexityBottomSheet = false }, sheetState = perplexitySheetState) {
+            PerplexityApiKeyGuide() // Perplexity Guide
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
@@ -102,12 +130,58 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
     ) {
         LazyColumn(modifier = Modifier.padding(top = 16.dp, start = 12.dp, end = 12.dp)) {
             item {
-                ApiKeySetting(settingsViewModel = settingsViewModel, onHelpClick = { showBottomSheet = true })
-                Spacer(modifier = Modifier.height(18.dp))
+                ApiKeySetting(
+                    settingsViewModel = settingsViewModel,
+                    onHelpClick = { showGeminiBottomSheet = true },
+                    shape = shapeManager( // MODIFIED
+                        isFirst = true,
+                        isLast = false,
+                        radius = settingsViewModel.settings.value.cornerRadius
+                    )
+                )
             }
             item {
-                ModelChoiceSetting(settingsViewModel = settingsViewModel)
-                Spacer(modifier = Modifier.height(18.dp))
+                ModelChoiceSetting(
+                    settingsViewModel = settingsViewModel,
+                    shape = shapeManager(
+                        isFirst = false,
+                        isLast = true,
+                        radius = settingsViewModel.settings.value.cornerRadius
+                    )
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+            item {
+                PerplexityApiKeySetting(
+                    settingsViewModel = settingsViewModel,
+                    onHelpClick = { showPerplexityBottomSheet = true },
+                    shape = shapeManager( // MODIFIED
+                        isFirst = true,
+                        isLast = false,
+                        radius = settingsViewModel.settings.value.cornerRadius
+                    )
+                )
+            }
+            item {
+                PerplexityModelChoiceSetting(
+                    settingsViewModel = settingsViewModel,
+                    shape = shapeManager(
+                        isFirst = false,
+                        isLast = true,
+                        radius = settingsViewModel.settings.value.cornerRadius
+                    )
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            item {
+                Text(
+                    text = stringResource(id = R.string.offline_translation_models),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
+                )
             }
             item {
                 OfflineTranslationSettings(settingsViewModel = settingsViewModel)
@@ -117,13 +191,17 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
 }
 
 @Composable
-private fun ApiKeySetting(settingsViewModel: SettingsViewModel, onHelpClick: () -> Unit) {
+private fun ApiKeySetting(
+    settingsViewModel: SettingsViewModel,
+    onHelpClick: () -> Unit,
+    shape: RoundedCornerShape
+) {
     val userApiKey by settingsViewModel.userApiKey
 
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = stringResource(R.string.your_api_key),
+                text = stringResource(R.string.ai_service_gemini),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
@@ -144,10 +222,7 @@ private fun ApiKeySetting(settingsViewModel: SettingsViewModel, onHelpClick: () 
             description = if (userApiKey.isNotBlank()) "••••••••••••••••••••" else stringResource(R.string.not_set),
             icon = IconResource.Vector(Icons.Rounded.Key),
             actionType = ActionType.CUSTOM,
-            radius = shapeManager(
-                isBoth = true,
-                radius = settingsViewModel.settings.value.cornerRadius
-            ),
+            radius = shape,
             customAction = { onDismiss ->
                 ApiKeyPopup(
                     settingsViewModel = settingsViewModel,
@@ -159,7 +234,10 @@ private fun ApiKeySetting(settingsViewModel: SettingsViewModel, onHelpClick: () 
 }
 
 @Composable
-private fun ModelChoiceSetting(settingsViewModel: SettingsViewModel) {
+private fun ModelChoiceSetting(
+    settingsViewModel: SettingsViewModel,
+    shape: RoundedCornerShape
+) {
     val settings = settingsViewModel.settings.value
     val selectedModelInfo = GeminiModels.supportedModels.find {
         it.name == settings.selectedModelName
@@ -175,22 +253,13 @@ private fun ModelChoiceSetting(settingsViewModel: SettingsViewModel) {
     )
 
     Column {
-        Text(
-            text = stringResource(id = R.string.model_choice),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
-        )
         SettingsBox(
             settingsViewModel = settingsViewModel,
             title = stringResource(id = R.string.model_to_use),
             description = descriptionText,
             icon = IconResource.Vector(Icons.Rounded.Memory),
             actionType = ActionType.CUSTOM,
-            radius = shapeManager(
-                isBoth = true,
-                radius = settings.cornerRadius
-            ),
+            radius = shape,
             customAction = { onDismiss ->
                 ModelChoicePopup(
                     settingsViewModel = settingsViewModel,
@@ -200,6 +269,88 @@ private fun ModelChoiceSetting(settingsViewModel: SettingsViewModel) {
         )
     }
 }
+
+@Composable
+private fun PerplexityModelChoiceSetting(
+    settingsViewModel: SettingsViewModel,
+    shape: RoundedCornerShape
+) {
+    val settings = settingsViewModel.settings.value
+    val selectedModelInfo = PerplexityModels.supportedModels.find {
+        it.name == settings.selectedPerplexityModelName
+    }
+    val selectedModelDisplayName = if (selectedModelInfo != null) {
+        stringResource(id = selectedModelInfo.displayNameResId)
+    } else {
+        settings.selectedPerplexityModelName
+    }
+
+    val descriptionText = stringResource(
+        R.string.model_in_use_prefix,
+        selectedModelDisplayName
+    )
+
+    Column {
+        SettingsBox(
+            settingsViewModel = settingsViewModel,
+            title = stringResource(R.string.model_to_use),
+            description = descriptionText,
+            icon = IconResource.Vector(Icons.Rounded.Memory),
+            actionType = ActionType.CUSTOM,
+            radius = shape,
+            customAction = { onDismiss ->
+                PerplexityModelChoicePopup(
+                    settingsViewModel = settingsViewModel,
+                    onDismiss = onDismiss
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun PerplexityApiKeySetting(
+    settingsViewModel: SettingsViewModel,
+    onHelpClick: () -> Unit,
+    shape: RoundedCornerShape
+) {
+    val perplexityApiKey by settingsViewModel.perplexityApiKey
+
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.ai_service_perplexity),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp)
+            )
+            IconButton(onClick = onHelpClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
+                    contentDescription = "Perplexity API key assistance"
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        SettingsBox(
+            settingsViewModel = settingsViewModel,
+            title = stringResource(R.string.perplexity_api_key),
+            description = if (perplexityApiKey.isNotBlank()) "••••••••••••••••••••" else stringResource(R.string.not_set),
+            icon = IconResource.Vector(Icons.Rounded.Key),
+            actionType = ActionType.CUSTOM,
+            radius = shape,
+            customAction = { onDismiss ->
+                PerplexityApiKeyPopup(
+                    settingsViewModel = settingsViewModel,
+                    onDismiss = onDismiss
+                )
+            }
+        )
+    }
+}
+
 
 @Composable
 private fun ApiKeyPopup(
@@ -325,10 +476,12 @@ private fun ModelChoicePopup(
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(shapeManager(
-                                isFirst = isFirst, isLast = isLast,
-                                radius = settings.cornerRadius
-                            ))
+                            .clip(
+                                shapeManager(
+                                    isFirst = isFirst, isLast = isLast,
+                                    radius = settings.cornerRadius
+                                )
+                            )
                             .clickable {
                                 settingsViewModel.updateSelectedModel(model.name)
                                 onDismiss()
@@ -356,6 +509,170 @@ private fun ModelChoicePopup(
                                 }
                             )
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PerplexityModelChoicePopup(
+    settingsViewModel: SettingsViewModel,
+    onDismiss: () -> Unit
+) {
+    val settings = settingsViewModel.settings.value
+    val models = PerplexityModels.supportedModels
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    shape = RoundedCornerShape(32.dp)
+                )
+                .padding(12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.model_choice),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                fontSize = 20.sp,
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .padding(bottom = 12.dp)
+                    .clip(RoundedCornerShape(32.dp))
+            ) {
+                itemsIndexed(models) { index, model ->
+                    val isFirst = index == 0
+                    val isLast = index == models.lastIndex
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(
+                                shapeManager(
+                                    isFirst = isFirst, isLast = isLast,
+                                    radius = settings.cornerRadius
+                                )
+                            )
+                            .clickable {
+                                settingsViewModel.updateSelectedPerplexityModel(model.name)
+                                onDismiss()
+                            },
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        tonalElevation = 1.dp
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(id = model.displayNameResId),
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            RadioButton(
+                                selected = settings.selectedPerplexityModelName == model.name,
+                                onClick = {
+                                    settingsViewModel.updateSelectedPerplexityModel(model.name)
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PerplexityApiKeyPopup(
+    settingsViewModel: SettingsViewModel,
+    onDismiss: () -> Unit
+) {
+    val perplexityApiKey by settingsViewModel.perplexityApiKey
+    val isApiKeyVerified by settingsViewModel.isPerplexityApiKeyVerified
+    val isVerifyingApiKey by settingsViewModel.isVerifyingPerplexityApiKey
+    var tempApiKey by remember { mutableStateOf(perplexityApiKey) }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .padding(16.dp),
+            shape = RoundedCornerShape(32.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            tonalElevation = 4.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(R.string.perplexity_api_key),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                OutlinedTextField(
+                    value = tempApiKey,
+                    onValueChange = { tempApiKey = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.perplexity_api_key)) },
+                    singleLine = true,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        settingsViewModel.updatePerplexityApiKey(tempApiKey)
+                        settingsViewModel.verifyPerplexityApiKey()
+                    },
+                    enabled = !isVerifyingApiKey && tempApiKey.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (isVerifyingApiKey) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Text(stringResource(R.string.save_and_check))
+                    }
+                }
+                AnimatedVisibility(
+                    visible = isApiKeyVerified && !isVerifyingApiKey,
+                    enter = slideInVertically { it } + fadeIn(),
+                    exit = slideOutVertically { it } + fadeOut()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(top = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.CheckCircle,
+                            contentDescription = stringResource(R.string.successfully_verified_icon_cd),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = stringResource(R.string.successfully_verified),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
                     }
                 }
             }
@@ -400,12 +717,6 @@ private fun OfflineTranslationSettings(settingsViewModel: SettingsViewModel) {
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(id = R.string.offline_translation_models),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
-        )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -460,6 +771,8 @@ private fun OfflineTranslationSettings(settingsViewModel: SettingsViewModel) {
 private fun ApiKeyGuide() {
     val uriHandler = LocalUriHandler.current
     val geminiStudioUrl = "https://aistudio.google.com/app/apikey"
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -483,7 +796,15 @@ private fun ApiKeyGuide() {
             item { Spacer(modifier = Modifier.height(12.dp)) }
             item {
                 Button(
-                    onClick = { uriHandler.openUri(geminiStudioUrl) },
+                    onClick = {
+                        try {
+                            uriHandler.openUri(geminiStudioUrl)
+                        } catch (e: ActivityNotFoundException) {
+                            Toast.makeText(context, "Web tarayıcısı bulunamadı.", Toast.LENGTH_SHORT).show()
+                        } catch (e: IllegalArgumentException) {
+                            Toast.makeText(context, "URL açılamadı. Cihazınızda bir web tarayıcı yüklü mü?", Toast.LENGTH_LONG).show()
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(stringResource(id = R.string.api_key_guide_button))
@@ -498,6 +819,70 @@ private fun ApiKeyGuide() {
                     R.string.api_key_guide_step_4,
                     R.string.api_key_guide_step_5,
                     R.string.api_key_guide_step_6
+                )
+            ) {
+                Text(
+                    stringResource(id = it),
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PerplexityApiKeyGuide() {
+    val uriHandler = LocalUriHandler.current
+    val perplexityApiUrl = "https://perplexity.ai/settings/api"
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.api_key_guide_title),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        LazyColumn {
+            item {
+                Text(
+                    text = stringResource(R.string.perplexity_api_key_guide_intro),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+            }
+            item { Text(stringResource(R.string.perplexity_api_key_guide_step_1)) }
+            item { Spacer(modifier = Modifier.height(12.dp)) }
+            item {
+                Button(
+                    onClick = {
+                        try {
+                            uriHandler.openUri(perplexityApiUrl)
+                        } catch (e: ActivityNotFoundException) {
+                            Toast.makeText(context, "Web tarayıcısı bulunamadı.", Toast.LENGTH_SHORT).show()
+                        } catch (e: IllegalArgumentException) {
+                            Toast.makeText(context, "URL açılamadı. Cihazınızda bir web tarayıcı yüklü mü?", Toast.LENGTH_LONG).show()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.perplexity_api_key_guide_button))
+                }
+            }
+            item { Spacer(modifier = Modifier.height(12.dp)) }
+
+            items(
+                listOf(
+                    R.string.perplexity_api_key_guide_step_2,
+                    R.string.perplexity_api_key_guide_step_3,
+                    R.string.perplexity_api_key_guide_step_4,
+                    R.string.perplexity_api_key_guide_step_5,
+                    R.string.perplexity_api_key_guide_step_6,
+                    R.string.perplexity_api_key_guide_step_7
                 )
             ) {
                 Text(

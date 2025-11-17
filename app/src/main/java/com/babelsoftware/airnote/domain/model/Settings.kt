@@ -33,6 +33,7 @@ data class Settings(
     val showFolderIndicator: Boolean = false,
     val useAirNoteApi: Boolean = false, // AirNote API will use your API by default
     val selectedModelName: String = "gemini-2.0-flash-001",
+    val selectedPerplexityModelName: String = "pplx-7b-online",
     val desktopModeEnabled: Boolean = true,
     val desktopModeAiEnabled: Boolean = true,
     val openToLastUsedFolder: Boolean = false,

@@ -208,6 +208,7 @@
     <string name="api_key_guide_step_6">6. Kopyaladığınız anahtarı aşağıdaki metin kutusuna yapıştırın ve \"Kontrol Et\" butonuna basın.</string>
     <string name="api_key_guide_button">Google AI Studio\'ya Git</string>
     <string name="lang_model_delete_failure">%1s silinemedi</string>
+    <string name="perplexity_api_key_guide_button">Perplexity API Ayarlarına Git</string>
     <string name="error_api_key_blank">Lütfen önce bir API anahtarı girin.</string>
     <string name="api_key_validation_success">API anahtarı geçerli ve başarıyla kaydedildi! ✅</string>
     <string name="api_key_validation_failure">Geçersiz API anahtarı. Lütfen kontrol edin ve tekrar deneyin.</string>
@@ -330,6 +331,7 @@
     <string name="translate">Çevir</string>
     <string name="original_text">Orijinal Dil</string>
     <string name="gemini_api_key">Gemini API Anahtarı</string>
+    <string name="perplexity_api_key">Perplexity API Anahtarı</string>
     <string name="save_and_check">Kaydet ve Doğrula</string>
     <string name="open_last_folder">Son Klasör (BETA)</string>
     <string name="offline_translation_models">Çeviri Modülleri</string>
@@ -397,6 +399,7 @@
     <string name="prompt_dream_journal_emotion_analysis">AirNote uygulamasına entegre edilmiş Kai AI\'nın rüya terapistisisiniz. Göreviniz, size anlatılan rüyadaki baskın duygusal tonu (korku, mutluluk, endişe vb.) analiz etmek ve bu duyguların rüya gören kişi için ne anlama gelebileceğini açıklamaktır. Genel yorumlarda bulunmaktan veya sembolleri açıklamaktan kaçının; yalnızca rüyanın uyandırdığı duygulara ve bunların olası psikolojik temellerine odaklanın. Yalnızca rüyanın duygularını tartışın. Başka bir soru sorulursa, “Ben yalnızca rüyaların duygusal analizini yapmak için buradayım” şeklinde yanıt verin. Analiz etmeniz gereken rüya şöyledir:\\n\\n</string>
     <string name="instagram">Resmi | @AirNoteApp</string>
     <string name="model_in_use_prefix">Aktif Model:  %1$s</string>
+    <string name="ai_service_perplexity">Perplexity AI Servisi</string>
     <string name="analyze_create_note">not oluştur veya not oluştur</string>
     <string name="analyze_analyze">analiz et ya da metni analiz et ya da analiz</string>
     <string name="analyze_take_notes">notlar al ya da not al ya da notlara dök ya da nota dök</string>
@@ -416,4 +419,15 @@
     <string name="not_found_note">Aramanızla eşleşen hiçbir not bulunamadı.</string>
     <string name="folder_not_found">Aradığınız %1$s klasörünü bulamadım.</string>
     <string name="found_note">Bu notları buldum; \n%1$s</string>
+    <string name="perplexity_api_key_guide_intro">Perplexity\'nin sohbet API\'sını kullanmak için bir API anahtarına ihtiyacınız var. Anahtarınızı aldıktan sonra buraya yapıştırın.</string>
+    <string name="perplexity_api_key_guide_step_1">1. Perplexity AI web sitesine gidin.</string>
+    <string name="perplexity_api_key_guide_step_2">2. Hesabınıza giriş yapın (veya yeni bir hesap oluşturun).</string>
+    <string name="perplexity_api_key_guide_step_3">3. Sağ üst köşedeki profil simgenize tıklayın ve “API Anahtarları” seçeneğini seçin.</string>
+    <string name="perplexity_api_key_guide_step_4">4. “Yeni API Anahtarı Oluştur” düğmesini tıklayın.</string>
+    <string name="perplexity_api_key_guide_step_5">5. Anahtarınıza bir ad verin (örneğin, “AirNote”) ve oluşturun.</string>
+    <string name="perplexity_api_key_guide_step_6">6. Oluşturulan anahtarı kopyalayın ve bu ekrandaki “Perplexity API Anahtarı” alanına yapıştırın.</string>
+    <string name="perplexity_api_key_guide_step_7">7. “Kaydet ve Doğrula” düğmesini tıklayın.</string>
+    <string name="ask_perplexity_placeholder">Perplexity\'de ara...</string>
+    <string name="perplexity_api_not_empty">Perplexity API anahtarı boş bırakılamaz!</string>
+    <string name="ai_service_gemini">Gemini AI Servisi</string>
 </resources>

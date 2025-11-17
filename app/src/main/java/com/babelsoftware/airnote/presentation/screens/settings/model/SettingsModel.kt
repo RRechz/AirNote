@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.os.LocaleListCompat
@@ -58,11 +59,12 @@ class SettingsViewModel @Inject constructor(
     val updateAvailable: State<Boolean> = _updateAvailable
 
     private val _latestVersion = mutableStateOf("")
-    val latestVersion: State<String> = _latestVersion
+    val latestVersion: MutableState<String> = _latestVersion
 
     private val _showUpdateDialog = mutableStateOf(false)
     val showUpdateDialog: State<Boolean> = _showUpdateDialog
 
+    // --- Gemini API Key States ---
     private val _userApiKey = mutableStateOf("")
     val userApiKey: State<String> = _userApiKey
 
@@ -71,6 +73,17 @@ class SettingsViewModel @Inject constructor(
 
     private val _isApiKeyVerified = mutableStateOf(false)
     val isApiKeyVerified: State<Boolean> = _isApiKeyVerified
+
+    // --- Perplexity API Key States ---
+    private val _perplexityApiKey = mutableStateOf("")
+    val perplexityApiKey: State<String> = _perplexityApiKey
+
+    private val _isVerifyingPerplexityApiKey = mutableStateOf(false)
+    val isVerifyingPerplexityApiKey: State<Boolean> = _isVerifyingPerplexityApiKey
+
+    private val _isPerplexityApiKeyVerified = mutableStateOf(false)
+    val isPerplexityApiKeyVerified: State<Boolean> = _isPerplexityApiKeyVerified
+    // ---
 
     private val _uiEvent = Channel<String>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -169,6 +182,13 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun updatePerplexityApiKey(newApiKey: String) {
+        _perplexityApiKey.value = newApiKey
+        if (_isPerplexityApiKeyVerified.value) {
+            _isPerplexityApiKeyVerified.value = false
+        }
+    }
+
     private fun checkStoredApiKey() {
         val storedKey = secureStorageRepository.getUserApiKey() ?: ""
         _userApiKey.value = storedKey
@@ -181,6 +201,17 @@ class SettingsViewModel @Inject constructor(
                     modelName = storedModel
                 )
                 _isApiKeyVerified.value = result.isSuccess
+            }
+        }
+    }
+
+    private fun checkStoredPerplexityApiKey() {
+        val storedKey = secureStorageRepository.getPerplexityApiKey() ?: ""
+        _perplexityApiKey.value = storedKey
+        if (storedKey.isNotBlank()) {
+            viewModelScope.launch {
+                val result = geminiRepository.validatePerplexityApiKey(storedKey)
+                _isPerplexityApiKeyVerified.value = result.isSuccess
             }
         }
     }
@@ -214,10 +245,41 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun verifyPerplexityApiKey() {
+        val keyToVerify = _perplexityApiKey.value
+        if (keyToVerify.isBlank()) {
+            viewModelScope.launch { _uiEvent.send(stringProvider.getString(R.string.perplexity_api_not_empty)) }
+            return
+        }
+
+        viewModelScope.launch {
+            _isVerifyingPerplexityApiKey.value = true
+            val result = geminiRepository.validatePerplexityApiKey(keyToVerify)
+            _isPerplexityApiKeyVerified.value = result.isSuccess
+
+            val message: String
+            if (result.isSuccess) {
+                secureStorageRepository.savePerplexityApiKey(keyToVerify)
+                message = stringProvider.getString(R.string.api_key_validation_success)
+            } else {
+                message = result.exceptionOrNull()?.message ?: stringProvider.getString(R.string.api_key_validation_failure)
+            }
+            _uiEvent.send(message)
+            _isVerifyingPerplexityApiKey.value = false
+        }
+    }
+
     fun updateSelectedModel(modelName: String) {
         update(settings.value.copy(selectedModelName = modelName))
         if (_isApiKeyVerified.value) {
             _isApiKeyVerified.value = false
+        }
+    }
+
+    fun updateSelectedPerplexityModel(modelName: String) {
+        update(settings.value.copy(selectedPerplexityModelName = modelName))
+        if (_isPerplexityApiKeyVerified.value) {
+            _isPerplexityApiKeyVerified.value = false
         }
     }
 
@@ -339,6 +401,7 @@ class SettingsViewModel @Inject constructor(
             loadSettings()
         }
         checkStoredApiKey()
+        checkStoredPerplexityApiKey()
         fetchDownloadedModels()
     }
 }
