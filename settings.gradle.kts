@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Easy Notes"
+rootProject.name = "AirNote"
 include(":app")
  
