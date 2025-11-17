@@ -20,7 +20,7 @@ import com.babelsoftware.airnote.domain.model.Note
         AiChatSession::class,
         AiChatMessage::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
