@@ -5,6 +5,7 @@
 package com.babelsoftware.airnote.data.repository
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -18,6 +19,7 @@ class SecureStorageRepository @Inject constructor(
     companion object {
         private const val PREFERENCE_FILE_NAME = "airnote_secure_prefs"
         private const val KEY_USER_GEMINI_API = "user_gemini_api_key"
+        private const val KEY_PERPLEXITY_API = "perplexity_api_key"
     }
 
     private val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
@@ -39,5 +41,16 @@ class SecureStorageRepository @Inject constructor(
 
     fun getUserApiKey(): String? {
         return sharedPreferences.getString(KEY_USER_GEMINI_API, null)
+    }
+
+    fun savePerplexityApiKey(apiKey: String) {
+        with(sharedPreferences.edit()) {
+            putString(KEY_PERPLEXITY_API, apiKey)
+            commit()
+        }
+    }
+
+    fun getPerplexityApiKey(): String? {
+        return sharedPreferences.getString(KEY_PERPLEXITY_API, null)
     }
 }

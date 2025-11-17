@@ -11,11 +11,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.ImageSearch
+import androidx.compose.material.icons.rounded.School
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.babelsoftware.airnote.R
@@ -30,9 +30,6 @@ import com.babelsoftware.airnote.domain.model.AiChatMessage
 import com.babelsoftware.airnote.domain.model.AiChatSession
 import com.babelsoftware.airnote.domain.model.AiSuggestion
 import com.babelsoftware.airnote.domain.model.ChatMessage
-import com.google.ai.client.generativeai.type.ImagePart
-import com.google.ai.client.generativeai.type.TextPart
-import com.google.ai.client.generativeai.type.Part
 import com.babelsoftware.airnote.domain.model.Folder
 import com.babelsoftware.airnote.domain.model.Note
 import com.babelsoftware.airnote.domain.model.Participant
@@ -42,6 +39,9 @@ import com.babelsoftware.airnote.domain.usecase.FolderUseCase
 import com.babelsoftware.airnote.domain.usecase.NoteUseCase
 import com.babelsoftware.airnote.presentation.components.DecryptionResult
 import com.babelsoftware.airnote.presentation.components.EncryptionHelper
+import com.google.ai.client.generativeai.type.ImagePart
+import com.google.ai.client.generativeai.type.Part
+import com.google.ai.client.generativeai.type.TextPart
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -56,12 +56,17 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+enum class AiService {
+    GEMINI,
+    PERPLEXITY
+}
 
 data class DraftedNote(
     val topic: String,
@@ -163,6 +168,9 @@ class HomeViewModel @Inject constructor(
     private val _aiMode = MutableStateFlow(AiMode.NOTE_ASSISTANT)
     val aiMode: StateFlow<AiMode> = _aiMode.asStateFlow()
 
+    private val _selectedAiService = MutableStateFlow(AiService.GEMINI)
+    val selectedAiService: StateFlow<AiService> = _selectedAiService.asStateFlow()
+
     val allChatSessions: StateFlow<List<AiChatSession>> = aiChatUseCase.getAllSessions()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     private val _showAiHistoryScreen = mutableStateOf(false)
@@ -216,33 +224,56 @@ class HomeViewModel @Inject constructor(
         _showCreateDraftDialog.value = false
     }
 
-    val suggestions: List<AiSuggestion> by lazy {
-        listOf(
-            AiSuggestion(
-                title = stringProvider.getString(R.string.ask_ai),
-                icon = Icons.Rounded.Search,
-                action = { onAskQuestionClicked() }
-            ),
-            AiSuggestion(
-                title = stringProvider.getString(R.string.make_note),
-                icon = Icons.Rounded.Edit,
-                action = { onDraftAnythingClicked() }
-            ),
-            AiSuggestion(
-                title = stringProvider.getString(R.string.generate_ideas),
-                icon = Icons.Rounded.AutoAwesome,
-                action = {
-                    setAiMode(AiMode.CREATIVE_MIND)
-                    sendMessage(stringProvider.getString(R.string.generate_ideas_prompt))
-                }
-            ),
-            AiSuggestion(
-                title = stringProvider.getString(R.string.create_note_from_object),
-                icon = Icons.Rounded.ImageSearch,
-                action = { requestImageForAnalysis() },
-            )
-        )
+    fun selectAiService(service: AiService) {
+        _selectedAiService.value = service
+        resetChatState()
     }
+
+    val suggestions: StateFlow<List<AiSuggestion>> =
+        _selectedAiService.map { service ->
+            if (service == AiService.PERPLEXITY) {
+                listOf(
+                    AiSuggestion(
+                        title = stringProvider.getString(R.string.ask_ai),
+                        icon = Icons.Rounded.Search,
+                        action = { onAskQuestionClicked() }
+                    ),
+                    AiSuggestion(
+                        title = stringProvider.getString(R.string.ai_mode_academic_research),
+                        icon = Icons.Rounded.School,
+                        action = {
+                            sendMessage("What's the latest news?")
+                        }
+                    )
+                )
+            } else {
+                listOf(
+                    AiSuggestion(
+                        title = stringProvider.getString(R.string.ask_ai),
+                        icon = Icons.Rounded.Search,
+                        action = { onAskQuestionClicked() }
+                    ),
+                    AiSuggestion(
+                        title = stringProvider.getString(R.string.make_note),
+                        icon = Icons.Rounded.Edit,
+                        action = { onDraftAnythingClicked() }
+                    ),
+                    AiSuggestion(
+                        title = stringProvider.getString(R.string.generate_ideas),
+                        icon = Icons.Rounded.AutoAwesome,
+                        action = {
+                            setAiMode(AiMode.CREATIVE_MIND)
+                            sendMessage(stringProvider.getString(R.string.generate_ideas_prompt))
+                        }
+                    ),
+                    AiSuggestion(
+                        title = stringProvider.getString(R.string.create_note_from_object),
+                        icon = Icons.Rounded.ImageSearch,
+                        action = { requestImageForAnalysis() },
+                    )
+                )
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     init {
         _chatState.asStateFlow().flatMapLatest { state: ChatState ->
@@ -295,6 +326,7 @@ class HomeViewModel @Inject constructor(
                 hasStartedConversation = true
             )
             setAiMode(AiMode.valueOf(session.aiMode))
+            selectAiService(AiService.valueOf(session.serviceName))
             toggleAiHistoryScreen(false)
         }
     }
@@ -349,6 +381,11 @@ class HomeViewModel @Inject constructor(
         stringProvider.getString(R.string.analyze_analyze_my_file_image))
 
     fun sendMessage(userMessage: String) = viewModelScope.launch {
+        if (_selectedAiService.value == AiService.PERPLEXITY) {
+            sendPerplexityChat(userMessage)
+            return@launch
+        }
+
         val currentState = _chatState.value
         val attachmentUri = currentState.pendingAttachmentUri
         val attachmentMime = currentState.pendingAttachmentMimeType
@@ -366,12 +403,64 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun sendPerplexityChat(userMessage: String) = viewModelScope.launch {
+        var sessionId = _chatState.value.currentSessionId
+        if (sessionId == null) {
+            val newSessionId = aiChatUseCase.startNewSession(
+                title = userMessage.take(40),
+                aiMode = _aiMode.value,
+                serviceName = _selectedAiService.value.name
+            )
+            _chatState.value = _chatState.value.copy(currentSessionId = newSessionId, hasStartedConversation = true)
+            sessionId = newSessionId
+        }
+
+        val userChatMessage = ChatMessage(userMessage, Participant.USER)
+        aiChatUseCase.addMessageToSession(sessionId, userChatMessage)
+        val loadingMessage = ChatMessage("", Participant.MODEL, isLoading = true)
+        val loadingMessageId = aiChatUseCase.addMessageToSession(sessionId, loadingMessage)
+        val historyForApi = (_chatState.value.messages + userChatMessage).filter { !it.isLoading }
+
+        val perplexityApiKey = secureStorageRepository.getPerplexityApiKey() ?: ""
+        if (perplexityApiKey.isBlank()) {
+            aiChatUseCase.updateMessageById(loadingMessageId, "Perplexity API anahtarı ayarlanmamış.", false, true)
+            return@launch
+        }
+
+        val responseBuilder = StringBuilder()
+        try {
+            geminiRepository.generatePerplexityChatResponse(historyForApi, perplexityApiKey)
+                .collect { chunk ->
+                    responseBuilder.append(chunk)
+                    aiChatUseCase.updateMessageById(loadingMessageId, responseBuilder.toString(), true, false)
+                }
+        } catch (e: Exception) {
+            Log.e("HomeViewModel_PplxChat", "Akış hatası: ${e.message}", e)
+            aiChatUseCase.updateMessageById(loadingMessageId, e.message ?: "Bir hata oluştu", false, true)
+        } finally {
+            val fullResponse = responseBuilder.toString().trim()
+            if (fullResponse.isNotBlank()) {
+                aiChatUseCase.updateMessageById(loadingMessageId, fullResponse, false, false)
+            } else {
+                val currentMessages = aiChatUseCase.getMessagesForSession(sessionId).first()
+                val msg = currentMessages.find { it.id == loadingMessageId }
+                if (msg != null && !msg.text.isNotBlank() && msg.participant != Participant.ERROR) {
+                    aiChatUseCase.deleteMessageById(loadingMessageId)
+                }
+            }
+        }
+    }
+
     private val _lastActionContext = mutableStateOf<Note?>(null)
     private val gson = Gson()
     private fun sendChatOnly(userMessage: String) = viewModelScope.launch {
         var sessionId = _chatState.value.currentSessionId
         if (sessionId == null) {
-            val newSessionId = aiChatUseCase.startNewSession(userMessage.take(40), _aiMode.value)
+            val newSessionId = aiChatUseCase.startNewSession(
+                title = userMessage.take(40),
+                aiMode = _aiMode.value,
+                serviceName = _selectedAiService.value.name
+            )
             _chatState.value = _chatState.value.copy(currentSessionId = newSessionId, hasStartedConversation = true)
             sessionId = newSessionId
         }
@@ -596,7 +685,11 @@ class HomeViewModel @Inject constructor(
 
         var sessionId = currentState.currentSessionId
         if (sessionId == null) {
-            val newSessionId = aiChatUseCase.startNewSession(userMessage.take(40), _aiMode.value)
+            val newSessionId = aiChatUseCase.startNewSession(
+                title = userMessage.take(40),
+                aiMode = _aiMode.value,
+                serviceName = _selectedAiService.value.name
+            )
             _chatState.value = currentState.copy(currentSessionId = newSessionId, hasStartedConversation = true)
             sessionId = newSessionId
         }
@@ -611,32 +704,44 @@ class HomeViewModel @Inject constructor(
         val historyForApi = (currentState.messages + userChatMessage).filter { !it.isLoading }
         val responseBuilder = StringBuilder()
 
-        geminiRepository.generateChatResponse(
-            historyForApi,
-            apiKey,
-            _aiMode.value,
-            null,
-            attachmentPart
-        )
-            .onCompletion {
-                val fullResponse = responseBuilder.toString().trim()
-                if (fullResponse.isBlank()) {
+        try {
+            geminiRepository.generateChatResponse(
+                historyForApi,
+                apiKey,
+                _aiMode.value,
+                null,
+                attachmentPart
+            )
+                .collect { chunk ->
+                    responseBuilder.append(chunk)
+                    aiChatUseCase.updateMessageById(loadingMessageId, responseBuilder.toString(), true, false)
+                }
+        } catch (e: Exception) {
+            Log.e("HomeViewModel_GeminiChat", "Akış hatası: ${e.message}", e)
+            aiChatUseCase.updateMessageById(loadingMessageId, e.message ?: "Bir hata oluştu", false, true)
+        } finally {
+            val fullResponse = responseBuilder.toString().trim()
+            if (fullResponse.isNotBlank()) {
+                aiChatUseCase.updateMessageById(loadingMessageId, fullResponse, false, false)
+            } else {
+                val currentMessages = aiChatUseCase.getMessagesForSession(sessionId).first()
+                val msg = currentMessages.find { it.id == loadingMessageId }
+                if (msg != null && !msg.text.isNotBlank() && msg.participant != Participant.ERROR) {
                     aiChatUseCase.deleteMessageById(loadingMessageId)
                 }
-                else {
-                    aiChatUseCase.updateMessageById(loadingMessageId, fullResponse, false, false)
-                }
             }
-            .collect { chunk ->
-                responseBuilder.append(chunk)
-            }
+        }
     }
 
     fun generateDraft(topic: String) = viewModelScope.launch {
         resetChatState()
         setAiMode(AiMode.NOTE_ASSISTANT)
 
-        val sessionId = aiChatUseCase.startNewSession(topic.take(40), _aiMode.value)
+        val sessionId = aiChatUseCase.startNewSession(
+            title = topic.take(40),
+            aiMode = _aiMode.value,
+            serviceName = _selectedAiService.value.name
+        )
 
         _chatState.value = _chatState.value.copy(currentSessionId = sessionId, hasStartedConversation = true)
 
@@ -657,7 +762,6 @@ class HomeViewModel @Inject constructor(
                         sourceImageUri = null
                     )
                 )
-                // 8a. Update the loading message to a confirmation message in the DB
                 val confirmationMessage = "Harika! '$title' üzerine bir not taslağı hazırladım."
                 aiChatUseCase.updateMessageById(loadingMessageId, confirmationMessage, false)
             }
@@ -820,7 +924,6 @@ class HomeViewModel @Inject constructor(
 
     fun resetChatState() {
         _chatState.value = ChatState()
-        setAiMode(AiMode.NOTE_ASSISTANT)
     }
 
     private fun readTextFromUri(uri: Uri): String {

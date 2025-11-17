@@ -9,5 +9,6 @@ data class AiChatSession(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val title: String,
     val createdAt: Date = Date(),
-    val aiMode: String
+    val aiMode: String,
+    val serviceName: String
 )

@@ -19,6 +19,7 @@ import com.google.ai.client.generativeai.type.Part
 import com.google.ai.client.generativeai.type.TextPart
 import com.google.ai.client.generativeai.type.content
 import com.google.ai.client.generativeai.type.generationConfig
+import com.google.gson.annotations.SerializedName
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.common.model.RemoteModelManager
 import com.google.mlkit.nl.languageid.LanguageIdentification
@@ -26,20 +27,28 @@ import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.TranslateRemoteModel
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.TranslatorOptions
-import com.google.gson.annotations.SerializedName
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsChannel
+import io.ktor.http.HttpStatusCode
+import io.ktor.utils.io.readUTF8Line
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-/**
- * Represents the different personalities or modes the AI can operate in.
- */
 enum class AiMode {
     NOTE_ASSISTANT, // For factual, note-taking tasks.
     CREATIVE_MIND,  // For brainstorming and creative writing.
@@ -108,13 +117,51 @@ data class AiActionCommand(
     val search_term: String?
 )
 
+@Serializable
+private data class PplxMessage(
+    @SerialName("role") val role: String,
+    @SerialName("content") val content: String
+)
+
+@Serializable
+private data class PplxRequest(
+    @SerialName("model") val model: String,
+    @SerialName("stream") val stream: Boolean,
+    @SerialName("messages") val messages: List<PplxMessage>
+)
+
+@Serializable
+private data class PplxSource(
+    @SerialName("title") val title: String,
+    @SerialName("url") val url: String
+)
+
+@Serializable
+private data class PplxDelta(
+    @SerialName("content") val content: String? = null
+)
+
+@Serializable
+private data class PplxChoice(
+    @SerialName("delta") val delta: PplxDelta? = null,
+    @SerialName("sources") val sources: List<PplxSource>? = null
+)
+
+@Serializable
+private data class PplxStreamResponse(
+    @SerialName("choices") val choices: List<PplxChoice>
+)
+
 class GeminiRepository @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val stringProvider: StringProvider
+    private val stringProvider: StringProvider,
+    private val httpClient: HttpClient,
+    private val json: Json
 ) {
     private companion object {
         const val DEFAULT_TEMPERATURE = 0.7f
         const val CREATIVE_TEMPERATURE = 0.9f
+        const val PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions"
     }
     class ApiKeyMissingException(message: String) : Exception(message)
 
@@ -130,6 +177,44 @@ class GeminiRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun validatePerplexityApiKey(apiKey: String): Result<Unit> = withContext(Dispatchers.IO) {
+        if (apiKey.isBlank()) {
+            return@withContext Result.failure(ApiKeyMissingException("The Perplexity API key cannot be empty."))
+        }
+
+        val settings = settingsRepository.settings.first()
+        val modelToValidate = settings.selectedPerplexityModelName
+
+        try {
+            val testRequest = PplxRequest(
+                model = modelToValidate,
+                stream = false,
+                messages = listOf(PplxMessage(role = "user", content = "Hello"))
+            )
+
+            val response = httpClient.post(PERPLEXITY_API_URL) {
+                header("Authorization", "Bearer $apiKey")
+                setBody(testRequest)
+            }
+
+            return@withContext if (response.status == HttpStatusCode.OK) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Perplexity API'sine bağlanılamadı. Durum Kodu: ${response.status.value}"))
+            }
+        } catch (e: ClientRequestException) {
+            if (e.response.status == HttpStatusCode.Unauthorized) {
+                Result.failure(Exception("Perplexity API anahtarı geçersiz veya izni yok."))
+            } else {
+                Result.failure(e)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
 
     suspend fun processAiAction(text: String, action: AiAction, tone: AiTone? = null, apiKey: String, aiMode: AiMode = AiMode.NOTE_ASSISTANT): Result<String> {
         if (apiKey.isBlank()) {
@@ -187,6 +272,96 @@ class GeminiRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
+    fun generatePerplexityChatResponse(
+        history: List<ChatMessage>,
+        apiKey: String
+    ): Flow<String> = flow {
+        if (apiKey.isBlank()) {
+            throw ApiKeyMissingException("Perplexity API anahtarı ayarlanmamış.")
+        }
+
+        val settings = settingsRepository.settings.first()
+        val modelToUse = settings.selectedPerplexityModelName
+
+        val messages = mutableListOf<PplxMessage>()
+        messages.add(PplxMessage(role = "system", content = "Be helpful and concise."))
+        history.filter { !it.isLoading && it.participant != Participant.ERROR }.forEach { msg ->
+            messages.add(PplxMessage(
+                role = if (msg.participant == Participant.USER) "user" else "assistant",
+                content = msg.text
+            ))
+        }
+
+        val requestBody = PplxRequest(
+            model = modelToUse,
+            stream = true,
+            messages = messages
+        )
+
+        val sourcesSet = mutableSetOf<PplxSource>()
+        val responseTextBuilder = StringBuilder()
+
+        try {
+            val response = httpClient.post(PERPLEXITY_API_URL) {
+                header("Authorization", "Bearer $apiKey")
+                setBody(requestBody)
+            }
+
+            val channel = response.bodyAsChannel()
+
+            while (!channel.isClosedForRead) {
+                val line = channel.readUTF8Line()
+                if (line.isNullOrBlank()) continue
+
+                if (line.startsWith("data:")) {
+                    val jsonData = line.substring(5).trim()
+                    if (jsonData == "[DONE]") {
+                        break
+                    }
+
+                    try {
+                        val streamResponse = json.decodeFromString<PplxStreamResponse>(jsonData)
+
+                        val choice = streamResponse.choices.firstOrNull()
+                        if (choice != null) {
+                            val content = choice.delta?.content
+                            if (content != null) {
+                                responseTextBuilder.append(content)
+                                emit(content)
+                            }
+
+                            val sources = choice.sources
+                            if (!sources.isNullOrEmpty()) {
+                                sourcesSet.addAll(sources)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.w("PerplexityParseError", "JSON ayrıştırma hatası: $jsonData", e)
+                    }
+                }
+            }
+
+            if (sourcesSet.isNotEmpty()) {
+                val sourcesString = buildString {
+                    append("\n\n\n**Sources:**")
+                    sourcesSet.forEachIndexed { index, source ->
+                        append("\n[${index + 1}] ${source.title} (${source.url})")
+                    }
+                }
+                emit(sourcesString)
+            }
+
+        } catch (e: Exception) {
+            Log.e("PerplexityRequestError", "Perplexity isteği başarısız", e)
+            throw e
+        }
+
+    }.catch {
+        Log.e("PerplexityFlowError", "Akış hatası", it)
+        emit(stringProvider.getString(R.string.error_api_request_failed, it.message ?: "Bilinmeyen hata"))
+    }.flowOn(Dispatchers.IO)
+
 
     fun processAssistantAction(
         noteName: String,

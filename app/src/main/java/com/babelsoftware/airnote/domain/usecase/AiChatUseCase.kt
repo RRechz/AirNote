@@ -21,8 +21,12 @@ class AiChatUseCase @Inject constructor(
         return aiChatDao.getMessagesForSession(sessionId)
     }
 
-    suspend fun startNewSession(title: String, aiMode: AiMode): Long {
-        val session = AiChatSession(title = title, aiMode = aiMode.name)
+    suspend fun startNewSession(title: String, aiMode: AiMode, serviceName: String): Long {
+        val session = AiChatSession(
+            title = title,
+            aiMode = aiMode.name,
+            serviceName = serviceName
+        )
         return aiChatDao.insertSession(session)
     }
 
