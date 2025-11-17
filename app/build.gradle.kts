@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.hilt)
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
 }
 
 android {
@@ -106,6 +107,13 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
     implementation("org.jsoup:jsoup:1.21.2")
     implementation("com.google.code.gson:gson:2.13.2")
+    implementation(platform("io.ktor:ktor-bom:3.0.0-beta-2"))
+    implementation("io.ktor:ktor-client-core")
+    implementation("io.ktor:ktor-client-android")
+    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-client-logging")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.datastore.preferences)
