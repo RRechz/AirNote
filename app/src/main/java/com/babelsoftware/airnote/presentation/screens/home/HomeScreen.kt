@@ -1,6 +1,7 @@
 package com.babelsoftware.airnote.presentation.screens.home
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -196,6 +197,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -228,6 +230,7 @@ import com.babelsoftware.airnote.presentation.components.VaultButton
 import com.babelsoftware.airnote.presentation.components.defaultScreenEnterAnimation
 import com.babelsoftware.airnote.presentation.components.defaultScreenExitAnimation
 import com.babelsoftware.airnote.presentation.screens.home.desktop.DesktopHomeScreen
+import com.babelsoftware.airnote.presentation.screens.home.viewmodel.AiService
 import com.babelsoftware.airnote.presentation.screens.home.viewmodel.DraftedNote
 import com.babelsoftware.airnote.presentation.screens.home.viewmodel.HomeViewModel
 import com.babelsoftware.airnote.presentation.screens.home.widgets.FolderActionBottomSheet
@@ -255,6 +258,11 @@ fun HomeView (
     val activity = context as? Activity
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val allFolders by viewModel.allFolders.collectAsState()
+    val notes by viewModel.displayedNotes.collectAsState()
+    val selectedFolderId by viewModel.selectedFolderId.collectAsState()
+    val query by viewModel.searchQuery.collectAsState()
+    val isVaultMode by viewModel.isVaultMode.collectAsState()
 
     if (activity != null) {
         val windowSizeClass = calculateWindowSizeClass(activity)
@@ -271,9 +279,6 @@ fun HomeView (
                 onSettingsClicked = onSettingsClicked
             )
         } else {
-            val allFolders by viewModel.allFolders.collectAsState()
-            val notes by viewModel.displayedNotes.collectAsState()
-            val selectedFolderId by viewModel.selectedFolderId.collectAsState()
             var showFolderSheet by remember { mutableStateOf(false) }
             val selectedFolder = remember(selectedFolderId, allFolders) {
                 allFolders.find { it.id == selectedFolderId }
@@ -350,12 +355,10 @@ fun HomeView (
                 viewModel.uiActionChannel.collect { action ->
                     when (action) {
                         is HomeViewModel.UiAction.RequestImageForAnalysis -> {
-                            // ESKİ HALİ: imagePickerLauncher.launch("image/*")
-                            imageAnalysisLauncher.launch("image/*") // <-- YENİ HALİ
+                            imageAnalysisLauncher.launch("image/*")
                         }
                         is HomeViewModel.UiAction.RequestFileForAnalysis -> {
-                            // ESKİ HALİ: filePickerLauncher.launch("text/plain")
-                            fileAnalysisLauncher.launch("text/plain") // <-- YENİ HALİ
+                            fileAnalysisLauncher.launch("text/plain")
                         }
                         is HomeViewModel.UiAction.RequestAttachmentType -> {
                             showAttachmentTypeSheet = true
@@ -466,9 +469,8 @@ fun HomeView (
             }
 
             if (viewModel.isMoveToFolderDialogVisible.value) {
-                val folders by viewModel.allFolders.collectAsState()
                 MoveToFolderDialog(
-                    folders = folders,
+                    folders = allFolders,
                     onDismiss = { viewModel.setMoveToFolderDialogVisibility(false) },
                     onFolderSelected = { folderId ->
                         viewModel.moveSelectedNotesToFolder(folderId)
@@ -541,7 +543,6 @@ fun HomeView (
                         enter = defaultScreenEnterAnimation(),
                         exit = defaultScreenExitAnimation()
                     ) {
-                        val notes by viewModel.displayedNotes.collectAsState()
                         SelectedNotesTopAppBar(
                             containerColor = topBarColor,
                             selectedNotes = viewModel.selectedNotes,
@@ -567,22 +568,21 @@ fun HomeView (
                         Column(
                             modifier = Modifier.background(topBarColor)
                         ) {
-                            val query by viewModel.searchQuery.collectAsState()
                             NotesSearchBar(
                                 settingsModel = settingsModel,
                                 query = query,
                                 onQueryChange = { viewModel.changeSearchQuery(it) },
                                 onSettingsClick = onSettingsClicked,
                                 onClearClick = { viewModel.changeSearchQuery("") },
-                                viewModel = viewModel,
                                 onVaultClicked = {
-                                    if (!viewModel.isVaultMode.value) {
+                                    if (!isVaultMode) {
                                         viewModel.toggleIsPasswordPromptVisible(true)
                                     } else {
                                         viewModel.toggleIsVaultMode(false)
                                         viewModel.encryptionHelper.removePassword()
                                     }
                                 },
+                                isVaultMode = isVaultMode,
                                 selectedFolderName = selectedFolder?.name ?: stringResource(R.string.all_notes),
                                 selectedFolderIconName = selectedFolder?.iconName,
                                 onFoldersClicked = { showFolderSheet = true }
@@ -614,7 +614,7 @@ fun HomeView (
                         },
                         selectedNotes = viewModel.selectedNotes,
                         viewMode = settingsModel.settings.value.viewMode,
-                        searchText = viewModel.searchQuery.value.ifBlank { null },
+                        searchText = query.ifBlank { null },
                         isDeleteMode = viewModel.isDeleteMode.value,
                         onNoteUpdate = { note ->
                             scope.launch(Dispatchers.IO) {
@@ -886,12 +886,12 @@ private fun SelectedNotesTopAppBar(
 @Composable
 private fun NotesSearchBar(
     settingsModel: SettingsViewModel,
-    viewModel: HomeViewModel,
     query: String,
     onQueryChange: (String) -> Unit,
     onSettingsClick: () -> Unit,
     onVaultClicked: () -> Unit,
     onClearClick: () -> Unit,
+    isVaultMode: Boolean,
     selectedFolderName: String,
     selectedFolderIconName: String?,
     onFoldersClicked: () -> Unit
@@ -912,7 +912,7 @@ private fun NotesSearchBar(
                     CloseButton(contentDescription = "Clear", onCloseClicked = onClearClick)
                 }
                 if (settingsModel.settings.value.vaultSettingEnabled) {
-                    VaultButton(viewModel.isVaultMode.value) { onVaultClicked() }
+                    VaultButton(isVaultMode) { onVaultClicked() }
                 }
                 AnimatedVisibility(
                     visible = query.isBlank(),
@@ -1370,6 +1370,13 @@ fun AiMainContent(viewModel: HomeViewModel) {
     val isChatActive = chatState.hasStartedConversation || chatState.messages.isNotEmpty()
     val allNotes by viewModel.allNotesForAi.collectAsState()
     val isDark = isSystemInDarkTheme()
+    val selectedService by viewModel.selectedAiService.collectAsState()
+    val showAttachmentButton = selectedService == AiService.GEMINI
+    val placeholderText = if (selectedService == AiService.GEMINI) {
+        if (chatState.isAwaitingDraftTopic) stringResource(R.string.draft_topic_placeholder) else stringResource(R.string.ask_airnote_ai)
+    } else {
+        stringResource(R.string.ask_perplexity_placeholder)
+    }
 
     val (mentionQuery, showMentionSuggestions) = remember(text) {
         val cursorPosition = text.length
@@ -1418,7 +1425,7 @@ fun AiMainContent(viewModel: HomeViewModel) {
     }
 
     val onSendMessage = { message: String ->
-        if (message.isNotBlank() || chatState.pendingAttachmentUri != null) {
+        if (message.isNotBlank() || (chatState.pendingAttachmentUri != null && showAttachmentButton)) {
             if (chatState.isAwaitingDraftTopic) {
                 viewModel.generateDraft(message)
             } else {
@@ -1475,7 +1482,7 @@ fun AiMainContent(viewModel: HomeViewModel) {
             }
         }
 
-        AnimatedVisibility(visible = mentionSuggestions.isNotEmpty()) {
+        AnimatedVisibility(visible = mentionSuggestions.isNotEmpty() && showAttachmentButton) {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1520,7 +1527,7 @@ fun AiMainContent(viewModel: HomeViewModel) {
             }
         }
 
-        AnimatedVisibility(visible = chatState.pendingAttachmentUri != null) {
+        AnimatedVisibility(visible = chatState.pendingAttachmentUri != null && showAttachmentButton) {
             AttachedFileChip(
                 uri = chatState.pendingAttachmentUri,
                 mimeType = chatState.pendingAttachmentMimeType,
@@ -1539,7 +1546,8 @@ fun AiMainContent(viewModel: HomeViewModel) {
                     onSendMessage = { onSendMessage(text) },
                     onImagePickerClicked = { viewModel.onAttachmentIconClicked() },
                     enabled = !isLoading,
-                    placeholderText = if (chatState.isAwaitingDraftTopic) stringResource(R.string.draft_topic_placeholder) else stringResource(R.string.ask_airnote_ai)
+                    showAttachmentButton = showAttachmentButton,
+                    placeholderText = placeholderText
                 )
             } else {
                 PreChatInputBar(
@@ -1547,7 +1555,8 @@ fun AiMainContent(viewModel: HomeViewModel) {
                     onValueChange = { text = it },
                     onSendMessage = onSendMessage,
                     onImagePickerClicked = { viewModel.onAttachmentIconClicked() },
-                    enabled = !isLoading
+                    enabled = !isLoading,
+                    showAttachmentButton = showAttachmentButton
                 )
             }
             AiDisclaimerText()
@@ -1806,6 +1815,7 @@ fun DraftDisplayWithImage(draft: DraftedNote, onSave: () -> Unit, onRegenerate: 
 @Composable
 fun NewAiHomeScreen(viewModel: HomeViewModel) {
     val chatState by viewModel.chatState.collectAsState()
+    val suggestions by viewModel.suggestions.collectAsState()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -1818,7 +1828,6 @@ fun NewAiHomeScreen(viewModel: HomeViewModel) {
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        val suggestions = viewModel.suggestions
         val rows = (suggestions.size + 1) / 2
         items(rows) { rowIndex ->
             Row(
@@ -1990,9 +1999,15 @@ fun HistoryItem(session: AiChatSession, onClick: () -> Unit, onDelete: () -> Uni
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val serviceIcon = if (session.serviceName == AiService.PERPLEXITY.name) {
+                Icons.Rounded.Search
+            } else {
+                Icons.Rounded.AutoAwesome
+            }
+
             Icon(
-                if (session.aiMode == AiMode.CREATIVE_MIND.name) Icons.Rounded.Psychology else Icons.Rounded.Notes,
-                contentDescription = null,
+                imageVector = serviceIcon,
+                contentDescription = session.serviceName,
                 tint = if (isDark) Color.White.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)
             )
@@ -2016,6 +2031,9 @@ fun AiTopBar(
 ) {
     val currentAiMode by viewModel.aiMode.collectAsState()
     var showModelMenu by remember { mutableStateOf(false) }
+    val selectedService by viewModel.selectedAiService.collectAsState()
+    var showServiceMenu by remember { mutableStateOf(false) }
+
     val isDark = isSystemInDarkTheme()
 
     Row(
@@ -2025,105 +2043,161 @@ fun AiTopBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Box {
-            Row(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(if (isDark) Color.White.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surfaceContainerHigh)
-                    .clickable { showModelMenu = true }
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = when(currentAiMode) {
-                        AiMode.NOTE_ASSISTANT -> Icons.AutoMirrored.Rounded.Notes
-                        AiMode.CREATIVE_MIND -> Icons.Rounded.Psychology
-                        AiMode.ACADEMIC_RESEARCHER -> Icons.Rounded.School
-                        AiMode.PROFESSIONAL_STRATEGIST -> Icons.Rounded.GolfCourse
-                    },
-                    contentDescription = "AI Model",
-                    tint = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = when (currentAiMode) {
-                        AiMode.NOTE_ASSISTANT -> stringResource(R.string.ai_mode_note_assistant)
-                        AiMode.CREATIVE_MIND -> stringResource(R.string.ai_mode_creative_mind)
-                        AiMode.ACADEMIC_RESEARCHER -> stringResource(R.string.ai_mode_academic_research)
-                        AiMode.PROFESSIONAL_STRATEGIST -> stringResource(R.string.ai_mode_professional_strategy)
-                    },
-                    color = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp
-                )
-                Icon(
-                    Icons.Rounded.ExpandMore,
-                    contentDescription = "Change Model",
-                    tint = if (isDark) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
+            AnimatedVisibility(visible = selectedService == AiService.GEMINI) {
+                Box {
+                    Row(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(if (isDark) Color.White.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surfaceContainerHigh)
+                            .clickable { showModelMenu = true }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = when (currentAiMode) {
+                                AiMode.NOTE_ASSISTANT -> Icons.AutoMirrored.Rounded.Notes
+                                AiMode.CREATIVE_MIND -> Icons.Rounded.Psychology
+                                AiMode.ACADEMIC_RESEARCHER -> Icons.Rounded.School
+                                AiMode.PROFESSIONAL_STRATEGIST -> Icons.Rounded.GolfCourse
+                            },
+                            contentDescription = "AI Model",
+                            tint = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = when (currentAiMode) {
+                                AiMode.NOTE_ASSISTANT -> stringResource(R.string.ai_mode_note_assistant)
+                                AiMode.CREATIVE_MIND -> stringResource(R.string.ai_mode_creative_mind)
+                                AiMode.ACADEMIC_RESEARCHER -> stringResource(R.string.ai_mode_academic_research)
+                                AiMode.PROFESSIONAL_STRATEGIST -> stringResource(R.string.ai_mode_professional_strategy)
+                            },
+                            color = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp
+                        )
+                        Icon(
+                            Icons.Rounded.ExpandMore,
+                            contentDescription = "Change Model",
+                            tint = if (isDark) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
 
-            DropdownMenu(
-                expanded = showModelMenu,
-                onDismissRequest = { showModelMenu = false },
-                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.ai_mode_note_assistant)) },
-                    onClick = {
-                        viewModel.setAiMode(AiMode.NOTE_ASSISTANT)
-                        showModelMenu = false
-                    },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Rounded.Notes,
-                            contentDescription = stringResource(R.string.ai_mode_note_assistant)
+                    DropdownMenu(
+                        expanded = showModelMenu,
+                        onDismissRequest = { showModelMenu = false },
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.ai_mode_note_assistant)) },
+                            onClick = {
+                                viewModel.setAiMode(AiMode.NOTE_ASSISTANT)
+                                showModelMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Rounded.Notes,
+                                    contentDescription = stringResource(R.string.ai_mode_note_assistant)
+                                )
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.ai_mode_creative_mind)) },
+                            onClick = {
+                                viewModel.setAiMode(AiMode.CREATIVE_MIND)
+                                showModelMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Rounded.Psychology,
+                                    contentDescription = stringResource(R.string.ai_mode_creative_mind)
+                                )
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.ai_mode_academic_research)) },
+                            onClick = {
+                                viewModel.setAiMode(AiMode.ACADEMIC_RESEARCHER)
+                                showModelMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Rounded.School,
+                                    contentDescription = stringResource(R.string.ai_mode_academic_research)
+                                )
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.ai_mode_professional_strategy)) },
+                            onClick = {
+                                viewModel.setAiMode(AiMode.PROFESSIONAL_STRATEGIST)
+                                showModelMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Rounded.GolfCourse,
+                                    contentDescription = stringResource(R.string.ai_mode_professional_strategy)
+                                )
+                            }
                         )
                     }
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.ai_mode_creative_mind)) },
-                    onClick = {
-                        viewModel.setAiMode(AiMode.CREATIVE_MIND)
-                        showModelMenu = false
-                    },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Rounded.Psychology,
-                            contentDescription = stringResource(R.string.ai_mode_creative_mind)
-                        )
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.ai_mode_academic_research)) },
-                    onClick = {
-                        viewModel.setAiMode(AiMode.ACADEMIC_RESEARCHER)
-                        showModelMenu = false
-                    },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Rounded.School,
-                            contentDescription = stringResource(R.string.ai_mode_academic_research)
-                        )
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.ai_mode_professional_strategy)) },
-                    onClick = {
-                        viewModel.setAiMode(AiMode.PROFESSIONAL_STRATEGIST)
-                        showModelMenu = false
-                    },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Rounded.GolfCourse,
-                            contentDescription = stringResource(R.string.ai_mode_professional_strategy)
-                        )
-                    }
-                )
+                }
+            }
+            Box(modifier = Modifier.padding(start = if (selectedService == AiService.GEMINI) 8.dp else 0.dp)) {
+                Row(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (isDark) Color.White.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surfaceContainerHigh)
+                        .clickable { showServiceMenu = true }
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = if (selectedService == AiService.GEMINI) Icons.Rounded.AutoAwesome else Icons.Rounded.Search, // Perplexity için ikon
+                        contentDescription = "AI Service",
+                        tint = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = if (selectedService == AiService.GEMINI) "Gemini" else "Perplexity",
+                        color = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp
+                    )
+                    Icon(
+                        Icons.Rounded.ExpandMore,
+                        contentDescription = "Change Service",
+                        tint = if (isDark) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = showServiceMenu,
+                    onDismissRequest = { showServiceMenu = false },
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Gemini") },
+                        onClick = {
+                            viewModel.selectAiService(AiService.GEMINI)
+                            showServiceMenu = false
+                        },
+                        leadingIcon = { Icon(Icons.Rounded.AutoAwesome, "Gemini") }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Perplexity") },
+                        onClick = {
+                            viewModel.selectAiService(AiService.PERPLEXITY)
+                            showServiceMenu = false
+                        },
+                        leadingIcon = { Icon(Icons.Rounded.Search, "Perplexity") }
+                    )
+                }
             }
         }
-
+        Spacer(modifier = Modifier.weight(1f))
         IconButton(onClick = onToggleHistory) {
             Icon(
                 if (showHistory) Icons.AutoMirrored.Filled.Chat else Icons.Rounded.History,
@@ -2321,14 +2395,78 @@ fun ChatMessageItem(
                     )
                     .padding(12.dp)
             ) {
-                Text(
-                    text = message.text.replace(Regex("[*#]"), "").trim(),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = textColor
+                RenderMessageWithSources(
+                    fullText = message.text.replace(Regex("[*#]"), "").trim(),
+                    baseColor = textColor,
+                    linkColor = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
                 )
             }
         }
     }
+}
+
+@Composable
+private fun RenderMessageWithSources(
+    fullText: String,
+    baseColor: Color,
+    linkColor: Color
+) {
+    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    val sourcesHeaderText = "**Sources:**"
+    val parts = fullText.split(sourcesHeaderText, limit = 2)
+    val mainText = parts[0]
+    val sourcesText = if (parts.size > 1) parts[1] else null
+    val sourceRegex = remember { Regex("""\[\d+\]\s*(.*?)\s*\((https?://[^\s)]+)\)""") }
+
+    val annotatedString = buildAnnotatedString {
+        withStyle(style = SpanStyle(color = baseColor)) {
+            append(mainText)
+        }
+        if (sourcesText != null) {
+            withStyle(style = SpanStyle(color = baseColor, fontWeight = FontWeight.Bold)) {
+                append("\n\n\nSources:")
+            }
+
+            var lastIndex = 0
+            sourceRegex.findAll(sourcesText).forEach { matchResult ->
+                val title = matchResult.groupValues[1]
+                val url = matchResult.groupValues[2]
+                withStyle(style = SpanStyle(color = baseColor)) {
+                    append(sourcesText.substring(lastIndex, matchResult.range.first))
+                }
+                pushStringAnnotation(tag = "URL", annotation = url)
+                withStyle(style = SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline)) {
+                    append("\n[${matchResult.value.substring(1,2)}] $title")
+                }
+                pop()
+
+                lastIndex = matchResult.range.last + 1
+            }
+            if (lastIndex < sourcesText.length) {
+                withStyle(style = SpanStyle(color = baseColor)) {
+                    append(sourcesText.substring(lastIndex))
+                }
+            }
+        }
+    }
+
+    ClickableText(
+        text = annotatedString,
+        style = MaterialTheme.typography.bodyLarge,
+        onClick = { offset ->
+            annotatedString.getStringAnnotations(tag = "URL", start = offset, end = offset)
+                .firstOrNull()?.let { annotation ->
+                    try {
+                        uriHandler.openUri(annotation.item)
+                    } catch (e: ActivityNotFoundException) {
+                        Toast.makeText(context, "Web tarayıcısı bulunamadı.", Toast.LENGTH_SHORT).show()
+                    } catch (e: IllegalArgumentException) {
+                        Toast.makeText(context, "URL açılamadı.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+        }
+    )
 }
 
 @Composable
@@ -2339,6 +2477,7 @@ fun RedesignedChatInputBar(
     onImagePickerClicked: () -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier,
+    showAttachmentButton: Boolean,
     placeholderText: String
 ) {
     val haptic = LocalHapticFeedback.current
@@ -2358,12 +2497,14 @@ fun RedesignedChatInputBar(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onImagePickerClicked, enabled = enabled) {
-                Icon(
-                    Icons.Default.AttachFile,
-                    contentDescription = "Attach File",
-                    tint = if (isDark) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            AnimatedVisibility(visible = showAttachmentButton) {
+                IconButton(onClick = onImagePickerClicked, enabled = enabled) {
+                    Icon(
+                        Icons.Default.AttachFile,
+                        contentDescription = "Attach File",
+                        tint = if (isDark) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
             TextField(
                 value = text,
@@ -2415,6 +2556,7 @@ fun PreChatInputBar(
     onImagePickerClicked: () -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier,
+    showAttachmentButton: Boolean
 ) {
     val isDark = isSystemInDarkTheme()
     val primaryAccentColor = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary
@@ -2465,12 +2607,14 @@ fun PreChatInputBar(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onImagePickerClicked, enabled = enabled) {
-                    Icon(
-                        Icons.Default.AttachFile,
-                        contentDescription = "Attach File",
-                        tint = if (isDark) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                AnimatedVisibility(visible = showAttachmentButton) {
+                    IconButton(onClick = onImagePickerClicked, enabled = enabled) {
+                        Icon(
+                            Icons.Default.AttachFile,
+                            contentDescription = "Attach File",
+                            tint = if (isDark) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
 
                 val searchString = stringResource(R.string.ai_search)

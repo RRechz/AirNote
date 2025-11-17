@@ -112,6 +112,8 @@ import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.repository.AiMode
 import com.babelsoftware.airnote.domain.model.AiChatSession
 import com.babelsoftware.airnote.domain.model.Participant
+import com.babelsoftware.airnote.presentation.screens.home.ActionCard
+import com.babelsoftware.airnote.presentation.screens.home.AiCentralGraphic
 import com.babelsoftware.airnote.presentation.screens.home.viewmodel.DraftedNote
 import com.babelsoftware.airnote.presentation.screens.home.viewmodel.HomeViewModel
 import kotlinx.coroutines.delay
@@ -460,8 +462,9 @@ private fun DraftDisplayWithImage(draft: DraftedNote, onSave: () -> Unit, onRege
 }
 
 @Composable
-private fun NewAiHomeScreen(viewModel: HomeViewModel) {
+fun NewAiHomeScreen(viewModel: HomeViewModel) {
     val chatState by viewModel.chatState.collectAsState()
+    val suggestions by viewModel.suggestions.collectAsState()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -469,12 +472,11 @@ private fun NewAiHomeScreen(viewModel: HomeViewModel) {
         contentPadding = PaddingValues(bottom = 16.dp)
     ) {
         item {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(64.dp))
             AiCentralGraphic(isThinking = chatState.messages.any { it.isLoading })
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        val suggestions = viewModel.suggestions
         val rows = (suggestions.size + 1) / 2
         items(rows) { rowIndex ->
             Row(
