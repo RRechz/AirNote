@@ -25,7 +25,8 @@ class NoteDatabaseProvider(private val application: Application) {
         return Room.databaseBuilder(application.applicationContext,
             NoteDatabase::class.java,
             DatabaseConst.NOTES_DATABASE_FILE_NAME)
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_2_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+            // GÜNCELLENDİ: MIGRATION_7_8 eklendi
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_2_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
             .build()
     }
 
@@ -110,5 +111,11 @@ private val MIGRATION_6_7 = object : Migration(6, 7) {
                 FOREIGN KEY(`sessionId`) REFERENCES `ai_chat_sessions`(`id`) ON DELETE CASCADE
             )
         """.trimIndent())
+    }
+}
+
+private val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `ai_chat_sessions` ADD COLUMN `serviceName` TEXT NOT NULL DEFAULT 'GEMINI'")
     }
 }
