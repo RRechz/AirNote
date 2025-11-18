@@ -1,6 +1,8 @@
 package com.babelsoftware.airnote.presentation.screens.settings.settings
 
-import android.content.ActivityNotFoundException // Bu importun olduğundan emin olun
+import androidx.compose.runtime.getValue
+import com.babelsoftware.airnote.domain.model.Settings
+import android.content.ActivityNotFoundException
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
@@ -18,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -29,6 +30,7 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Memory
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,7 +51,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -74,7 +75,7 @@ import com.babelsoftware.airnote.presentation.screens.settings.model.SettingsVie
 import com.babelsoftware.airnote.presentation.screens.settings.widgets.ActionType
 import com.babelsoftware.airnote.presentation.screens.settings.widgets.SettingsBox
 import kotlinx.coroutines.launch
-import java.lang.IllegalArgumentException // YENİ IMPORT
+import java.lang.IllegalArgumentException
 
 private data class PerplexityModelInfo(val name: String, @StringRes val displayNameResId: Int)
 private object PerplexityModels {
@@ -95,7 +96,7 @@ private object PerplexityModels {
 fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: SettingsViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-
+    val settings: Settings by settingsViewModel.settings
     val geminiSheetState = rememberModalBottomSheetState()
     var showGeminiBottomSheet by remember { mutableStateOf(false) }
     val perplexitySheetState = rememberModalBottomSheetState()
@@ -110,14 +111,14 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
 
     if (showGeminiBottomSheet) {
         ModalBottomSheet(onDismissRequest = { showGeminiBottomSheet = false }, sheetState = geminiSheetState) {
-            ApiKeyGuide() // Gemini Guide
+            ApiKeyGuide()
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
 
     if (showPerplexityBottomSheet) {
         ModalBottomSheet(onDismissRequest = { showPerplexityBottomSheet = false }, sheetState = perplexitySheetState) {
-            PerplexityApiKeyGuide() // Perplexity Guide
+            PerplexityApiKeyGuide()
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
@@ -133,10 +134,10 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
                 ApiKeySetting(
                     settingsViewModel = settingsViewModel,
                     onHelpClick = { showGeminiBottomSheet = true },
-                    shape = shapeManager( // MODIFIED
+                    shape = shapeManager(
                         isFirst = true,
                         isLast = false,
-                        radius = settingsViewModel.settings.value.cornerRadius
+                        radius = settings.cornerRadius
                     )
                 )
             }
@@ -146,32 +147,74 @@ fun AirNoteAiSettingsScreen(navController: NavController, settingsViewModel: Set
                     shape = shapeManager(
                         isFirst = false,
                         isLast = true,
-                        radius = settingsViewModel.settings.value.cornerRadius
+                        radius = settings.cornerRadius
                     )
                 )
                 Spacer(modifier = Modifier.height(24.dp))
             }
             item {
-                PerplexityApiKeySetting(
-                    settingsViewModel = settingsViewModel,
-                    onHelpClick = { showPerplexityBottomSheet = true },
-                    shape = shapeManager( // MODIFIED
-                        isFirst = true,
-                        isLast = false,
-                        radius = settingsViewModel.settings.value.cornerRadius
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = stringResource(R.string.ai_service_perplexity),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 4.dp)
+                        )
+                        IconButton(onClick = { showPerplexityBottomSheet = true }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
+                                contentDescription = "Perplexity Help"
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SettingsBox(
+                        settingsViewModel = settingsViewModel,
+                        title = stringResource(R.string.enable_perplexity_ai),
+                        description = if (settings.isPerplexityEnabled) stringResource(R.string.enabled) else stringResource(R.string.perplexity_ai_service_description),
+                        icon = IconResource.Vector(Icons.Rounded.Search),
+                        actionType = ActionType.SWITCH,
+                        variable = settings.isPerplexityEnabled,
+                        switchEnabled = { isEnabled ->
+                            settingsViewModel.update(settings.copy(isPerplexityEnabled = isEnabled))
+                        },
+                        radius = if (settings.isPerplexityEnabled) {
+                            shapeManager(isFirst = true, isLast = false, radius = settings.cornerRadius)
+                        } else {
+                            shapeManager(isBoth = true, radius = settings.cornerRadius)
+                        },
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
                     )
-                )
+                }
             }
             item {
-                PerplexityModelChoiceSetting(
-                    settingsViewModel = settingsViewModel,
-                    shape = shapeManager(
-                        isFirst = false,
-                        isLast = true,
-                        radius = settingsViewModel.settings.value.cornerRadius
-                    )
-                )
-                Spacer(modifier = Modifier.height(24.dp))
+                AnimatedVisibility(
+                    visible = settings.isPerplexityEnabled,
+                    enter = slideInVertically() + fadeIn(),
+                    exit = slideOutVertically() + fadeOut()
+                ) {
+                    Column {
+                        PerplexityApiKeyBox(
+                            settingsViewModel = settingsViewModel,
+                            shape = RoundedCornerShape(0.dp)
+                        )
+                        PerplexityModelChoiceSetting(
+                            settingsViewModel = settingsViewModel,
+                            shape = shapeManager(
+                                isFirst = false,
+                                isLast = true,
+                                radius = settings.cornerRadius
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
+                }
+                if (!settings.isPerplexityEnabled) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
             }
 
             item {
@@ -245,7 +288,7 @@ private fun ModelChoiceSetting(
     val selectedModelDisplayName = if (selectedModelInfo != null) {
         stringResource(id = selectedModelInfo.displayNameResId)
     } else {
-        settings.selectedModelName // Fallback
+        settings.selectedModelName
     }
     val descriptionText = stringResource(
         R.string.model_in_use_prefix,
@@ -309,46 +352,26 @@ private fun PerplexityModelChoiceSetting(
 }
 
 @Composable
-private fun PerplexityApiKeySetting(
+private fun PerplexityApiKeyBox(
     settingsViewModel: SettingsViewModel,
-    onHelpClick: () -> Unit,
     shape: RoundedCornerShape
 ) {
     val perplexityApiKey by settingsViewModel.perplexityApiKey
 
-    Column {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = stringResource(R.string.ai_service_perplexity),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 4.dp)
+    SettingsBox(
+        settingsViewModel = settingsViewModel,
+        title = stringResource(R.string.perplexity_api_key),
+        description = if (perplexityApiKey.isNotBlank()) "••••••••••••••••••••" else stringResource(R.string.not_set),
+        icon = IconResource.Vector(Icons.Rounded.Key),
+        actionType = ActionType.CUSTOM,
+        radius = shape,
+        customAction = { onDismiss ->
+            PerplexityApiKeyPopup(
+                settingsViewModel = settingsViewModel,
+                onDismiss = onDismiss
             )
-            IconButton(onClick = onHelpClick) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
-                    contentDescription = "Perplexity API key assistance"
-                )
-            }
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        SettingsBox(
-            settingsViewModel = settingsViewModel,
-            title = stringResource(R.string.perplexity_api_key),
-            description = if (perplexityApiKey.isNotBlank()) "••••••••••••••••••••" else stringResource(R.string.not_set),
-            icon = IconResource.Vector(Icons.Rounded.Key),
-            actionType = ActionType.CUSTOM,
-            radius = shape,
-            customAction = { onDismiss ->
-                PerplexityApiKeyPopup(
-                    settingsViewModel = settingsViewModel,
-                    onDismiss = onDismiss
-                )
-            }
-        )
-    }
+    )
 }
 
 

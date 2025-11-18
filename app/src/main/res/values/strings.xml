@@ -356,6 +356,9 @@
     <string name="perplexity_api_not_empty">The Perplexity API key cannot be empty!</string>
     <string name="ai_service_gemini">Gemini AI Service</string>
     <string name="ai_service_perplexity">Perplexity AI Service</string>
+    <string name="perplexity_ai_service_description">ATTENTION: This API only supports Perplexity Pro user APIs.</string>
+    <string name="enabled">Enabled</string>
+    <string name="enable_perplexity_ai">Enable Perplexity AI</string>
 
     <!-- Ai Prompt Analyze -->
     <string name="analyze_create_note">create a note or create note</string>

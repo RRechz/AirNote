@@ -198,6 +198,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import android.provider.MediaStore
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -212,6 +213,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.repository.AiMode
 import com.babelsoftware.airnote.domain.model.AiChatSession
@@ -263,6 +265,7 @@ fun HomeView (
     val selectedFolderId by viewModel.selectedFolderId.collectAsState()
     val query by viewModel.searchQuery.collectAsState()
     val isVaultMode by viewModel.isVaultMode.collectAsState()
+    val liveSettings by settingsModel.settings
 
     if (activity != null) {
         val windowSizeClass = calculateWindowSizeClass(activity)
@@ -415,7 +418,7 @@ fun HomeView (
                     modifier = Modifier.fillMaxWidth(),
                     tonalElevation = 0.dp
                 ) {
-                    AiChatContainer(viewModel = viewModel)
+                    AiChatContainer(viewModel = viewModel, settings = liveSettings)
                 }
             }
 
@@ -1322,7 +1325,7 @@ val materialIconsList = mapOf(
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun AiChatContainer(viewModel: HomeViewModel) {
+fun AiChatContainer(viewModel: HomeViewModel, settings: Settings) {
     val isDark = isSystemInDarkTheme()
     val backgroundBrush = if (isDark) {
         Brush.verticalGradient(
@@ -1345,7 +1348,8 @@ fun AiChatContainer(viewModel: HomeViewModel) {
         AiTopBar(
             viewModel = viewModel,
             showHistory = showHistoryScreen,
-            onToggleHistory = { viewModel.toggleAiHistoryScreen(!showHistoryScreen) }
+            onToggleHistory = { viewModel.toggleAiHistoryScreen(!showHistoryScreen) },
+            isPerplexityEnabled = settings.isPerplexityEnabled
         )
 
         AnimatedContent(targetState = showHistoryScreen, label = "AiScreenAnimation") { showHistory ->
@@ -2027,14 +2031,17 @@ fun HistoryItem(session: AiChatSession, onClick: () -> Unit, onDelete: () -> Uni
 fun AiTopBar(
     viewModel: HomeViewModel,
     showHistory: Boolean,
-    onToggleHistory: () -> Unit
+    onToggleHistory: () -> Unit,
+    isPerplexityEnabled: Boolean
 ) {
     val currentAiMode by viewModel.aiMode.collectAsState()
     var showModelMenu by remember { mutableStateOf(false) }
     val selectedService by viewModel.selectedAiService.collectAsState()
     var showServiceMenu by remember { mutableStateOf(false) }
-
     val isDark = isSystemInDarkTheme()
+
+    val geminiIconUrl = "https://cdn-1.webcatalog.io/catalog/google-bard/google-bard-icon-filled-256.webp?v=1760920816570"
+    val perplexityIconUrl = "https://framerusercontent.com/images/gcMkPKyj2RX8EOEja8A1GWvCb7E.jpg?width=2000&height=2000"
 
     Row(
         modifier = Modifier
@@ -2144,6 +2151,7 @@ fun AiTopBar(
                     }
                 }
             }
+
             Box(modifier = Modifier.padding(start = if (selectedService == AiService.GEMINI) 8.dp else 0.dp)) {
                 Row(
                     modifier = Modifier
@@ -2153,12 +2161,15 @@ fun AiTopBar(
                         .padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = if (selectedService == AiService.GEMINI) Icons.Rounded.AutoAwesome else Icons.Rounded.Search, // Perplexity için ikon
+                    Image(
+                        painter = rememberAsyncImagePainter(model = if (selectedService == AiService.GEMINI) geminiIconUrl else perplexityIconUrl),
                         contentDescription = "AI Service",
-                        tint = if (isDark) Color(0xFF33A2FF) else MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
                     )
+
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = if (selectedService == AiService.GEMINI) "Gemini" else "Perplexity",
@@ -2184,16 +2195,32 @@ fun AiTopBar(
                             viewModel.selectAiService(AiService.GEMINI)
                             showServiceMenu = false
                         },
-                        leadingIcon = { Icon(Icons.Rounded.AutoAwesome, "Gemini") }
+                        leadingIcon = {
+                            Image(
+                                painter = rememberAsyncImagePainter(model = geminiIconUrl),
+                                contentDescription = "Gemini",
+                                modifier = Modifier.size(24.dp).clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
                     )
-                    DropdownMenuItem(
-                        text = { Text("Perplexity") },
-                        onClick = {
-                            viewModel.selectAiService(AiService.PERPLEXITY)
-                            showServiceMenu = false
-                        },
-                        leadingIcon = { Icon(Icons.Rounded.Search, "Perplexity") }
-                    )
+                    if (isPerplexityEnabled) {
+                        DropdownMenuItem(
+                            text = { Text("Perplexity") },
+                            onClick = {
+                                viewModel.selectAiService(AiService.PERPLEXITY)
+                                showServiceMenu = false
+                            },
+                            leadingIcon = {
+                                Image(
+                                    painter = rememberAsyncImagePainter(model = perplexityIconUrl),
+                                    contentDescription = "Perplexity",
+                                    modifier = Modifier.size(24.dp).clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

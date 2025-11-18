@@ -400,6 +400,8 @@
     <string name="instagram">Resmi | @AirNoteApp</string>
     <string name="model_in_use_prefix">Aktif Model:  %1$s</string>
     <string name="ai_service_perplexity">Perplexity AI Servisi</string>
+    <string name="enabled">Etkin</string>
+    <string name="enable_perplexity_ai">Perplexity AI Etkinleştir</string>
     <string name="analyze_create_note">not oluştur veya not oluştur</string>
     <string name="analyze_analyze">analiz et ya da metni analiz et ya da analiz</string>
     <string name="analyze_take_notes">notlar al ya da not al ya da notlara dök ya da nota dök</string>
@@ -430,4 +432,5 @@
     <string name="ask_perplexity_placeholder">Perplexity\'de ara...</string>
     <string name="perplexity_api_not_empty">Perplexity API anahtarı boş bırakılamaz!</string>
     <string name="ai_service_gemini">Gemini AI Servisi</string>
+    <string name="perplexity_ai_service_description">DİKKAT: Bu API yalnızca Perplexity Pro kullanıcı API\'lerini destekler.</string>
 </resources>

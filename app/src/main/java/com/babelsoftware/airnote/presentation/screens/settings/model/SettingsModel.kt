@@ -24,6 +24,7 @@ import com.babelsoftware.airnote.BuildConfig
 import com.babelsoftware.airnote.R
 import com.babelsoftware.airnote.data.provider.StringProvider
 import com.babelsoftware.airnote.data.repository.GeminiRepository
+import com.babelsoftware.airnote.domain.repository.SettingsRepository
 import com.babelsoftware.airnote.util.checkForUpdates
 import com.babelsoftware.airnote.util.isNewerVersion
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -49,6 +50,7 @@ class SettingsViewModel @Inject constructor(
     val noteUseCase: NoteUseCase,
     private val importExportUseCase: ImportExportUseCase,
     private val secureStorageRepository: SecureStorageRepository,
+    private val settingsRepository: SettingsRepository,
     val geminiRepository: GeminiRepository,
     private val stringProvider: StringProvider
 ) : ViewModel() {
