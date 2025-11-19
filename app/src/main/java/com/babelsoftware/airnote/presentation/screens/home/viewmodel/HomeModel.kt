@@ -16,6 +16,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.babelsoftware.airnote.R
@@ -1173,5 +1174,20 @@ class HomeViewModel @Inject constructor(
                     _uiEvent.send(exception.message ?: "AI işlemi başarısız oldu.")
                 }
         }
+    }
+
+    fun toggleLockForSelectedNotes() {
+        val allLocked = selectedNotes.all { it.isLocked }
+        viewModelScope.launch {
+            selectedNotes.forEach { note ->
+                val updatedNote = note.copy(isLocked = !allLocked)
+                noteUseCase.addNote(updatedNote)
+            }
+            selectedNotes.clear()
+            _uiEvent.send(if (!allLocked) stringProvider.getString(R.string.notes_are_locked) else stringProvider.getString(R.string.notes_are_unlocked))
+        }
+    }
+    fun isNoteLocked(noteId: Int): Boolean {
+        return displayedNotes.value.find { it.id == noteId }?.isLocked == true
     }
 }

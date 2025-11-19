@@ -7,6 +7,7 @@ data class Settings(
     var passcode: String? = null,
     var fingerprint: Boolean = false,
     var pattern: String? = null,
+    var appLockEnabled: Boolean = false,
     val viewMode: Boolean = true,
     val automaticTheme: Boolean = true,
     val darkTheme: Boolean = false,
@@ -31,12 +32,14 @@ data class Settings(
     var makeSearchBarLonger: Boolean = false,
     var fontSize: Int = 13,
     val showFolderIndicator: Boolean = false,
-    val useAirNoteApi: Boolean = false, // AirNote API will use your API by default
+    val useAirNoteApi: Boolean = false,
     val selectedModelName: String = "gemini-2.0-flash-001",
     val selectedPerplexityModelName: String = "pplx-7b-online",
     val isPerplexityEnabled: Boolean = false,
     val desktopModeEnabled: Boolean = true,
     val desktopModeAiEnabled: Boolean = true,
     val openToLastUsedFolder: Boolean = false,
-    val lastUsedFolderId: Long? = null
+    val lastUsedFolderId: Long? = null,
+    var noteLockPassword: String? = null,
+    var vaultEncryptionType: String = "AES-256"
 )

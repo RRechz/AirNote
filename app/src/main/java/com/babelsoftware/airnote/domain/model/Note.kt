@@ -24,6 +24,9 @@ data class Note(
     @ColumnInfo(name = "encrypted")
     val encrypted: Boolean = false,
 
+    @ColumnInfo(name = "is_locked")
+    val isLocked: Boolean = false,
+
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis() // Default value is the current timestamp
 )

@@ -169,11 +169,15 @@ class SettingsViewModel @Inject constructor(
     // <---
 
     fun loadDefaultRoute() {
+        if (!_settings.value.appLockEnabled) {
+            defaultRoute = NavRoutes.Home.route
+            return
+        }
+
         if (_settings.value.fingerprint == false && _settings.value.passcode == null && _settings.value.pattern == null) {
-            defaultRoute == NavRoutes.Home.route
+            defaultRoute = NavRoutes.Home.route
         } else {
             defaultRoute = _settings.value.defaultRouteType
-
         }
     }
 
@@ -302,7 +306,6 @@ class SettingsViewModel @Inject constructor(
         }
         _settings.value = loadedSettings
         if (_settings.value.fingerprint == false && _settings.value.passcode == null && _settings.value.pattern == null) {
-
             defaultRoute = NavRoutes.Home.route
         } else {
             defaultRoute = loadedSettings.defaultRouteType

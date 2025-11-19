@@ -49,7 +49,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.automirrored.rounded.Notes
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Alarm
@@ -97,7 +96,6 @@ import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Spa
@@ -110,6 +108,8 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
@@ -163,6 +163,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.babelsoftware.airnote.R
@@ -202,6 +203,8 @@ fun HomeView (
     onNavigateToAbout: () -> Unit
 ) {
     val context = LocalContext.current
+    var showUnlockDialog by remember { mutableStateOf<Int?>(null) }
+    var showBulkUnlockDialog by remember { mutableStateOf(false) }
     val activity = context as? Activity
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -504,7 +507,23 @@ fun HomeView (
                                     true
                                 )
                             },
-                            onCloseClick = { viewModel.selectedNotes.clear() }
+                            onCloseClick = { viewModel.selectedNotes.clear() },
+                            onLockClick = {
+                                val anyLocked = viewModel.selectedNotes.any { it.isLocked }
+                                if (anyLocked) {
+                                    if (settings.noteLockPassword.isNullOrBlank()) {
+                                        scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.first_set_a_note_password)) }
+                                    } else {
+                                        showBulkUnlockDialog = true
+                                    }
+                                } else {
+                                    if (settings.noteLockPassword.isNullOrBlank()) {
+                                        scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.first_set_a_password_in_the_settings)) }
+                                    } else {
+                                        viewModel.toggleLockForSelectedNotes()
+                                    }
+                                }
+                            }
                         )
                     }
 
@@ -550,14 +569,17 @@ fun HomeView (
                         notes = sortedNotes,
                         allFolders = allFolders,
                         onNoteClicked = { noteId ->
-                            val clickedNote =
-                                viewModel.displayedNotes.value.find { it.id == noteId }
+                            val clickedNote = viewModel.displayedNotes.value.find { it.id == noteId }
                             if (clickedNote != null) {
-                                onNoteClicked(
-                                    clickedNote.id,
-                                    clickedNote.encrypted,
-                                    clickedNote.folderId
-                                )
+                                if (clickedNote.isLocked) {
+                                    if (settings.noteLockPassword.isNullOrBlank()) {
+                                        scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.note_is_locked_but_no_password)) }
+                                    } else {
+                                        showUnlockDialog = noteId
+                                    }
+                                } else {
+                                    onNoteClicked(clickedNote.id, clickedNote.encrypted, clickedNote.folderId)
+                                }
                             }
                         },
                         selectedNotes = viewModel.selectedNotes,
@@ -574,6 +596,73 @@ fun HomeView (
                             viewModel.deleteNoteById(it)
                         },
                     )
+                }
+            )
+        }
+        var showUnlockDialog by remember { mutableStateOf<Int?>(null) }
+        if (showUnlockDialog != null) {
+            var passwordInput by remember { mutableStateOf("") }
+            AlertDialog(
+                onDismissRequest = { showUnlockDialog = null },
+                title = { Text(stringResource(R.string.unlock_note)) },
+                text = {
+                    Column {
+                        Text(stringResource(R.string.enter_your_password_to_view_this_note))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = passwordInput,
+                            onValueChange = { passwordInput = it },
+                            label = { Text(stringResource(R.string.note_password)) },
+                            visualTransformation = PasswordVisualTransformation(),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        if (passwordInput == settings.noteLockPassword) {
+                            val noteToOpen = notes.find { it.id == showUnlockDialog }
+                            if (noteToOpen != null) {
+                                onNoteClicked(noteToOpen.id, noteToOpen.encrypted, noteToOpen.folderId)
+                            }
+                            showUnlockDialog = null
+                        } else {
+                            scope.launch { snackbarHostState.showSnackbar("Wrong password!!") }
+                        }
+                    }) { Text("Aç") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showUnlockDialog = null }) { Text(stringResource(R.string.cancel)) }
+                }
+            )
+        }
+        if (showBulkUnlockDialog) {
+            var passwordInput by remember { mutableStateOf("") }
+            AlertDialog(
+                onDismissRequest = { showBulkUnlockDialog = false },
+                title = { Text(stringResource(R.string.unlock_selected_notes)) },
+                text = {
+                    OutlinedTextField(
+                        value = passwordInput,
+                        onValueChange = { passwordInput = it },
+                        label = { Text(stringResource(R.string.note_password)) },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true
+                    )
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        if (passwordInput == settings.noteLockPassword) {
+                            viewModel.toggleLockForSelectedNotes()
+                            showBulkUnlockDialog = false
+                        } else {
+                            scope.launch { snackbarHostState.showSnackbar("Wrong password!") }
+                        }
+                    }) { Text(stringResource(R.string.confirm)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showBulkUnlockDialog = false }) { Text(stringResource(R.string.cancel)) }
                 }
             )
         }
@@ -783,7 +872,8 @@ private fun SelectedNotesTopAppBar(
     onSelectAllClick: () -> Unit,
     onMoveToFolderClick: () -> Unit,
     containerColor: Color,
-    onCloseClick: () -> Unit
+    onCloseClick: () -> Unit,
+    onLockClick: () -> Unit = {},
 ) {
     var deletelaert by remember {
         mutableStateOf(false)
@@ -816,6 +906,13 @@ private fun SelectedNotesTopAppBar(
         navigationIcon = { CloseButton(onCloseClicked = onCloseClick) },
         actions = {
             Row {
+                IconButton(onClick = onLockClick) {
+                    val allLocked = selectedNotes.all { it.isLocked }
+                    Icon(
+                        imageVector = if (allLocked) Icons.Rounded.LockOpen else Icons.Rounded.Lock,
+                        contentDescription = "Lock/Unlock"
+                    )
+                }
                 IconButton(onClick = onMoveToFolderClick) {
                     Icon(Icons.Default.FolderOpen, contentDescription = "Move to Folder")
                 }

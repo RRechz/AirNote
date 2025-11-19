@@ -8,13 +8,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
@@ -61,6 +66,8 @@ fun NoteCard(
         allFolders.find { it.id == id }
     }
 
+    val contentModifier = if (note.isLocked) Modifier.blur(15.dp) else Modifier
+
     ElevatedCard(
         modifier = Modifier
             .padding(bottom = 12.dp)
@@ -79,45 +86,59 @@ fun NoteCard(
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
-                modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 12.dp)
+                modifier = Modifier
+                    .padding(16.dp, 12.dp, 16.dp, 12.dp)
+                    .then(contentModifier)
             ) {
-                if (note.name.isNotBlank()) {
-                    MarkdownText(
-                        isPreview = true,
-                        isEnabled = settingsViewModel.settings.value.isMarkdownEnabled,
-                        markdown = note.name.replaceFirstChar { it.uppercase() },
-                        modifier = Modifier
-                            .heightIn(max = dimensionResource(R.dimen.max_name_height))
-                            .then(
-                                if (note.description.isNotBlank() && !settingsViewModel.settings.value.showOnlyTitle) {
-                                    Modifier.padding(bottom = 9.dp)
-                                } else {
-                                    Modifier
-                                }
-                            ),
-                        weight = FontWeight.Bold,
-                        spacing = 0.dp,
-                        onContentChange = { onNoteUpdate(note.copy(name = it)) },
-                        fontSize = FontUtils.getTitleFontSize(settingsViewModel),
-                        radius = settingsViewModel.settings.value.cornerRadius,
-                        settingsViewModel = settingsViewModel
-                    )
-                }
+                if (note.isLocked) {
+                } else {
+                    if (note.name.isNotBlank()) {
+                        MarkdownText(
+                            isPreview = true,
+                            isEnabled = settingsViewModel.settings.value.isMarkdownEnabled,
+                            markdown = note.name.replaceFirstChar { it.uppercase() },
+                            modifier = Modifier
+                                .heightIn(max = dimensionResource(R.dimen.max_name_height))
+                                .then(
+                                    if (note.description.isNotBlank() && !settingsViewModel.settings.value.showOnlyTitle) {
+                                        Modifier.padding(bottom = 9.dp)
+                                    } else {
+                                        Modifier
+                                    }
+                                ),
+                            weight = FontWeight.Bold,
+                            spacing = 0.dp,
+                            onContentChange = { onNoteUpdate(note.copy(name = it)) },
+                            fontSize = FontUtils.getTitleFontSize(settingsViewModel),
+                            radius = settingsViewModel.settings.value.cornerRadius,
+                            settingsViewModel = settingsViewModel
+                        )
+                    }
 
-                if (note.description.isNotBlank() && !settingsViewModel.settings.value.showOnlyTitle) {
-                    MarkdownText(
-                        isPreview = true,
-                        markdown = note.description,
-                        isEnabled = settingsViewModel.settings.value.isMarkdownEnabled,
-                        spacing = 0.dp,
-                        modifier = Modifier
-                            .heightIn(max = dimensionResource(R.dimen.max_description_height)),
-                        onContentChange = { onNoteUpdate(note.copy(description = it)) },
-                        fontSize = FontUtils.getBodyFontSize(settingsViewModel),
-                        radius = settingsViewModel.settings.value.cornerRadius,
-                        settingsViewModel = settingsViewModel
-                    )
+                    if (note.description.isNotBlank() && !settingsViewModel.settings.value.showOnlyTitle) {
+                        MarkdownText(
+                            isPreview = true,
+                            markdown = note.description,
+                            isEnabled = settingsViewModel.settings.value.isMarkdownEnabled,
+                            spacing = 0.dp,
+                            modifier = Modifier
+                                .heightIn(max = dimensionResource(R.dimen.max_description_height)),
+                            onContentChange = { onNoteUpdate(note.copy(description = it)) },
+                            fontSize = FontUtils.getBodyFontSize(settingsViewModel),
+                            radius = settingsViewModel.settings.value.cornerRadius,
+                            settingsViewModel = settingsViewModel
+                        )
+                    }
                 }
+            }
+
+            if (note.isLocked) {
+                Icon(
+                    imageVector = Icons.Rounded.Lock,
+                    contentDescription = "Locked",
+                    modifier = Modifier.align(Alignment.Center).size(32.dp),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
             }
 
             if (folder != null && settingsViewModel.settings.value.showFolderIndicator) {

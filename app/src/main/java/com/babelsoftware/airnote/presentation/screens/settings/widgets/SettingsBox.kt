@@ -1,21 +1,6 @@
 /*
  * Copyright (C) 2025 Babel Software
- *
- * The AirNote project is based solely on the resources of Kin69's Easy Notes project.
- * The AirNote project was developed as an alternative to other AI-powered note-taking applications.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * ...
 */
 
 package com.babelsoftware.airnote.presentation.screens.settings.widgets
@@ -78,9 +63,9 @@ enum class ActionType {
     LINK,
     TEXT,
     CUSTOM,
-    CLIPBOARD
+    CLIPBOARD,
+    NAVIGATION
 }
-
 
 @Composable
 fun SettingsBox(
@@ -143,23 +128,18 @@ fun SettingsBox(
                         size = 12.dp,
                         color = containerColor
                     ) {
-                        // Icon according to the type of the incoming ‘icon’ object
                         when (icon) {
                             is IconResource.Vector -> {
-                                // If Vector, show normal Icon
                                 Icon(
                                     imageVector = icon.imageVector,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
-
                             is IconResource.Url -> {
-                                // If Url, show Image with Coil
                                 Image(
                                     painter = rememberAsyncImagePainter(model = icon.url),
                                     contentDescription = title,
-                                    // For CircleWrapper to fill in
                                     modifier = Modifier
                                         .size(24.dp)
                                         .clip(CircleShape),
@@ -174,19 +154,27 @@ fun SettingsBox(
                         Text(
                             text = title,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface, // Visible color
+                            color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.titleSmall
                         )
                         if (!description.isNullOrBlank()) {
                             Text(
                                 text = description,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant, // Visible color
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
                     }
                 }
-                RenderActionComponent(actionType, variable, switchEnabled, linkClicked, customText, customButton, settingsViewModel)
+                RenderActionComponent(
+                    actionType,
+                    variable,
+                    switchEnabled,
+                    linkClicked,
+                    customText,
+                    customButton,
+                    settingsViewModel
+                )
             }
         }
     }
@@ -205,26 +193,11 @@ private fun handleAction(
         ActionType.RADIOBUTTON -> onSwitchEnabled(variable == false)
         ActionType.SWITCH -> onSwitchEnabled(variable == false)
         ActionType.LINK -> onLinkClicked()
+        ActionType.NAVIGATION -> onLinkClicked()
         ActionType.CUSTOM -> customAction()
         ActionType.CLIPBOARD -> copyToClipboard(context, clipboardText)
         ActionType.TEXT -> { /* No action needed */ }
     }
-}
-
-@Composable
-private fun RenderClipboardIcon() {
-    Icon(
-        imageVector = Icons.Default.ContentCopy,
-        contentDescription = null,
-        modifier = Modifier.padding(dimensionResource(id = R.dimen.icon_padding)),
-        tint = MaterialTheme.colorScheme.primary
-    )
-}
-
-fun copyToClipboard(context: Context, clipboardText: String) {
-    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    val clip = ClipData.newPlainText("Copied Text", clipboardText)
-    clipboard.setPrimaryClip(clip)
 }
 
 @Composable
@@ -241,6 +214,7 @@ private fun RenderActionComponent(
         ActionType.RADIOBUTTON -> RenderRadioButton(variable, onSwitchEnabled)
         ActionType.SWITCH -> RenderSwitch(variable, onSwitchEnabled)
         ActionType.LINK -> RenderLinkIcon(onLinkClicked)
+        ActionType.NAVIGATION -> RenderCustomIcon()
         ActionType.TEXT -> RenderText(customText, settingsViewModel)
         ActionType.CLIPBOARD -> RenderClipboardIcon()
         ActionType.CUSTOM -> customButton()
@@ -249,10 +223,7 @@ private fun RenderActionComponent(
 
 @Composable
 private fun RenderRadioButton(variable: Boolean?, onSwitchEnabled: (Boolean) -> Unit) {
-    RadioButton(
-        selected = variable == true,
-        onClick = { onSwitchEnabled(true) }
-    )
+    RadioButton(selected = variable == true, onClick = { onSwitchEnabled(true) })
 }
 
 @Composable
@@ -261,9 +232,7 @@ private fun RenderSwitch(variable: Boolean?, onSwitchEnabled: (Boolean) -> Unit)
     Switch(
         checked = isChecked,
         onCheckedChange = onSwitchEnabled,
-        modifier = Modifier
-            .scale(0.9f)
-            .padding(0.dp),
+        modifier = Modifier.scale(0.9f),
         thumbContent = {
             Icon(
                 imageVector = if (isChecked) Icons.Filled.Check else Icons.Filled.Close,
@@ -279,9 +248,7 @@ private fun RenderLinkIcon(onLinkClicked: () -> Unit) {
     Icon(
         imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
         contentDescription = null,
-        modifier = Modifier
-            .padding(dimensionResource(id = R.dimen.icon_padding))
-            .clickable { onLinkClicked() },
+        modifier = Modifier.padding(dimensionResource(id = R.dimen.icon_padding)).clickable { onLinkClicked() },
         tint = MaterialTheme.colorScheme.primary
     )
 }
@@ -291,9 +258,17 @@ fun RenderCustomIcon() {
     Icon(
         imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
         contentDescription = null,
-        modifier = Modifier
-            .scale(0.6f)
-            .padding(dimensionResource(id = R.dimen.icon_padding))
+        modifier = Modifier.scale(0.6f).padding(dimensionResource(id = R.dimen.icon_padding))
+    )
+}
+
+@Composable
+private fun RenderClipboardIcon() {
+    Icon(
+        imageVector = Icons.Default.ContentCopy,
+        contentDescription = null,
+        modifier = Modifier.padding(dimensionResource(id = R.dimen.icon_padding)),
+        tint = MaterialTheme.colorScheme.primary
     )
 }
 
@@ -301,9 +276,13 @@ fun RenderCustomIcon() {
 private fun RenderText(customText: String, settingsViewModel: SettingsViewModel? = null) {
     Text(
         text = customText,
-        fontSize = settingsViewModel?.let {
-            FontUtils.getFontSize(it, baseSize = 14)
-        } ?: 14.sp,
+        fontSize = settingsViewModel?.let { FontUtils.getFontSize(it, baseSize = 14) } ?: 14.sp,
         modifier = Modifier.padding(dimensionResource(id = R.dimen.icon_padding))
     )
+}
+
+fun copyToClipboard(context: Context, clipboardText: String) {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText("Copied Text", clipboardText)
+    clipboard.setPrimaryClip(clip)
 }
