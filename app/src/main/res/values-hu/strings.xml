@@ -1,0 +1,636 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="welcome_to_loudly">Üdvözlünk a Loudly-ban</string>
+    <string name="welcome_to_loudly_description">Kezdjük el személyre szabni a zenei élményedet.</string>
+    <string name="yt_music_fingertips">YouTube Music egy karnyújtásnyira</string>
+    <string name="ytm_account_sync">YT Music fiók szinkronizálása</string>
+    <string name="ad_free_playback">Reklámmentes lejátszás</string>
+    <string name="offline_music_experience">Offline zenei élmény</string>
+    <string name="android_auto">Android Auto támogatás</string>
+    <string name="discord_support">Discord állapot támogatása</string>
+    <string name="fos_info">Teljesen nyílt forráskódú</string>
+    <string name="select_player_ui">Válaszd ki a lejátszó felületét</string>
+    <string name="select_player_ui_description">Válaszd ki az alkalmazáson belüli lejátszó nézetet. Ezt később a „Beállítások > Megjelenés” menüpontban módosíthatod.</string>
+    <string name="setup_complete">A beállítás kész!</string>
+    <string name="setup_complete_description">Készen állsz a Loudly felfedezésére.</string>
+    <string name="finish">Befejezés</string>
+    <string name="back">Vissza</string>
+    <string name="next">Tovább</string>
+    <string name="previous">Előző</string>
+
+    <string name="home">Kezdőlap</string>
+    <string name="explore">Felfedezés</string>
+    <string name="songs">Dalok</string>
+    <string name="artists">Előadók</string>
+    <string name="albums">Albumok</string>
+    <string name="playlists">Lejátszási listák</string>
+
+    <string name="liked">Kedvelt zenék</string>
+    <string name="like">Kedvelés</string>
+    <string name="offline">Offline zene</string>
+    <string name="my_top">Legjobb zenéim</string>
+    <string name="cached">Gyorstárazott zenék</string>
+    <string name="local">Helyi zenék</string>
+
+    <string name="content_filter">Tartalomszűrő</string>
+
+    <string name="all_time">Mindkori</string>
+    <string name="past_24_hours">Elmúlt 24 óra</string>
+    <string name="past_week">Elmúlt hét</string>
+    <string name="past_month">Elmúlt hónap</string>
+    <string name="past_year">Elmúlt év</string>
+
+    <plurals name="n_selected">
+        <item quantity="one">%d kiválasztva</item>
+        <item quantity="other">%d kiválasztva</item>
+    </plurals>
+
+    <string name="good_morning">Jó reggelt</string>
+    <string name="good_afternoon">Jó napot</string>
+    <string name="good_evening">Jó estét</string>
+    <string name="good_night">Jó éjszakát</string>
+    <string name="recent_activity">Legutóbbi tevékenység</string>
+    <string name="history">Előzmények</string>
+    <string name="history_empty">Az előzményeid itt fognak megjelenni</string>
+    <string name="stats_empty">A statisztikáid itt fognak megjelenni</string>
+    <string name="stats">Statisztikák</string>
+    <string name="show_less">Kevesebb mutatása</string>
+    <string name="show_more">Több mutatása</string>
+    <string name="mood_and_genres">Hangulatok és műfajok</string>
+    <string name="account">Fiók</string>
+    <string name="quick_picks">Gyors válogatás</string>
+    <string name="quick_picks_empty">Hallgass dalokat a gyors válogatás létrehozásához</string>
+    <string name="forgotten_favorites">Elfeledett kedvencek</string>
+    <string name="keep_listening">Folytasd a hallgatást</string>
+    <string name="your_youtube_playlists">A te YouTube lejátszási listáid</string>
+    <string name="similar_to">Hasonló ehhez:</string>
+    <string name="new_release_albums">Új albumok</string>
+    <string name="not_internet">Nincs internetkapcsolat</string>
+    <string name="internet_required">Úgy tűnik, nincs internetkapcsolatod. Kérjük, ellenőrizd a hálózatot.</string>
+    <string name="featured_for_you">Neked ajánlva</string>
+    <string name="recommended_for_you_today">Mára ajánlva neked</string>
+
+    <string name="today">Ma</string>
+    <string name="yesterday">Tegnap</string>
+    <string name="this_week">Ezen a héten</string>
+    <string name="last_week">Múlt héten</string>
+    <string name="local_history">Helyi</string>
+    <string name="remote_history">Távoli</string>
+    <string name="history_queue_title_local">Helyi előzmények</string>
+    <string name="history_queue_title_online">Online előzmények</string>
+
+    <string name="most_played_songs">Legtöbbet játszott dalok</string>
+    <string name="most_played_artists">Legtöbbet játszott előadók</string>
+    <string name="most_played_albums">Legtöbbet játszott albumok</string>
+
+    <string name="search">Keresés</string>
+    <string name="search_yt_music">Keresés a Loudly-ban</string>
+    <string name="search_library">Keresés a könyvtárban…</string>
+    <string name="SearchHistory">Keresési előzmények</string>
+    <string name="Sujestions">Javaslatok</string>
+    <string name="SearchResutls">Keresési eredmények</string>
+    <string name="filter_library">Könyvtár</string>
+    <string name="filter_liked">Kedveltek</string>
+    <string name="filter_downloaded">Letöltöttek</string>
+    <string name="filter_all">Összes</string>
+    <string name="filter_songs">Dalok</string>
+    <string name="filter_videos">Videók</string>
+    <string name="filter_albums">Albumok</string>
+    <string name="filter_artists">Előadók</string>
+    <string name="filter_playlists">Lejátszási listák</string>
+    <string name="filter_community_playlists">Közösségi lejátszási listák</string>
+    <string name="filter_featured_playlists">Kiemelt lejátszási listák</string>
+    <string name="filter_bookmarked">Könyvjelzőzött</string>
+    <string name="no_results_found">Nincs találat</string>
+
+    <string name="library_empty">A könyvtárad itt fog megjelenni</string>
+    <string name="library_song_empty">A könyvtárban lévő dalok itt fognak megjelenni</string>
+    <string name="library_artist_empty">A könyvtárban lévő előadók itt fognak megjelenni</string>
+    <string name="library_album_empty">A könyvtárban lévő albumok itt fognak megjelenni</string>
+    <string name="library_playlist_empty">A lejátszási listáid itt fognak megjelenni</string>
+
+    <string name="from_your_library">A könyvtáradból</string>
+
+    <string name="other_versions">Más verziók</string>
+    <string name="favorite">Kedvenc</string>
+    <string name="top_songs">Legjobb dalok</string>
+
+    <string name="liked_songs">Kedvelt dalok</string>
+    <string name="downloaded_songs">Letöltött dalok</string>
+    <string name="playlist_is_empty">A lejátszási lista üres</string>
+    <string name="remove_download_playlist_confirm">Biztosan eltávolítod a(z) „%s” lejátszási lista összes dalát a letöltött dalok közül?</string>
+    <string name="delete_playlist_confirm">Biztosan törlöd a(z) „%s” lejátszási listát?</string>
+
+    <string name="off">Kikapcsolva</string>
+
+    <string name="retry">Újra</string>
+    <string name="radio">Rádió</string>
+    <string name="shuffle">Véletlenszerű lejátszás</string>
+    <string name="reset">Visszaállítás</string>
+
+    <string name="details">Részletek</string>
+    <string name="edit">Szerkesztés</string>
+    <string name="start_radio">Rádió indítása</string>
+    <string name="play">Lejátszás</string>
+    <string name="play_next">Lejátszás következőként</string>
+    <string name="add_to_queue">Hozzáadás a várólistához</string>
+    <string name="add_to_library">Hozzáadás a könyvtárhoz</string>
+    <string name="add_all_to_library">Összes hozzáadása a könyvtárhoz</string>
+    <string name="remove_from_library">Eltávolítás a könyvtárból</string>
+    <string name="remove_all_from_library">Összes eltávolítása a könyvtárból</string>
+    <string name="download">Letöltés</string>
+    <string name="downloading">Letöltés</string>
+    <string name="remove_download">Letöltés eltávolítása</string>
+    <string name="import_playlist">Lejátszási lista importálása</string>
+    <string name="add_to_playlist">Hozzáadás lejátszási listához</string>
+    <string name="view_artist">Előadó megtekintése</string>
+    <string name="view_album">Album megtekintése</string>
+    <string name="refetch">Újra lekérés</string>
+    <string name="share">Megosztás</string>
+    <string name="delete">Törlés</string>
+    <string name="remove_from_history">Eltávolítás az előzményekből</string>
+    <string name="remove_from_playlist">Eltávolítás a lejátszási listából</string>
+    <string name="remove_from_queue">Eltávolítás a várólistáról</string>
+    <string name="remove_from_cache">Eltávolítás a gyorsítótárból</string>
+    <string name="playlist_m3u_export">Exportálás M3U fájlként</string>
+    <string name="search_online">Keresés online</string>
+    <string name="sync">Szinkronizálás</string>
+    <string name="advanced">Haladó</string>
+    <string name="tempo_and_pitch">Tempó és hangmagasság</string>
+
+    <string name="sort_by_create_date">Hozzáadás dátuma</string>
+    <string name="sort_by_last_updated">Frissítés dátuma</string>
+    <string name="sort_by_name">Név</string>
+    <string name="sort_by_artist">Előadó</string>
+    <string name="sort_by_year">Év</string>
+    <string name="sort_by_song_count">Dalok száma</string>
+    <string name="sort_by_length">Hossz</string>
+    <string name="sort_by_play_time">Lejátszási idő</string>
+    <string name="sort_by_custom">Egyéni sorrend</string>
+
+    <string name="media_id">Médiaazonosító</string>
+    <string name="mime_type">MIME-típus</string>
+    <string name="codecs">Kodekek</string>
+    <string name="bitrate">Bitráta</string>
+    <string name="sample_rate">Mintavételi frekvencia</string>
+    <string name="loudness">Hangerősség</string>
+    <string name="volume">Hangerő</string>
+    <string name="file_size">Fájlméret</string>
+    <string name="unknown">Ismeretlen</string>
+    <string name="copied">Vágólapra másolva</string>
+
+    <string name="edit_lyrics">Dalszöveg szerkesztése</string>
+    <string name="search_lyrics">Dalszöveg keresése</string>
+    <string name="delete_lyric_confirm">Biztosan törlöd a(z) „%s” dalhoz tárolt dalszöveget?</string>
+
+    <string name="edit_song">Dal szerkesztése</string>
+    <string name="song_title">Dal címe</string>
+    <string name="song_artists">Dal előadói</string>
+    <string name="error_song_title_empty">A dal címe nem lehet üres.</string>
+    <string name="error_song_artist_empty">A dal előadója nem lehet üres.</string>
+    <string name="save">Mentés</string>
+
+    <string name="sync_playlist">Lejátszási lista szinkronizálása</string>
+    <string name="choose_playlist">Lejátszási lista kiválasztása</string>
+    <string name="edit_playlist">Lejátszási lista szerkesztése</string>
+    <string name="create_playlist">Lejátszási lista létrehozása</string>
+    <string name="playlist_name">Lejátszási lista neve</string>
+    <string name="error_playlist_name_empty">A lejátszási lista neve nem lehet üres.</string>
+
+    <string name="edit_artist">Előadó szerkesztése</string>
+    <string name="artist_name">Előadó neve</string>
+    <string name="error_artist_name_empty">Az előadó neve nem lehet üres.</string>
+
+    <string name="duplicates">Ismétlődések</string>
+    <string name="skip_duplicates">Ismétlődések kihagyása</string>
+    <string name="add_anyway">Hozzáadás mindenképp</string>
+    <string name="duplicates_description_single">A dal már szerepel a lejátszási listádon</string>
+    <string name="duplicates_description_multiple">%d dal már szerepel a lejátszási listádon</string>
+    <string name="allows_for_sync_witch_youtube">Megjegyzés: Ez lehetővé teszi a szinkronizálást a YouTube Music-kal</string>
+
+    <plurals name="n_song">
+        <item quantity="one">%d dal</item>
+        <item quantity="other">%d dal</item>
+    </plurals>
+    <plurals name="n_artist">
+        <item quantity="one">%d előadó</item>
+        <item quantity="other">%d előadó</item>
+    </plurals>
+    <plurals name="n_album">
+        <item quantity="one">%d album</item>
+        <item quantity="other">%d album</item>
+    </plurals>
+    <plurals name="n_playlist">
+        <item quantity="one">%d lejátszási lista</item>
+        <item quantity="other">%d lejátszási lista</item>
+    </plurals>
+    <plurals name="n_week">
+        <item quantity="one">%d hét</item>
+        <item quantity="other">%d hét</item>
+    </plurals>
+    <plurals name="n_month">
+        <item quantity="one">%d hónap</item>
+        <item quantity="other">%d hónap</item>
+    </plurals>
+    <plurals name="n_year">
+        <item quantity="one">%d év</item>
+        <item quantity="other">%d év</item>
+    </plurals>
+
+    <string name="playlist_imported">Lejátszási lista importálva</string>
+    <string name="removed_song_from_playlist">„%s” eltávolítva a lejátszási listáról</string>
+    <string name="playlist_synced">Lejátszási lista szinkronizálva</string>
+    <string name="undo">Visszavonás</string>
+
+    <string name="now_playing">Most játszódik</string>
+    <string name="lyrics_not_found">Dalszöveg nem található</string>
+    <string name="sleep_timer">Elalváskapcsoló</string>
+    <string name="end_of_song">Dal végén</string>
+    <plurals name="minute">
+        <item quantity="one">1 perc</item>
+        <item quantity="other">%d perc</item>
+    </plurals>
+    <string name="error_no_stream">Nincs elérhető stream</string>
+    <string name="error_no_internet">Nincs hálózati kapcsolat</string>
+    <string name="error_timeout">Időtúllépés</string>
+    <string name="error_unknown">Ismeretlen hiba</string>
+    <string name="menu">Menü</string>
+    <string name="share_list">Lista megosztása</string>
+
+    <string name="seek_backward">5 másodperc vissza</string>
+    <string name="seek_forward">5 másodperc előre</string>
+
+    <string name="action_like">Kedvelés</string>
+    <string name="action_like_all">Összes kedvelése</string>
+    <string name="action_remove_like">Kedvelés visszavonása</string>
+    <string name="action_remove_like_all">Összes kedvelés visszavonása</string>
+    <string name="action_shuffle_on">Véletlenszerű lejátszás be</string>
+    <string name="action_shuffle_off">Véletlenszerű lejátszás ki</string>
+    <string name="repeat_mode_off">Ismétlés kikapcsolva</string>
+    <string name="repeat_mode_one">Jelenlegi dal ismétlése</string>
+    <string name="repeat_mode_all">Várólista ismétlése</string>
+
+    <string name="queue_all_songs">Összes dal</string>
+    <string name="queue_searched_songs">Keresett dalok</string>
+
+    <string name="music_player">Zenelejátszó</string>
+
+    <string name="notifications">Értesítések</string>
+    <string name="keep_alive_title">Alkalmazás leállításának megakadályozása</string>
+    <string name="keep_alive_description">Használj egy előtérben futó értesítést, hogy a rendszer ne zárja be véletlenszerűen a Loudly-t.</string>
+    <string name="notification_permission_is_required">Értesítési engedély szükséges</string>
+
+    <string name="settings">Beállítások</string>
+    <string name="appearance">Megjelenés</string>
+    <string name="theme">Téma</string>
+    <string name="proxy">Proxy</string>
+    <string name="enable_dynamic_theme">Dinamikus téma engedélyezése</string>
+    <string name="dark_theme">Sötét téma</string>
+    <string name="dark_theme_on">Be</string>
+    <string name="dark_theme_off">Ki</string>
+    <string name="dark_theme_follow_system">Rendszer követése</string>
+    <string name="pure_black">Tiszta fekete</string>
+    <string name="app_design_variant">Alkalmazás dizájn</string>
+    <string name="app_design_ui_1_0">Alkalmazás UI 1.0</string>
+    <string name="app_design_ui_1_5">Alkalmazás UI 1.5</string>
+    <string name="listen_youtube_music">Meghallgatás a YouTube Music-on</string>
+    <string name="visit_the_loudly">Látogass el a Loudly-ra</string>
+    <string name="artist">Előadó</string>
+    <string name="listen_to_loudly">Hallgasd a Loudly-t</string>
+    <string name="enable_swipe_thumbnail">Húzd a bélyegképet a dalváltáshoz</string>
+    <string name="customize_navigation_tabs">Navigációs fülek testreszabása</string>
+    <string name="player">Lejátszó</string>
+    <string name="player_text_alignment">Lejátszó szövegigazítása</string>
+    <string name="lyrics_text_position">Dalszöveg pozíciója</string>
+    <string name="sided">Oldalsó</string>
+    <string name="left">Bal</string>
+    <string name="center">Közép</string>
+    <string name="player_style">Lejátszó stílusa</string>
+    <string name="player_style_old_ui">Régi lejátszó UI</string>
+    <string name="player_style_ui_1_0">Lejátszó UI 1.0</string>
+    <string name="player_style_ui_2_0">Lejátszó UI 2.0</string>
+    <string name="follow_theme">Téma követése</string>
+    <string name="gradient">Színátmenet</string>
+    <string name="blur">Elmosás</string>
+    <string name="blurmv">Elmosás (mozgás)</string>
+    <string name="player_background_style">Lejátszó hátterének stílusa</string>
+    <string name="right">Jobb</string>
+    <string name="slider_style">Csúszka stílusa</string>
+    <string name="default_">Alapértelmezett</string>
+    <string name="squiggly">Hullámos</string>
+    <string name="compose">Compose</string>
+    <string name="thumbnail_corner_radius">Bélyegkép sarkainak sugarának beállítása</string>
+    <string name="show_content_filter">Tartalomszűrő mutatása</string>
+    <string name="misc">Egyéb</string>
+    <string name="main">Fő</string>
+    <string name="auto_playlists_customization">Automatikus lejátszási listák testreszabása</string>
+    <string name="show_liked_auto_playlist">„Kedveltek” automatikus lista mutatása</string>
+    <string name="show_download_auto_playlist">„Letöltések” automatikus lista mutatása</string>
+    <string name="show_top_auto_playlist">„Legjobbak” automatikus lista mutatása</string>
+    <string name="show_cached_auto_playlist">„Gyorstárazott” automatikus lista mutatása</string>
+    <string name="show_local_auto_playlist">„Helyi” automatikus lista mutatása</string>
+    <string name="swipe_song_to_dismiss">Húzd jobbra a következő dalhoz, vagy balra a várólistához adáshoz</string>
+    <string name="default_open_tab">Alapértelmezett fül megnyitáskor</string>
+    <string name="default_lib_chips">Alapértelmezett könyvtári szűrők</string>
+    <string name="grid_cell_size">Rács cellamérete</string>
+    <string name="slim_navbar">Alsó navigációs sáv címkéinek mutatása</string>
+    <string name="small">Kicsi</string>
+    <string name="big">Nagy</string>
+    <string name="Changelog">Változási napló</string>
+    <string name="no_changes">Nincsenek friss változások</string>
+    <string name="changelogs">Legutóbbi változások:</string>
+    <string name="closepopup">Bezárás</string>
+    <string name="NewVersion">Új verzió elérhető</string>
+    <string name="Hi">Szia újra</string>
+    <string name="Donate">Adományozás</string>
+    <string name="Telegramchanel">Hivatalos csatorna</string>
+    <string name="web_site">Weboldal</string>
+    <string name="web_site_info">Hivatalos weboldal ❯</string>
+    <string name="code">Forráskód</string>
+    <string name="code_text">Hozzáférhetsz az alkalmazás forráskódjához</string>
+    <string name="bugs">Problémák</string>
+    <string name="bugs_text">Hibajelentés és egyebek</string>
+    <string name="help">Segítség</string>
+    <string name="contribution_text">Ha szeretnél hozzájárulni, kattints ide ❯</string>
+    <string name="Developer">Fejlesztő | @RRechz</string>
+
+    <string name="content">Tartalom</string>
+    <string name="login">Bejelentkezés</string>
+    <string name="login_description">Jelentkezz be a YT Music lejátszási listáidhoz és egyebekhez</string>
+    <string name="token_hidden">Kattints a token megjelenítéséhez</string>
+    <string name="token_shown">Kattints újra a másoláshoz vagy szerkesztéshez</string>
+    <string name="token_adv_login_description">Ez egy HALADÓ bejelentkezési módszer. A webportál alternatívájaként itt közvetlenül beírhatod vagy frissítheted a bejelentkezési tokened. Ez például felgyorsíthatja a bejelentkezést több eszközön. Kérjük, vedd figyelembe, hogy az alkalmazás által nem értelmezhető érvénytelen tokenformátumokat nem fogadjuk el.</string>
+    <string name="import_from_spotify">Importálás a Spotify-ból</string>
+    <string name="title_spotify">Spotify</string>
+    <string name="title_discord">Discord</string>
+    <string name="like_autodownload">Kedvelt dalok automatikus letöltése</string>
+    <string name="ytm_sync">Automatikus szinkronizálás a YouTube Music fiókoddal</string>
+    <string name="ytm_sync_description">Szinkronizáld a lejátszási listáidat és egyebeket a fiókoddal</string>
+    <string name="wifi_only">Csak Wi-Fi</string>
+    <string name="not_logged_in">Nincs bejelentkezve</string>
+    <string name="content_language">Alapértelmezett tartalomnyelv</string>
+    <string name="content_country">Alapértelmezett tartalomország</string>
+    <string name="system_default">Rendszer alapértelmezett</string>
+    <string name="enable_proxy">Proxy engedélyezése</string>
+    <string name="proxy_type">Proxy típusa</string>
+    <string name="proxy_url">Proxy URL</string>
+    <string name="restart_to_take_effect">Újraindítás szükséges a változásokhoz</string>
+    <string name="app_language">Alkalmazás nyelve</string>
+    <string name="configure_app_language">Alkalmazás nyelvének beállítása</string>
+    <string name="intent_app_language_not_found">Az alkalmazás nyelvi beállításai nem találhatók, kérjük, állítsd be manuálisan</string>
+    <string name="open_supported_links">Támogatott linkek alapértelmezett megnyitása</string>
+    <string name="configure_supported_links">Támogatott linkek beállítása</string>
+    <string name="intent_supported_links_not_found">A támogatott linkek beállításai nem találhatók, kérjük, állítsd be manuálisan</string>
+
+    <string name="player_and_audio">Lejátszó és hang</string>
+    <string name="audio_quality">Hangminőség</string>
+    <string name="audio_quality_max">Maximum</string>
+    <string name="audio_quality_auto">Automatikus</string>
+    <string name="audio_quality_high">Magas</string>
+    <string name="audio_quality_low">Alacsony</string>
+    <string name="minimum_playback_duration">Minimális lejátszási idő</string>
+    <string name="minimum_playback_duration_info">A dal minimális lejátszási ideje, ami után „lejátszottnak” minősül</string>
+    <string name="queue">Várólista</string>
+    <string name="persistent_queue">Állandó várólista</string>
+    <string name="persistent_queue_desc">Az utolsó várólista visszaállítása az alkalmazás indításakor</string>
+    <string name="auto_load_more">További dalok automatikus betöltése</string>
+    <string name="auto_load_more_desc">Automatikusan adjon hozzá több dalt, ha a várólista véget ér, ha lehetséges</string>
+    <string name="skip_silence">Csend átugrása</string>
+    <string name="audio_normalization">Hang normalizálása</string>
+    <string name="play_song_when_bluetooth_device_connected">Lejátszás folytatása Bluetooth-eszköz csatlakoztatásakor</string>
+    <string name="stop_playing_when_song_sound_minimum_volume">Lejátszás leállítása minimális hangerőn</string>
+    <string name="adding_played_songs_to_ytm_history">Lejátszott dalok hozzáadása a YouTube Music előzményeihez</string>
+    <string name="auto_skip_next_on_error">Automatikus ugrás a következő dalra hiba esetén</string>
+    <string name="auto_skip_next_on_error_desc">Biztosítsd a folyamatos lejátszási élményt</string>
+    <string name="stop_music_on_task_clear">Zene leállítása a feladatok törlésekor</string>
+    <string name="equalizer">Hangszínszabályzó</string>
+    <string name="lyrics">Dalszövegek</string>
+    <string name="lyrics_settings_title">Dalszövegek</string>
+    <string name="local_player_settings_title">Helyi lejátszó beállításai</string>
+    <string name="storage">Tárhely</string>
+    <string name="cache">Gyorsítótár</string>
+    <string name="image_cache">Képek gyorsítótára</string>
+    <string name="song_cache">Dalok gyorsítótára</string>
+    <string name="max_cache_size">Maximális gyorsítótár-méret</string>
+    <string name="unlimited">Korlátlan</string>
+    <string name="audio_offload">Offload engedélyezése</string>
+    <string name="audio_offload_description">Használd az offload audio útvonalat a lejátszáshoz. Kikapcsolása növelheti az energiafogyasztást, de hasznos lehet, ha problémákat tapasztalsz a lejátszással vagy az utófeldolgozással.</string>
+    <string name="clear_all_downloads">Összes letöltés törlése</string>
+    <string name="max_image_cache_size">Képek gyorsítótárának maximális mérete</string>
+    <string name="clear_image_cache">Képek gyorsítótárának törlése</string>
+    <string name="max_song_cache_size">Dalok gyorsítótárának maximális mérete</string>
+    <string name="clear_song_cache">Dalok gyorsítótárának törlése</string>
+    <string name="size_used">felhasznált</string>
+    <string name="clear_all_cache_dialog">Biztosan törlöd az összes gyorsítótárat?</string>
+    <string name="clear_all_downloads_dialog">Biztosan törlöd az összes letöltést?</string>
+    <string name="clear_song_cache_dialog">Biztosan törlöd az összes gyorsítótárazott dalt?</string>
+    <string name="clear_images_cache_dialog">Biztosan törlöd az összes gyorsítótárazott képet?</string>
+    <string name="clear_translation_models_cache_dialog">Biztosan törlöd az összes gyorsítótárazott fordítási modellt?</string>
+
+    <string name="privacy">Adatvédelem</string>
+    <string name="listen_history">Hallgatási előzmények</string>
+    <string name="pause_listen_history">Hallgatási előzmények szüneteltetése</string>
+    <string name="clear_listen_history">Hallgatási előzmények törlése</string>
+    <string name="clear_listen_history_confirm">Biztosan törlöd az összes hallgatási előzményt?</string>
+    <string name="pause_search_history">Keresési előzmények szüneteltetése</string>
+    <string name="clear_search_history">Keresési előzmények törlése</string>
+    <string name="clear_search_history_confirm">Biztosan törlöd az összes keresési előzményt?</string>
+    <string name="search_history">Keresési előzmények</string>
+    <string name="use_login_for_browse">Bejelentkezés használata a tartalom böngészéséhez</string>
+    <string name="use_login_for_browse_desc">Ez befolyásolhatja, hogy milyen tartalmat látsz, és például csak prémium albumokat mutat, ha prémium fiókkal vagy bejelentkezve.</string>
+    <string name="disable_screenshot">Képernyőkép letiltása</string>
+    <string name="disable_screenshot_desc">Ha ez a beállítás be van kapcsolva, a képernyőképek és az alkalmazás nézete a legutóbbiak között le van tiltva.</string>
+    <string name="enable_lrclib">LrcLib dalszöveg-szolgáltató engedélyezése</string>
+    <string name="enable_kugou">KuGou dalszöveg-szolgáltató engedélyezése</string>
+    <string name="default_lyrics_provider">Alapértelmezett dalszöveg-szolgáltató</string>
+    <string name="lyrics_multiline_title">Többsoros dalszövegek olvasása</string>
+    <string name="lyrics_multiline_description">A szinkronizálási pontok közötti összes sort egyetlen dalszövegként kezeli</string>
+    <string name="lyrics_trim_title">Szóközök eltávolítása a dalszövegek körül</string>
+    <string name="lyrics_font_size">Betűméret</string>
+    <string name="hide_explicit">Kifejezett tartalom elrejtése</string>
+    <string name="enable_notifications">Értesítések engedélyezése</string>
+
+    <string name="backup_restore">Biztonsági mentés és visszaállítás</string>
+    <string name="backup">Biztonsági mentés</string>
+    <string name="restore">Visszaállítás</string>
+    <string name="import_m3u">Lejátszási lista importálása (m3u)</string>
+    <string name="m3u_import_failed">A lejátszási lista importálása sikertelen</string>
+    <string name="imported_playlist">Importált lejátszási lista</string>
+    <string name="backup_create_success">Biztonsági mentés sikeresen létrehozva</string>
+    <string name="backup_create_failed">A biztonsági mentés létrehozása sikertelen</string>
+    <string name="restore_failed">A biztonsági mentés visszaállítása sikertelen</string>
+
+    <string name="discord_integration">Discord integráció</string>
+    <string name="discord_information">A Loudly a KizzyRPC könyvtárat használja a Discord-fiókod állapotának beállításához. Ez magában foglalja a Discord Gateway kapcsolat használatát, ami a Discord szolgáltatási feltételeinek megsértését jelentheti. Azonban nincsenek ismert esetek, amikor felhasználói fiókokat emiatt felfüggesztettek volna. Használat csak saját felelősségre.\n\nA Loudly csak a tokenedet vonja ki, minden más helyben tárolódik.</string>
+    <string name="dismiss">Elvetés</string>
+    <string name="options">Opciók</string>
+    <string name="preview">Előnézet</string>
+    <string name="login_failed">Bejelentkezés sikertelen</string>
+    <string name="logout">Kijelentkezés</string>
+    <string name="enable_discord_rpc">Rich Presence engedélyezése</string>
+
+    <string name="about">Névjegy</string>
+    <string name="app_version">Alkalmazás verziója</string>
+    <string name="checking_for_update">Frissítések keresése...</string>
+    <string name="update_card_version_ready_to_download">a(z) %1$s verzió letölthető.</string>
+    <string name="update_card_downloading">Letöltés...</string>
+    <string name="install">Frissítés</string>
+    <string name="try_again">Próbáld újra</string>
+    <string name="download_now">Letöltés most</string>
+    <string name="app_type">Alkalmazás típusa</string>
+
+    <string name="new_version_available">Új verzió elérhető</string>
+    <string name="translation_models">Fordítási modellek</string>
+    <string name="clear_translation_models">Fordítási modellek törlése</string>
+    <string name="history_duration">Előzmények időtartama</string>
+    <plurals name="seconds">
+        <item quantity="one">1 másodperc</item>
+        <item quantity="other">%d másodperc</item>
+    </plurals>
+    <string name="widget_title">Zene 3x2</string>
+    <string name="widget_quick_title">Zene 2x1</string>
+    <string name="play_pause">Lejátszás/Szünet</string>
+    <string name="about_subtitle">Verzió · Fejlesztők · Licenc</string>
+    <string name="category_interface">Felhasználói felület</string>
+    <string name="category_content">Tartalom és fiók</string>
+    <string name="category_player">Lejátszó</string>
+    <string name="category_system">Rendszer</string>
+    <string name="library">Könyvtár</string>
+    <string name="integrations">Integrációk</string>
+    <string name="system_integration">Rendszerintegráció</string>
+    <string name="total_used_space">Összes felhasznált hely</string>
+    <string name="currently_used">Jelenleg felhasznált</string>
+    <string name="clear_cache">Gyorsítótár törlése</string>
+    <string name="backup_restore_description">Mentés · Visszaállítás · Importálás</string>
+    <string name="privacy_description">Előzmények · Keresés · Képernyőkép</string>
+    <string name="storage_description">Letöltések · Gyorsítótár · Képek</string>
+    <string name="player_and_audio_description">Hang · Várólista · Dalszövegek</string>
+    <string name="content_description">Nyelv · Hely · Proxy</string>
+    <string name="account_description">Bejelentkezés · Spotify · Discord</string>
+    <string name="appearance_description">Téma · Csúszka · Lejátszó</string>
+
+    <string name="header_background">Profilkártya képe</string>
+    <string name="header_background_description">A profilkártya képének testreszabása</string>
+    <string name="select_header_image">Profilkép kiválasztása</string>
+    <string name="predefined_images">Előre elkészített képek</string>
+    <string name="select_from_gallery">Kiválasztás a galériából</string>
+    <string name="edit_photo">Fotó szerkesztése</string>
+    <string name="cancel">Mégse</string>
+
+    <string name="send_to_developer">Küldés a fejlesztőnek</string>
+    <string name="close">Bezárás</string>
+    <string name="update_error_details">Hiba részleteinek mutatása</string>
+    <string name="download_failed">Letöltés sikertelen</string>
+    <string name="show_error">Hiba mutatása</string>
+    <string name="go_to_update_link">Kézi frissítés</string>
+    <string name="home_card_update_desc">A részletekért nézd meg a beállítások oldalt</string>
+    <string name="app_up_to_date">A szoftver naprakész</string>
+
+    <string name="app_ui">Alkalmazás UI</string>
+    <string name="app_ui_desc">Válassz egyet a 3 különböző dizájn közül</string>
+    <string name="ui_version_selection">UI verzió kiválasztása</string>
+    <string name="ui_version_1_0_desc">Az alkalmazás régi verziójának dizájnja. (Alkalmazás, Lejátszó, MiniLejátszó)</string>
+    <string name="ui_version_1_5_desc">Kompakt dizájn, modernebb megközelítéssel. (Alkalmazás, Lejátszó, MiniLejátszó)</string>
+    <string name="ui_version_2_0_desc">A legnépszerűbb dizájn. (Alkalmazás, Lejátszó, MiniLejátszó)</string>
+    <string name="ui_version_custom_desc">Hozd létre a saját alkalmazás UI dizájnodat. (Alkalmazás, Lejátszó, MiniLejátszó)</string>
+    <string name="custom_app_ui">UI testreszabása</string>
+
+    <string name="other_settings">Egyéb beállítások</string>
+    <string name="other_settings_description">Kattints a további különféle beállításokért</string>
+
+    <string name="audio_quality_auto_desc">Automatikusan beállítja a minőséget 45 és 512 Kbps között</string>
+    <string name="audio_quality_max_desc">A legmagasabb minőséget kínálja, akár 512 Kbps-ig</string>
+    <string name="audio_quality_high_desc">Az átlagos internetsebességhez beállítja a minőséget 128 és 256 Kbps között.</string>
+    <string name="audio_quality_low_desc">A minőséget 45 és 52 Kbps között korlátozza az adatforgalom csökkentése érdekében (Adatmegtakarító)</string>
+
+    <string name="could_not_import">Nem sikerült importálni</string>
+
+    <string name="text_alignment">Szöveg igazítása</string>
+    <string name="text_alignment_description">Állítsd be a szöveg pozícióját a kártyán</string>
+    <string name="gradient_intensity">Színátmenet intenzitása</string>
+    <string name="corner_round">Sarkok lekerekítése</string>
+    <string name="profile_picture">Profilkép</string>
+    <string name="profile_card">Profilkártya</string>
+    <string name="remove_profile_picture">Profilkép eltávolítása</string>
+    <string name="show_texts">Szövegek mutatása</string>
+    <string name="show_texts_description">Az üdvözlő és felhasználónév szövegének megjelenítése a profilkártyán</string>
+    <string name="tap_to_change">Kattints a változtatáshoz</string>
+
+    <string name="translate">Fordítás (BÉTA)</string>
+    <string name="copy">Másolás</string>
+
+    <string name="error_network_title">Hálózati hiba</string>
+    <string name="error_network_description">Ellenőrizd az internetkapcsolatot és próbáld újra.</string>
+    <string name="error_unsupported_format_title">Nem támogatott tartalom</string>
+    <string name="error_unsupported_format_description">Ezt a dalformátumot az eszközöd nem támogatja.</string>
+    <string name="error_behind_live_window_title">Élő közvetítési hiba</string>
+    <string name="error_behind_live_window_description">Probléma van az élő közvetítéssel. Kérjük, indítsd újra.</string>
+    <string name="error_playback_failed_title">Lejátszás sikertelen</string>
+    <string name="error_playback_failed_description">Ismeretlen hiba történt. Kérjük, próbáld újra.</string>
+    <string name="recovering_playback">Újrapróbálkozás…</string>
+    <string name="vpn_info_message">A VPN használata befolyásolhatja a kapcsolat minőségét. Ha hálózati problémákat tapasztalsz, szakítsd meg a VPN-kapcsolatot, vagy használj proxyt. Ezt a „Beállítások >> Tartalom >> Proxy” menüpontban konfigurálhatod.</string>
+
+    <string name="sync_local_songs_toast">Helyi dalok sikeresen szinkronizálva</string>
+    <string name="local_scanner_title">Helyi szkenner</string>
+
+    <string name="auto_scanner_title">Automatikus szkennelés</string>
+    <string name="auto_scanner_description">Dalok automatikus keresése az alkalmazás megnyitásakor</string>
+
+    <string name="scanner_settings_title">További szkenner beállítások</string>
+    <string name="scanner_strict_file_name_title">Szigorú fájlnevek</string>
+    <string name="scanner_strict_file_name_description">Ha engedélyezve van, a kiterjesztések NEM lesznek figyelmen kívül hagyva. Pl. a „Song.ogg” más dal lesz, mint a „Song.flac”</string>
+    <string name="scanner_sensitivity_title">Szkenner érzékenységének beállítása</string>
+    <string name="scanner_sensitivity_L1">Cím egyezése</string>
+    <string name="scanner_sensitivity_L2">Cím és előadók egyezése</string>
+    <string name="scanner_sensitivity_L3">Cím, előadók, albumok egyezése</string>
+
+    <string name="folders_settings_title">Mappák</string>
+    <string name="flat_subfolders_title">Almappák laposítása</string>
+    <string name="flat_subfolders_description">Tiltsd le a fájlstruktúra megőrzéséhez, ahogy a lemezen van</string>
+
+    <string name="tips_and_features">Tippek és funkciók</string>
+    <string name="tips_and_fetures_description"> Tippek · Funkciók</string>
+    <string name="create_your_story">Hozd létre a történeted</string>
+    <string name="share_your_story_description">Oszd meg a hallgatott dalt a közösségi médiában egy stílusos dizájnnal, amely az album borítójának domináns színeivel készült.</string>
+    <string name="customizable_settings">Testreszabható beállítások</string>
+    <string name="customizable_settings_description">Tedd egyedivé az alkalmazást azáltal, hogy a beállítások képernyőn lévő címsor kártyájának hátterét egy képre cseréled a galériádból.</string>
+    <string name="new_song_list">Új dallista</string>
+    <string name="new_song_list_description">Nézd meg a jelenlegi lejátszási listádat, és válts könnyedén a dalok között a lejátszó képernyőjéről felfelé húzva (új dizájn, kizárólag a Player UI 2.0-ban).</string>
+    <string name="remastered_settings">Átdolgozott beállítások dizájn</string>
+    <string name="remastered_settings_description">Találd meg könnyen, amit keresel egy új, kártya alapú beállítási dizájnnal, ami modernebb és kényelmesebb.</string>
+    <string name="classic_music_widget">Klasszikus zene widget</string>
+    <string name="classic_music_widget_description">Gyorsan elérheted az összes vezérlőt és dalinformációt a kezdőképernyődről.</string>
+    <string name="minimalist_music_widget">Minimalista zene widget</string>
+    <string name="minimalist_music_widget_description">„Quik” zene widget, amelyet az Android 16 Gyorsbeállítások gombjának dizájnja ihletett.</string>
+    <string name="share_on_story">Megosztás a történetben</string>
+    <string name="copy_song_link">Dal linkjének másolása</string>
+    <string name="link_copied">Link a vágólapra másolva!</string>
+    <string name="streamed_on_loudly">Streamelve a Loudly-n</string>
+
+    <string name="select_all">Összes kijelölése</string>
+    <string name="fetching_all_playlists">Összes lejátszási lista lekérése…</string>
+    <string name="import_selected_items">Kiválasztott elemek importálása</string>
+    <string name="something_went_wrong">Valami hiba történt. Ugyanolyan tanácstalanok vagyunk, mint te.</string>
+    <string name="well_thats_embarrassing">Nos, ez kínos. Nekünk sincs fogalmunk, mi történt.</string>
+    <string name="instructions_to_get_required_credentials">Útmutató a szükséges hitelesítő adatok megszerzéséhez</string>
+    <string name="make_sure_to_click">3. Győződj meg róla, hogy a fenti helyi útvonal beírása után a „Hozzáadás” gombra kattintasz.</string>
+    <string name="accept_the_terms_of_service">5. Fogadd el a szolgáltatási feltételeket, és kattints a „Mentés” gombra.</string>
+    <string name="you_ll_be_redirected_to_a_new_page">Át leszel irányítva egy új oldalra. Kattints a Beállításokra, majd másold ki az Ügyfél-azonosítót és az Ügyfél-titkot, és illeszd be őket az alábbi szövegmezőkbe ebben az alkalmazásban.</string>
+    <string name="enter_the_necessary_details">2. Add meg a szükséges adatokat, és használd a http://127.0.0.1:45454 címet átirányítási URI-ként.</string>
+    <string name="toggle_wep_api">4. Kapcsold be a Web API-t. A jelölőnégyzetben most egy pipa kell, hogy legyen.</string>
+    <string name="now_click_the_authorize_and_continue">Most kattints az alábbi Engedélyezés és folytatás gombra, és jelentkezz be azzal a fiókkal, amelyből importálni szeretnél, majd engedélyezd és folytasd, ami átirányít egy olyan webhelyre, amelynek a következővel kell kezdődnie: http://127.0.0.1:45454/?code=\n\nIlleszd be ezt a teljes URL-t az alábbi, „Engedélyezési kód” feliratú szövegmezőbe, majd kattints a Hitelesítés gombra.</string>
+    <string name="visit_spotify_for_developers">1. Látogass el a Spotify for Developers irányítópultjára, és kattints az „Alkalmazás létrehozása” gombra.</string>
+    <string name="login_with_spotify">Bejelentkezés a Spotify API hitelesítő adataival</string>
+    <string name="authorize_and_continue">Engedélyezés és folytatás</string>
+    <string name="authorization_code">Engedélyezési kód</string>
+    <string name="authenticate">Hitelesítés</string>
+    <string name="client_secret">Ügyfél-titok</string>
+    <string name="client_id">Ügyfél-azonosító</string>
+    <string name="import_in_progress">Importálás folyamatban…</string>
+    <string name="dont_close_app_message">Ne zárd be az alkalmazást, és ne lépj vissza. Ez a művelet nem fut a háttérben, ezért maradj itt, amíg be nem fejeződik!\nNE PÁNIKOLJ, HA ÚGY TŰNIK, HOGY ELAKADT; néha a lekérés eltarthat egy ideig.</string>
+    <string name="choose_liked_songs">Válaszd ki a „Kedvelt dalok” célhelyét</string>
+    <string name="where_should_the_liked_songs">Hova legyenek importálva a kedvelt dalok?</string>
+    <string name="new_playlist_named">Egy új, „Kedvelt dalok” nevű lejátszási lista</string>
+    <string name="default_liked_songs">Az alapértelmezett „Kedvelt dalok” közé</string>
+</resources>

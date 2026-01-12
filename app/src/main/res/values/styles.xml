@@ -1,0 +1,47 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="Theme.Loudly" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+    </style>
+
+    <!-- Widget Theme -->
+    <style name="Theme.Loudly.Widget" parent="Theme.Material3.DynamicColors.DayNight">
+        <!-- Widget-specific theme attributes -->
+    </style>
+
+    <!-- Base style for widget text -->
+    <style name="Widget.Loudly.TextView" parent="android:Widget.TextView">
+        <item name="android:textColor">@color/widget_text_primary</item>
+        <item name="android:shadowColor">#80000000</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">2</item>
+    </style>
+
+    <!-- Style for the track title -->
+    <style name="Widget.Loudly.TextView.Title" parent="Widget.Loudly.TextView">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <!-- Style for the artist name -->
+    <style name="Widget.Loudly.TextView.Artist" parent="Widget.Loudly.TextView">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/widget_text_secondary</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <!-- Style for control buttons -->
+    <style name="Widget.Loudly.ImageButton" parent="android:Widget.ImageButton">
+        <item name="android:layout_width">36dp</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:tint">@color/widget_text_primary</item>
+    </style>
+
+</resources>

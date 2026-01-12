@@ -1,0 +1,636 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="welcome_to_loudly">Добре дошли в Loudly</string>
+    <string name="welcome_to_loudly_description">Нека да започнем с персонализирането на вашето музикално изживяване.</string>
+    <string name="yt_music_fingertips">YouTube Music на една ръка разстояние</string>
+    <string name="ytm_account_sync">Синхронизиране на акаунт в YT Music</string>
+    <string name="ad_free_playback">Възпроизвеждане без реклами</string>
+    <string name="offline_music_experience">Офлайн музикално изживяване</string>
+    <string name="android_auto">Поддръжка на Android Auto</string>
+    <string name="discord_support">Поддръжка на статус в Discord</string>
+    <string name="fos_info">Напълно отворен код</string>
+    <string name="select_player_ui">Изберете потребителски интерфейс на плейъра</string>
+    <string name="select_player_ui_description">Изберете изгледа на плейъра в приложението. Можете да промените тази настройка по-късно в „Настройки > Външен вид“.</string>
+    <string name="setup_complete">Настройката е завършена!</string>
+    <string name="setup_complete_description">Готови сте да изследвате Loudly.</string>
+    <string name="finish">Край</string>
+    <string name="back">Назад</string>
+    <string name="next">Напред</string>
+    <string name="previous">Предишен</string>
+
+    <string name="home">Начало</string>
+    <string name="explore">Открийте</string>
+    <string name="songs">Песни</string>
+    <string name="artists">Изпълнители</string>
+    <string name="albums">Албуми</string>
+    <string name="playlists">Плейлисти</string>
+
+    <string name="liked">Харесана музика</string>
+    <string name="like">Харесване</string>
+    <string name="offline">Офлайн музика</string>
+    <string name="my_top">Моята топ музика</string>
+    <string name="cached">Кеширана музика</string>
+    <string name="local">Локална музика</string>
+
+    <string name="content_filter">Филтър на съдържанието</string>
+
+    <string name="all_time">За всички времена</string>
+    <string name="past_24_hours">Последните 24 часа</string>
+    <string name="past_week">Последната седмица</string>
+    <string name="past_month">Последния месец</string>
+    <string name="past_year">Последната година</string>
+
+    <plurals name="n_selected">
+        <item quantity="one">%d избран</item>
+        <item quantity="other">%d избрани</item>
+    </plurals>
+
+    <string name="good_morning">Добро утро</string>
+    <string name="good_afternoon">Добър ден</string>
+    <string name="good_evening">Добър вечер</string>
+    <string name="good_night">Лека нощ</string>
+    <string name="recent_activity">Последна активност</string>
+    <string name="history">История</string>
+    <string name="history_empty">Вашата история ще се появи тук</string>
+    <string name="stats_empty">Вашите статистики ще се появят тук</string>
+    <string name="stats">Статистики</string>
+    <string name="show_less">Покажи по-малко</string>
+    <string name="show_more">Покажи повече</string>
+    <string name="mood_and_genres">Настроения и жанрове</string>
+    <string name="account">Акаунт</string>
+    <string name="quick_picks">Бързи избори</string>
+    <string name="quick_picks_empty">Слушайте песни, за да генерирате вашите бързи избори</string>
+    <string name="forgotten_favorites">Забравени любими</string>
+    <string name="keep_listening">Продължете да слушате</string>
+    <string name="your_youtube_playlists">Вашите плейлисти в YouTube</string>
+    <string name="similar_to">Подобни на</string>
+    <string name="new_release_albums">Нови албуми</string>
+    <string name="not_internet">Няма интернет връзка</string>
+    <string name="internet_required">Изглежда, че нямате интернет връзка. Моля, проверете вашата мрежа.</string>
+    <string name="featured_for_you">Препоръчано за вас</string>
+    <string name="recommended_for_you_today">Препоръчано за вас днес</string>
+
+    <string name="today">Днес</string>
+    <string name="yesterday">Вчера</string>
+    <string name="this_week">Тази седмица</string>
+    <string name="last_week">Миналата седмица</string>
+    <string name="local_history">Локална</string>
+    <string name="remote_history">Отдалечена</string>
+    <string name="history_queue_title_local">Локална история</string>
+    <string name="history_queue_title_online">Онлайн история</string>
+
+    <string name="most_played_songs">Най-слушани песни</string>
+    <string name="most_played_artists">Най-слушани изпълнители</string>
+    <string name="most_played_albums">Най-слушани албуми</string>
+
+    <string name="search">Търсене</string>
+    <string name="search_yt_music">Търсене в Loudly</string>
+    <string name="search_library">Търсене в библиотеката…</string>
+    <string name="SearchHistory">История на търсенето</string>
+    <string name="Sujestions">Предложения</string>
+    <string name="SearchResutls">Резултати от търсенето</string>
+    <string name="filter_library">Библиотека</string>
+    <string name="filter_liked">Харесани</string>
+    <string name="filter_downloaded">Изтеглени</string>
+    <string name="filter_all">Всички</string>
+    <string name="filter_songs">Песни</string>
+    <string name="filter_videos">Видеоклипове</string>
+    <string name="filter_albums">Албуми</string>
+    <string name="filter_artists">Изпълнители</string>
+    <string name="filter_playlists">Плейлисти</string>
+    <string name="filter_community_playlists">Плейлисти на общността</string>
+    <string name="filter_featured_playlists">Препоръчани плейлисти</string>
+    <string name="filter_bookmarked">Маркирани</string>
+    <string name="no_results_found">Няма намерени резултати</string>
+
+    <string name="library_empty">Библиотеката ще се появи тук</string>
+    <string name="library_song_empty">Песните от библиотеката ще се появят тук</string>
+    <string name="library_artist_empty">Изпълнителите от библиотеката ще се появят тук</string>
+    <string name="library_album_empty">Албумите от библиотеката ще се появят тук</string>
+    <string name="library_playlist_empty">Вашите плейлисти ще се появят тук</string>
+
+    <string name="from_your_library">От вашата библиотека</string>
+
+    <string name="other_versions">Други версии</string>
+    <string name="favorite">Любими</string>
+    <string name="top_songs">Топ песни</string>
+
+    <string name="liked_songs">Харесани песни</string>
+    <string name="downloaded_songs">Изтеглени песни</string>
+    <string name="playlist_is_empty">Плейлистът е празен</string>
+    <string name="remove_download_playlist_confirm">Наистина ли искате да премахнете всички песни от плейлиста „%s“ от хранилището за изтеглени песни?</string>
+    <string name="delete_playlist_confirm">Наистина ли искате да изтриете плейлиста „%s“?</string>
+
+    <string name="off">Изключено</string>
+
+    <string name="retry">Опитай пак</string>
+    <string name="radio">Радио</string>
+    <string name="shuffle">Разбъркване</string>
+    <string name="reset">Нулиране</string>
+
+    <string name="details">Детайли</string>
+    <string name="edit">Редактиране</string>
+    <string name="start_radio">Стартирай радио</string>
+    <string name="play">Пусни</string>
+    <string name="play_next">Пусни следваща</string>
+    <string name="add_to_queue">Добави към опашката</string>
+    <string name="add_to_library">Добави в библиотеката</string>
+    <string name="add_all_to_library">Добави всички в библиотеката</string>
+    <string name="remove_from_library">Премахни от библиотеката</string>
+    <string name="remove_all_from_library">Премахни всички от библиотеката</string>
+    <string name="download">Изтегляне</string>
+    <string name="downloading">Изтегляне...</string>
+    <string name="remove_download">Премахни изтегленото</string>
+    <string name="import_playlist">Импортиране на плейлист</string>
+    <string name="add_to_playlist">Добави към плейлист</string>
+    <string name="view_artist">Виж изпълнителя</string>
+    <string name="view_album">Виж албума</string>
+    <string name="refetch">Обнови</string>
+    <string name="share">Споделяне</string>
+    <string name="delete">Изтриване</string>
+    <string name="remove_from_history">Премахни от историята</string>
+    <string name="remove_from_playlist">Премахни от плейлиста</string>
+    <string name="remove_from_queue">Премахни от опашката</string>
+    <string name="remove_from_cache">Премахни от кеша</string>
+    <string name="playlist_m3u_export">Експортиране като M3U файл</string>
+    <string name="search_online">Търсене онлайн</string>
+    <string name="sync">Синхронизиране</string>
+    <string name="advanced">Разширени</string>
+    <string name="tempo_and_pitch">Темпо и височина</string>
+
+    <string name="sort_by_create_date">Дата на добавяне</string>
+    <string name="sort_by_last_updated">Дата на актуализация</string>
+    <string name="sort_by_name">Име</string>
+    <string name="sort_by_artist">Изпълнител</string>
+    <string name="sort_by_year">Година</string>
+    <string name="sort_by_song_count">Брой песни</string>
+    <string name="sort_by_length">Дължина</string>
+    <string name="sort_by_play_time">Време на възпроизвеждане</string>
+    <string name="sort_by_custom">Персонализиран ред</string>
+
+    <string name="media_id">Медиен идентификатор</string>
+    <string name="mime_type">MIME тип</string>
+    <string name="codecs">Кодеци</string>
+    <string name="bitrate">Битрейт</string>
+    <string name="sample_rate">Честота на дискретизация</string>
+    <string name="loudness">Сила на звука</string>
+    <string name="volume">Сила</string>
+    <string name="file_size">Размер на файла</string>
+    <string name="unknown">Неизвестно</string>
+    <string name="copied">Копирано в клипборда</string>
+
+    <string name="edit_lyrics">Редактиране на текста</string>
+    <string name="search_lyrics">Търсене на текст</string>
+    <string name="delete_lyric_confirm">Наистина ли искате да изтриете запазения текст за „%s“?</string>
+
+    <string name="edit_song">Редактиране на песен</string>
+    <string name="song_title">Заглавие на песента</string>
+    <string name="song_artists">Изпълнители на песента</string>
+    <string name="error_song_title_empty">Заглавието на песента не може да бъде празно.</string>
+    <string name="error_song_artist_empty">Изпълнителят на песента не може да бъде празен.</string>
+    <string name="save">Запазване</string>
+
+    <string name="sync_playlist">Синхронизиране на плейлист</string>
+    <string name="choose_playlist">Изберете плейлист</string>
+    <string name="edit_playlist">Редактиране на плейлист</string>
+    <string name="create_playlist">Създаване на плейлист</string>
+    <string name="playlist_name">Име на плейлиста</string>
+    <string name="error_playlist_name_empty">Името на плейлиста не може да бъде празно.</string>
+
+    <string name="edit_artist">Редактиране на изпълнител</string>
+    <string name="artist_name">Име на изпълнителя</string>
+    <string name="error_artist_name_empty">Името на изпълнителя не може да бъде празно.</string>
+
+    <string name="duplicates">Дубликати</string>
+    <string name="skip_duplicates">Пропусни дубликатите</string>
+    <string name="add_anyway">Добави въпреки това</string>
+    <string name="duplicates_description_single">Песента вече е във вашия плейлист</string>
+    <string name="duplicates_description_multiple">%d песни вече са във вашия плейлист</string>
+    <string name="allows_for_sync_witch_youtube">Забележка: Това позволява синхронизация с YouTube Music</string>
+
+    <plurals name="n_song">
+        <item quantity="one">%d песен</item>
+        <item quantity="other">%d песни</item>
+    </plurals>
+    <plurals name="n_artist">
+        <item quantity="one">%d изпълнител</item>
+        <item quantity="other">%d изпълнители</item>
+    </plurals>
+    <plurals name="n_album">
+        <item quantity="one">%d албум</item>
+        <item quantity="other">%d албума</item>
+    </plurals>
+    <plurals name="n_playlist">
+        <item quantity="one">%d плейлист</item>
+        <item quantity="other">%d плейлиста</item>
+    </plurals>
+    <plurals name="n_week">
+        <item quantity="one">%d седмица</item>
+        <item quantity="other">%d седмици</item>
+    </plurals>
+    <plurals name="n_month">
+        <item quantity="one">%d месец</item>
+        <item quantity="other">%d месеца</item>
+    </plurals>
+    <plurals name="n_year">
+        <item quantity="one">%d година</item>
+        <item quantity="other">%d години</item>
+    </plurals>
+
+    <string name="playlist_imported">Плейлистът е импортиран</string>
+    <string name="removed_song_from_playlist">Премахнахте „%s“ от плейлиста</string>
+    <string name="playlist_synced">Плейлистът е синхронизиран</string>
+    <string name="undo">Отмяна</string>
+
+    <string name="now_playing">Сега се възпроизвежда</string>
+    <string name="lyrics_not_found">Текстът не е намерен</string>
+    <string name="sleep_timer">Таймер за заспиване</string>
+    <string name="end_of_song">Край на песента</string>
+    <plurals name="minute">
+        <item quantity="one">1 минута</item>
+        <item quantity="other">%d минути</item>
+    </plurals>
+    <string name="error_no_stream">Няма наличен стрийм</string>
+    <string name="error_no_internet">Няма мрежова връзка</string>
+    <string name="error_timeout">Времето изтече</string>
+    <string name="error_unknown">Неизвестна грешка</string>
+    <string name="menu">Меню</string>
+    <string name="share_list">Споделяне на списъка</string>
+
+    <string name="seek_backward">5 секунди назад</string>
+    <string name="seek_forward">5 секунди напред</string>
+
+    <string name="action_like">Харесване</string>
+    <string name="action_like_all">Харесай всички</string>
+    <string name="action_remove_like">Премахни харесването</string>
+    <string name="action_remove_like_all">Премахни всички харесвания</string>
+    <string name="action_shuffle_on">Разбъркването е включено</string>
+    <string name="action_shuffle_off">Разбъркването е изключено</string>
+    <string name="repeat_mode_off">Режимът на повторение е изключен</string>
+    <string name="repeat_mode_one">Повтаряне на текущата песен</string>
+    <string name="repeat_mode_all">Повтаряне на опашката</string>
+
+    <string name="queue_all_songs">Всички песни</string>
+    <string name="queue_searched_songs">Търсени песни</string>
+
+    <string name="music_player">Музикален плейър</string>
+
+    <string name="notifications">Известия</string>
+    <string name="keep_alive_title">Предотвратяване на затварянето на приложението от системата</string>
+    <string name="keep_alive_description">Използвайте известие на преден план, за да предотвратите случайното затваряне на Loudly от системата.</string>
+    <string name="notification_permission_is_required">Изисква се разрешение за известия</string>
+
+    <string name="settings">Настройки</string>
+    <string name="appearance">Външен вид</string>
+    <string name="theme">Тема</string>
+    <string name="proxy">Прокси</string>
+    <string name="enable_dynamic_theme">Активиране на динамична тема</string>
+    <string name="dark_theme">Тъмна тема</string>
+    <string name="dark_theme_on">Включена</string>
+    <string name="dark_theme_off">Изключена</string>
+    <string name="dark_theme_follow_system">Следване на системата</string>
+    <string name="pure_black">Чисто черно</string>
+    <string name="app_design_variant">Дизайн на приложението</string>
+    <string name="app_design_ui_1_0">UI на приложението 1.0</string>
+    <string name="app_design_ui_1_5">UI на приложението 1.5</string>
+    <string name="listen_youtube_music">Слушайте в YouTube Music</string>
+    <string name="visit_the_loudly">Посетете Loudly</string>
+    <string name="artist">Изпълнител</string>
+    <string name="listen_to_loudly">Слушайте Loudly</string>
+    <string name="enable_swipe_thumbnail">Активирайте плъзгане по обложката за смяна на песен</string>
+    <string name="customize_navigation_tabs">Персонализиране на навигационните раздели</string>
+    <string name="player">Плейър</string>
+    <string name="player_text_alignment">Подравняване на текста в плейъра</string>
+    <string name="lyrics_text_position">Позиция на текста на песента</string>
+    <string name="sided">Странично</string>
+    <string name="left">Ляво</string>
+    <string name="center">Център</string>
+    <string name="player_style">Стил на плейъра</string>
+    <string name="player_style_old_ui">Стар UI на плейъра</string>
+    <string name="player_style_ui_1_0">UI на плейъра 1.0</string>
+    <string name="player_style_ui_2_0">UI на плейъра 2.0</string>
+    <string name="follow_theme">Следване на темата</string>
+    <string name="gradient">Градиент</string>
+    <string name="blur">Размазване</string>
+    <string name="blurmv">Размазване (движение)</string>
+    <string name="player_background_style">Стил на фона на плейъра</string>
+    <string name="right">Дясно</string>
+    <string name="slider_style">Стил на плъзгача</string>
+    <string name="default_">По подразбиране</string>
+    <string name="squiggly">Назъбен</string>
+    <string name="compose">Композиция</string>
+    <string name="thumbnail_corner_radius">Конфигуриране на радиуса на ъглите на обложката</string>
+    <string name="show_content_filter">Показване на филтъра за съдържание</string>
+    <string name="misc">Разни</string>
+    <string name="main">Основно</string>
+    <string name="auto_playlists_customization">Персонализиране на автоматични плейлисти</string>
+    <string name="show_liked_auto_playlist">Показване на автоматичен плейлист с харесани</string>
+    <string name="show_download_auto_playlist">Показване на автоматичен плейлист с изтеглени</string>
+    <string name="show_top_auto_playlist">Показване на автоматичен плейлист с топ</string>
+    <string name="show_cached_auto_playlist">Показване на автоматичен плейлист с кеширани</string>
+    <string name="show_local_auto_playlist">Показване на автоматичен плейлист с локални</string>
+    <string name="swipe_song_to_dismiss">Плъзнете песен надясно за следваща или наляво за добавяне в опашката</string>
+    <string name="default_open_tab">Раздел по подразбиране при отваряне</string>
+    <string name="default_lib_chips">Чипове по подразбиране в библиотеката</string>
+    <string name="grid_cell_size">Размер на клетките в мрежата</string>
+    <string name="slim_navbar">Показване на етикетите в долната навигационна лента</string>
+    <string name="small">Малък</string>
+    <string name="big">Голям</string>
+    <string name="Changelog">Дневник на промените</string>
+    <string name="no_changes">Няма намерени скорошни промени</string>
+    <string name="changelogs">Скорошни промени:</string>
+    <string name="closepopup">Затвори</string>
+    <string name="NewVersion">Налична е нова версия</string>
+    <string name="Hi">Здравейте отново</string>
+    <string name="Donate">Дарение</string>
+    <string name="Telegramchanel">Официален канал</string>
+    <string name="web_site">Уебсайт</string>
+    <string name="web_site_info">Официален уебсайт ❯</string>
+    <string name="code">Изходен код</string>
+    <string name="code_text">Достъп до изходния код на приложението</string>
+    <string name="bugs">Проблеми</string>
+    <string name="bugs_text">Доклади за грешки и други</string>
+    <string name="help">Помощ</string>
+    <string name="contribution_text">Ако искате да допринесете, кликнете тук ❯</string>
+    <string name="Developer">Разработчик | @RRechz</string>
+
+    <string name="content">Съдържание</string>
+    <string name="login">Вход</string>
+    <string name="login_description">Влезте във вашите плейлисти в YT Music и други</string>
+    <string name="token_hidden">Докоснете, за да покажете токена</string>
+    <string name="token_shown">Докоснете отново, за да копирате или редактирате</string>
+    <string name="token_adv_login_description">Това е РАЗШИРЕН метод за влизане. Като алтернатива на уеб портала, можете директно да въведете или актуализирате вашия токен за вход тук. Например, това може да ускори влизането на няколко устройства. Моля, имайте предвид, че всякакви невалидни формати на токени, които приложението не успее да анализира, няма да бъдат приети.</string>
+    <string name="import_from_spotify">Импортиране от Spotify</string>
+    <string name="title_spotify">Spotify</string>
+    <string name="title_discord">Discord</string>
+    <string name="like_autodownload">Автоматично изтегляне на харесаните от вас песни</string>
+    <string name="ytm_sync">Автоматично синхронизиране с вашия акаунт в YouTube Music</string>
+    <string name="ytm_sync_description">Синхронизирайте вашите плейлисти и други с вашия акаунт</string>
+    <string name="wifi_only">Само през Wi-Fi</string>
+    <string name="not_logged_in">Не сте влезли</string>
+    <string name="content_language">Език на съдържанието по подразбиране</string>
+    <string name="content_country">Държава на съдържанието по подразбиране</string>
+    <string name="system_default">По подразбиране от системата</string>
+    <string name="enable_proxy">Активиране на прокси</string>
+    <string name="proxy_type">Тип на проксито</string>
+    <string name="proxy_url">URL на проксито</string>
+    <string name="restart_to_take_effect">Рестартирайте, за да влезе в сила</string>
+    <string name="app_language">Език на приложението</string>
+    <string name="configure_app_language">Конфигуриране на езиците на приложението</string>
+    <string name="intent_app_language_not_found">Не можахме да намерим настройките за език на приложението, моля, конфигурирайте ги ръчно</string>
+    <string name="open_supported_links">Отваряне на поддържани връзки по подразбиране</string>
+    <string name="configure_supported_links">Конфигуриране на поддържани връзки</string>
+    <string name="intent_supported_links_not_found">Не можахме да намерим настройките за поддържани връзки, моля, конфигурирайте ги ръчно</string>
+
+    <string name="player_and_audio">Плейър и аудио</string>
+    <string name="audio_quality">Качество на звука</string>
+    <string name="audio_quality_max">Максимално</string>
+    <string name="audio_quality_auto">Автоматично</string>
+    <string name="audio_quality_high">Високо</string>
+    <string name="audio_quality_low">Ниско</string>
+    <string name="minimum_playback_duration">Минимална продължителност на възпроизвеждане</string>
+    <string name="minimum_playback_duration_info">Минималното време, през което една песен трябва да бъде възпроизведена, преди да се счита за „изслушана“</string>
+    <string name="queue">Опашка</string>
+    <string name="persistent_queue">Постоянна опашка</string>
+    <string name="persistent_queue_desc">Възстановете последната си опашка при стартиране на приложението</string>
+    <string name="auto_load_more">Автоматично зареждане на още песни</string>
+    <string name="auto_load_more_desc">Автоматично добавяне на още песни при достигане на края на опашката, ако е възможно</string>
+    <string name="skip_silence">Пропускане на тишината</string>
+    <string name="audio_normalization">Нормализиране на звука</string>
+    <string name="play_song_when_bluetooth_device_connected">Продължаване на възпроизвеждането при свързване на Bluetooth устройство</string>
+    <string name="stop_playing_when_song_sound_minimum_volume">Спиране на възпроизвеждането при минимална сила на звука</string>
+    <string name="adding_played_songs_to_ytm_history">Добавяне на възпроизведени песни към историята на YouTube Music</string>
+    <string name="auto_skip_next_on_error">Автоматично преминаване към следващата песен при грешка</string>
+    <string name="auto_skip_next_on_error_desc">Осигурете непрекъснатото си възпроизвеждане</string>
+    <string name="stop_music_on_task_clear">Спиране на музиката при изчистване на задачите</string>
+    <string name="equalizer">Еквалайзер</string>
+    <string name="lyrics">Текст на песен</string>
+    <string name="lyrics_settings_title">Текстове</string>
+    <string name="local_player_settings_title">Настройки на локалния плейър</string>
+    <string name="storage">Хранилище</string>
+    <string name="cache">Кеш</string>
+    <string name="image_cache">Кеш на изображения</string>
+    <string name="song_cache">Кеш на песни</string>
+    <string name="max_cache_size">Максимален размер на кеша</string>
+    <string name="unlimited">Неограничен</string>
+    <string name="audio_offload">Активиране на offload</string>
+    <string name="audio_offload_description">Използвайте offload аудио пътя за възпроизвеждане на аудио. Деактивирането може да увеличи консумацията на енергия, но може да бъде полезно, ако имате проблеми с възпроизвеждането или обработката на звука.</string>
+    <string name="clear_all_downloads">Изчистване на всички изтегляния</string>
+    <string name="max_image_cache_size">Максимален размер на кеша за изображения</string>
+    <string name="clear_image_cache">Изчистване на кеша за изображения</string>
+    <string name="max_song_cache_size">Максимален размер на кеша за песни</string>
+    <string name="clear_song_cache">Изчистване на кеша за песни</string>
+    <string name="size_used">използвано</string>
+    <string name="clear_all_cache_dialog">Сигурни ли сте, че искате да изчистите целия кеш?</string>
+    <string name="clear_all_downloads_dialog">Сигурни ли сте, че искате да изчистите всички изтегляния?</string>
+    <string name="clear_song_cache_dialog">Сигурни ли сте, че искате да изчистите всички кеширани песни?</string>
+    <string name="clear_images_cache_dialog">Сигурни ли сте, че искате да изчистите всички кеширани изображения?</string>
+    <string name="clear_translation_models_cache_dialog">Сигурни ли сте, че искате да изчистите всички кеширани модели за превод?</string>
+
+    <string name="privacy">Поверителност</string>
+    <string name="listen_history">История на слушане</string>
+    <string name="pause_listen_history">Пауза на историята на слушане</string>
+    <string name="clear_listen_history">Изчистване на историята на слушане</string>
+    <string name="clear_listen_history_confirm">Сигурни ли сте, че искате да изчистите цялата история на слушане?</string>
+    <string name="pause_search_history">Пауза на историята на търсене</string>
+    <string name="clear_search_history">Изчистване на историята на търсене</string>
+    <string name="clear_search_history_confirm">Сигурни ли сте, че искате да изчистите цялата история на търсене?</string>
+    <string name="search_history">История на търсенето</string>
+    <string name="use_login_for_browse">Използване на вход за разглеждане на съдържание</string>
+    <string name="use_login_for_browse_desc">Това може да повлияе на съдържанието, което виждате, и например да показва албуми само за Premium, ако сте влезли с Premium акаунт.</string>
+    <string name="disable_screenshot">Деактивиране на екранни снимки</string>
+    <string name="disable_screenshot_desc">Когато тази опция е включена, екранните снимки и изгледът на приложението в „Последни“ са деактивирани.</string>
+    <string name="enable_lrclib">Активиране на доставчика на текстове LrcLib</string>
+    <string name="enable_kugou">Активиране на доставчика на текстове KuGou</string>
+    <string name="default_lyrics_provider">Доставчик на текстове по подразбиране</string>
+    <string name="lyrics_multiline_title">Четене на многоредови текстове</string>
+    <string name="lyrics_multiline_description">Третирайте всички редове между точките за синхронизация като един текст</string>
+    <string name="lyrics_trim_title">Премахване на интервали около текста</string>
+    <string name="lyrics_font_size">Размер на шрифта</string>
+    <string name="hide_explicit">Скриване на нецензурно съдържание</string>
+    <string name="enable_notifications">Активиране на известията</string>
+
+    <string name="backup_restore">Архивиране и възстановяване</string>
+    <string name="backup">Архивиране</string>
+    <string name="restore">Възстановяване</string>
+    <string name="import_m3u">Импортиране на плейлист (m3u)</string>
+    <string name="m3u_import_failed">Неуспешно импортиране на плейлист</string>
+    <string name="imported_playlist">Импортиран плейлист</string>
+    <string name="backup_create_success">Архивът е създаден успешно</string>
+    <string name="backup_create_failed">Не можа да се създаде архив</string>
+    <string name="restore_failed">Неуспешно възстановяване на архив</string>
+
+    <string name="discord_integration">Интеграция с Discord</string>
+    <string name="discord_information">Loudly използва библиотеката KizzyRPC, за да зададе статуса на вашия Discord акаунт. Това включва използването на връзка с Discord Gateway, което може да се счита за нарушение на Условията за ползване на Discord. Въпреки това, няма известни случаи на блокирани потребителски акаунти по тази причина. Използвайте на свой собствен риск.\n\nLoudly ще извлече само вашия токен, а всичко останало се съхранява локално.</string>
+    <string name="dismiss">Отхвърляне</string>
+    <string name="options">Опции</string>
+    <string name="preview">Преглед</string>
+    <string name="login_failed">Неуспешен вход</string>
+    <string name="logout">Изход</string>
+    <string name="enable_discord_rpc">Активиране на Rich Presence</string>
+
+    <string name="about">Относно</string>
+    <string name="app_version">Версия на приложението</string>
+    <string name="checking_for_update">Проверка за актуализации...</string>
+    <string name="update_card_version_ready_to_download">версия %1$s е налична за изтегляне.</string>
+    <string name="update_card_downloading">Изтегляне...</string>
+    <string name="install">Надграждане</string>
+    <string name="try_again">Опитайте отново</string>
+    <string name="download_now">Изтеглете сега</string>
+    <string name="app_type">Тип на приложението</string>
+
+    <string name="new_version_available">Налична е нова версия</string>
+    <string name="translation_models">Модели за превод</string>
+    <string name="clear_translation_models">Изчистване на моделите за превод</string>
+    <string name="history_duration">Продължителност на историята</string>
+    <plurals name="seconds">
+        <item quantity="one">1 секунда</item>
+        <item quantity="other">%d секунди</item>
+    </plurals>
+    <string name="widget_title">Музика 3x2</string>
+    <string name="widget_quick_title">Музика 2x1</string>
+    <string name="play_pause">Пусни/Пауза</string>
+    <string name="about_subtitle">Версия · Разработчици · Лиценз</string>
+    <string name="category_interface">UI</string>
+    <string name="category_content">Съдържание и акаунт</string>
+    <string name="category_player">Плейър</string>
+    <string name="category_system">Система</string>
+    <string name="library">Библиотека</string>
+    <string name="integrations">Интеграции</string>
+    <string name="system_integration">Системна интеграция</string>
+    <string name="total_used_space">Общо използвано пространство</string>
+    <string name="currently_used">В момента се използва</string>
+    <string name="clear_cache">Изчистване на кеша</string>
+    <string name="backup_restore_description">Архивиране · Възстановяване · Импортиране</string>
+    <string name="privacy_description">История · Търсене · Екранна снимка</string>
+    <string name="storage_description">Изтегляния · Кеш · Изображения</string>
+    <string name="player_and_audio_description">Звук · Опашка · Текстове</string>
+    <string name="content_description">Език · Местоположение · Прокси</string>
+    <string name="account_description">Вход · Spotify · Discord</string>
+    <string name="appearance_description">Тема · Плъзгач · Плейър</string>
+
+    <string name="header_background">Снимка на профилната карта</string>
+    <string name="header_background_description">Персонализирайте снимката на профилната карта</string>
+    <string name="select_header_image">Изберете профилно изображение</string>
+    <string name="predefined_images">Готови изображения</string>
+    <string name="select_from_gallery">Избор от галерията</string>
+    <string name="edit_photo">Редактиране на снимка</string>
+    <string name="cancel">Отказ</string>
+
+    <string name="send_to_developer">Изпращане до разработчика</string>
+    <string name="close">Затвори</string>
+    <string name="update_error_details">Покажи подробности за грешката</string>
+    <string name="download_failed">Изтеглянето е неуспешно</string>
+    <string name="show_error">Покажи грешка</string>
+    <string name="go_to_update_link">Ръчна актуализация</string>
+    <string name="home_card_update_desc">Проверете страницата с настройки за подробности</string>
+    <string name="app_up_to_date">Софтуерът е актуален</string>
+
+    <string name="app_ui">UI на приложението</string>
+    <string name="app_ui_desc">Изберете един от 3 различни дизайна</string>
+    <string name="ui_version_selection">Избор на версия на UI</string>
+    <string name="ui_version_1_0_desc">Дизайн на старата версия на приложението. (Приложение, Плейър, МиниПлейър)</string>
+    <string name="ui_version_1_5_desc">Компактен дизайн, създаден с по-модерен подход. (Приложение, Плейър, МиниПлейър)</string>
+    <string name="ui_version_2_0_desc">Най-популярният дизайн. (Приложение, Плейър, МиниПлейър)</string>
+    <string name="ui_version_custom_desc">Създайте свой собствен дизайн на UI на приложението. (Приложение, Плейър, МиниПлейър)</string>
+    <string name="custom_app_ui">Персонализиране на UI</string>
+
+    <string name="other_settings">Други настройки</string>
+    <string name="other_settings_description">Кликнете за други различни настройки</string>
+
+    <string name="audio_quality_auto_desc">Автоматично регулира качеството между 45 и 512 Kbps</string>
+    <string name="audio_quality_max_desc">Предлага най-високото качество до 512 Kbps</string>
+    <string name="audio_quality_high_desc">Задава качеството за средни интернет скорости между 128 и 256 Kbps.</string>
+    <string name="audio_quality_low_desc">Ограничава качеството до между 45 и 52 Kbps за пестене на данни (Икономия на данни)</string>
+
+    <string name="could_not_import">Не може да се импортира</string>
+
+    <string name="text_alignment">Подравняване на текста</string>
+    <string name="text_alignment_description">Задайте позицията на текста на картата</string>
+    <string name="gradient_intensity">Интензитет на градиента</string>
+    <string name="corner_round">Заобляне на ъглите</string>
+    <string name="profile_picture">Профилна снимка</string>
+    <string name="profile_card">Профилна карта</string>
+    <string name="remove_profile_picture">Премахване на профилната снимка</string>
+    <string name="show_texts">Показване на текстове</string>
+    <string name="show_texts_description">Показване на поздравителния текст и потребителското име на профилната карта</string>
+    <string name="tap_to_change">Докоснете за промяна</string>
+
+    <string name="translate">Превод (БЕТА)</string>
+    <string name="copy">Копиране</string>
+
+    <string name="error_network_title">Грешка в мрежата</string>
+    <string name="error_network_description">Проверете интернет връзката си и опитайте отново.</string>
+    <string name="error_unsupported_format_title">Неподдържано съдържание</string>
+    <string name="error_unsupported_format_description">Този формат на песента не се поддържа от вашето устройство.</string>
+    <string name="error_behind_live_window_title">Грешка в излъчването на живо</string>
+    <string name="error_behind_live_window_description">Има проблем с излъчването на живо. Моля, рестартирайте.</string>
+    <string name="error_playback_failed_title">Възпроизвеждането е неуспешно</string>
+    <string name="error_playback_failed_description">Възникна неизвестна грешка. Моля, опитайте отново.</string>
+    <string name="recovering_playback">Опитваме отново...</string>
+    <string name="vpn_info_message">Използването на VPN може да повлияе на качеството на връзката ви. Ако изпитвате проблеми с мрежата, изключете VPN връзката си или използвайте прокси. Можете да конфигурирате това в „Настройки >> Съдържание >> Прокси.“</string>
+
+    <string name="sync_local_songs_toast">Локалните песни са синхронизирани успешно</string>
+    <string name="local_scanner_title">Локален скенер</string>
+
+    <string name="auto_scanner_title">Сканиране автоматично</string>
+    <string name="auto_scanner_description">Автоматично сканиране за песни при отваряне на приложението</string>
+
+    <string name="scanner_settings_title">Допълнителни настройки на скенера</string>
+    <string name="scanner_strict_file_name_title">Строги имена на файлове</string>
+    <string name="scanner_strict_file_name_description">Когато е активирано, разширенията НЯМА да бъдат игнорирани. Например, „Song.ogg“ ще бъде различна песен от „Song.flac“.</string>
+    <string name="scanner_sensitivity_title">Конфигуриране на чувствителността на скенера</string>
+    <string name="scanner_sensitivity_L1">Съвпадение по заглавие</string>
+    <string name="scanner_sensitivity_L2">Съвпадение по заглавие и изпълнители</string>
+    <string name="scanner_sensitivity_L3">Съвпадение по заглавие, изпълнители, албуми</string>
+
+    <string name="folders_settings_title">Папки</string>
+    <string name="flat_subfolders_title">Изравняване на подпапки</string>
+    <string name="flat_subfolders_description">Деактивирайте, за да запазите структурата на файловете както е на диска</string>
+
+    <string name="tips_and_features">Съвети и функции</string>
+    <string name="tips_and_fetures_description"> Съвети · Функции</string>
+    <string name="create_your_story">Създайте своята история</string>
+    <string name="share_your_story_description">Споделете песента, която слушате, в социалните мрежи със стилен дизайн, създаден с доминиращите цветове на обложката на албума.</string>
+    <string name="customizable_settings">Персонализируеми настройки</string>
+    <string name="customizable_settings_description">Направете приложението свое, като замените фона на заглавната карта в екрана с настройки с изображение от вашата галерия.</string>
+    <string name="new_song_list">Нов списък с песни</string>
+    <string name="new_song_list_description">Прегледайте текущия си плейлист и лесно превключвайте между песните, като плъзнете нагоре от екрана на плейъра (нов дизайн, ексклузивен за Player UI 2.0).</string>
+    <string name="remastered_settings">Преработен дизайн на настройките</string>
+    <string name="remastered_settings_description">Намерете лесно това, което търсите, с нов дизайн на настройките, базиран на карти, който е по-модерен и удобен.</string>
+    <string name="classic_music_widget">Класически музикален уиджет</string>
+    <string name="classic_music_widget_description">Бърз достъп до всички контроли и информация за песента от началния екран.</string>
+    <string name="minimalist_music_widget">Минималистичен музикален уиджет</string>
+    <string name="minimalist_music_widget_description">Музикален уиджет „Quik“, вдъхновен от дизайна на бутона за бързи настройки на Android 16.</string>
+    <string name="share_on_story">Споделяне в история</string>
+    <string name="copy_song_link">Копиране на връзката към песента</string>
+    <string name="link_copied">Връзката е копирана в клипборда!</string>
+    <string name="streamed_on_loudly">Стриймвано в Loudly</string>
+
+    <string name="select_all">Избери всички</string>
+    <string name="fetching_all_playlists">Извличане на всички плейлисти…</string>
+    <string name="import_selected_items">Импортиране на избраните елементи</string>
+    <string name="something_went_wrong">Нещо се обърка. Ние сме също толкова объркани, колкото и вие.</string>
+    <string name="well_thats_embarrassing">Е, това е неудобно. Нямаме представа какво се е случило.</string>
+    <string name="instructions_to_get_required_credentials">Инструкции за получаване на необходимите данни за достъп</string>
+    <string name="make_sure_to_click">3. Уверете се, че сте кликнали върху „Добавяне“, след като сте въвели локалния път по-горе.</string>
+    <string name="accept_the_terms_of_service">5. Приемете условията за ползване и кликнете върху „Запазване“.</string>
+    <string name="you_ll_be_redirected_to_a_new_page">Ще бъдете пренасочени към нова страница. Кликнете върху „Настройки“, след това копирайте ID на клиента и Тайната на клиента и ги поставете в текстовите полета по-долу в това приложение.</string>
+    <string name="enter_the_necessary_details">2. Въведете необходимите данни и използвайте http://127.0.0.1:45454 като URI за пренасочване.</string>
+    <string name="toggle_wep_api">4. Превключете Web API. Полето за отметка вече трябва да има отметка.</string>
+    <string name="now_click_the_authorize_and_continue">Сега кликнете върху бутона „Упълномощаване и продължаване“ по-долу и влезте с акаунта, от който искате да импортирате, и упълномощете и продължете, което ще ви пренасочи към сайт, който трябва да започва с http://127.0.0.1:45454/?code=\n\nПоставете целия този URL адрес в текстовото поле по-долу, което казва „Код за упълномощаване“, и кликнете върху бутона „Удостоверяване“.</string>
+    <string name="visit_spotify_for_developers">1. Посетете таблото за разработчици на Spotify и кликнете върху „Създаване на приложение“.</string>
+    <string name="login_with_spotify">Вход с данни за достъп до Spotify API</string>
+    <string name="authorize_and_continue">Упълномощаване и продължаване</string>
+    <string name="authorization_code">Код за упълномощаване</string>
+    <string name="authenticate">Удостоверяване</string>
+    <string name="client_secret">Тайна на клиента</string>
+    <string name="client_id">ID на клиента</string>
+    <string name="import_in_progress">Импортирането е в ход…</string>
+    <string name="dont_close_app_message">Не затваряйте приложението и не се връщайте назад. Тази операция не се изпълнява във фонов режим, така че останете, докато приключи!\nНЕ СЕ ПАНИКЬОСВАЙТЕ, АКО ИЗГЛЕЖДА, ЧЕ Е ЗАСЕднало; понякога извличането може да отнеме известно време.</string>
+    <string name="choose_liked_songs">Изберете дестинация за „Харесани песни“</string>
+    <string name="where_should_the_liked_songs">Къде трябва да се импортират харесаните песни?</string>
+    <string name="new_playlist_named">Нов плейлист с име „Харесани песни“</string>
+    <string name="default_liked_songs">В плейлиста по подразбиране „Харесани песни“</string>
+</resources>

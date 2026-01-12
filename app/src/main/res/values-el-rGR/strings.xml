@@ -1,0 +1,636 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="welcome_to_loudly">Καλώς ήρθατε στο Loudly</string>
+    <string name="welcome_to_loudly_description">Ας ξεκινήσουμε την εξατομίκευση της μουσικής σας εμπειρίας.</string>
+    <string name="yt_music_fingertips">Το YouTube Music στα δάχτυλά σας</string>
+    <string name="ytm_account_sync">Συγχρονισμός λογαριασμού YT Music</string>
+    <string name="ad_free_playback">Αναπαραγωγή χωρίς διαφημίσεις</string>
+    <string name="offline_music_experience">Εμπειρία μουσικής εκτός σύνδεσης</string>
+    <string name="android_auto">Υποστήριξη Android Auto</string>
+    <string name="discord_support">Υποστήριξη κατάστασης Discord</string>
+    <string name="fos_info">Πλήρως ανοιχτού κώδικα</string>
+    <string name="select_player_ui">Επιλέξτε το περιβάλλον αναπαραγωγής</string>
+    <string name="select_player_ui_description">Επιλέξτε την προβολή του player εντός της εφαρμογής. Μπορείτε να αλλάξετε αυτήν τη ρύθμιση αργότερα από τις «Ρυθμίσεις > Εμφάνιση».</string>
+    <string name="setup_complete">Η εγκατάσταση ολοκληρώθηκε!</string>
+    <string name="setup_complete_description">Είστε έτοιμοι να εξερευνήσετε το Loudly.</string>
+    <string name="finish">Τέλος</string>
+    <string name="back">Πίσω</string>
+    <string name="next">Επόμενο</string>
+    <string name="previous">Προηγούμενο</string>
+
+    <string name="home">Αρχική</string>
+    <string name="explore">Εξερεύνηση</string>
+    <string name="songs">Τραγούδια</string>
+    <string name="artists">Καλλιτέχνες</string>
+    <string name="albums">Άλμπουμ</string>
+    <string name="playlists">Λίστες αναπαραγωγής</string>
+
+    <string name="liked">Αγαπημένα</string>
+    <string name="like">Μου αρέσει</string>
+    <string name="offline">Μουσική εκτός σύνδεσης</string>
+    <string name="my_top">Τα κορυφαία μου</string>
+    <string name="cached">Στην κρυφή μνήμη</string>
+    <string name="local">Τοπική μουσική</string>
+
+    <string name="content_filter">Φίλτρο περιεχομένου</string>
+
+    <string name="all_time">Όλων των εποχών</string>
+    <string name="past_24_hours">Τελευταίες 24 ώρες</string>
+    <string name="past_week">Τελευταία εβδομάδα</string>
+    <string name="past_month">Τελευταίος μήνας</string>
+    <string name="past_year">Τελευταίο έτος</string>
+
+    <plurals name="n_selected">
+        <item quantity="one">%d επιλεγμένο</item>
+        <item quantity="other">%d επιλεγμένα</item>
+    </plurals>
+
+    <string name="good_morning">Καλημέρα</string>
+    <string name="good_afternoon">Καλό απόγευμα</string>
+    <string name="good_evening">Καλό βράδυ</string>
+    <string name="good_night">Καληνύχτα</string>
+    <string name="recent_activity">Πρόσφατη δραστηριότητα</string>
+    <string name="history">Ιστορικό</string>
+    <string name="history_empty">Το ιστορικό σας θα εμφανιστεί εδώ</string>
+    <string name="stats_empty">Τα στατιστικά σας θα εμφανιστούν εδώ</string>
+    <string name="stats">Στατιστικά</string>
+    <string name="show_less">Εμφάνιση λιγότερων</string>
+    <string name="show_more">Εμφάνιση περισσότερων</string>
+    <string name="mood_and_genres">Διαθέσεις και είδη</string>
+    <string name="account">Λογαριασμός</string>
+    <string name="quick_picks">Γρήγορες επιλογές</string>
+    <string name="quick_picks_empty">Ακούστε τραγούδια για να δημιουργηθούν οι γρήγορες επιλογές σας</string>
+    <string name="forgotten_favorites">Ξεχασμένα αγαπημένα</string>
+    <string name="keep_listening">Συνεχίστε να ακούτε</string>
+    <string name="your_youtube_playlists">Οι λίστες αναπαραγωγής σας στο YouTube</string>
+    <string name="similar_to">Παρόμοια με</string>
+    <string name="new_release_albums">Νέες κυκλοφορίες άλμπουμ</string>
+    <string name="not_internet">Δεν υπάρχει σύνδεση στο διαδίκτυο</string>
+    <string name="internet_required">Φαίνεται ότι δεν έχετε σύνδεση στο διαδίκτυο. Παρακαλώ ελέγξτε το δίκτυό σας.</string>
+    <string name="featured_for_you">Προτεινόμενα για εσάς</string>
+    <string name="recommended_for_you_today">Προτεινόμενα για εσάς σήμερα</string>
+
+    <string name="today">Σήμερα</string>
+    <string name="yesterday">Χθες</string>
+    <string name="this_week">Αυτή την εβδομάδα</string>
+    <string name="last_week">Την προηγούμενη εβδομάδα</string>
+    <string name="local_history">Τοπικό</string>
+    <string name="remote_history">Απομακρυσμένο</string>
+    <string name="history_queue_title_local">Τοπικό ιστορικό</string>
+    <string name="history_queue_title_online">Διαδικτυακό ιστορικό</string>
+
+    <string name="most_played_songs">Πιο πολυπαιγμένα τραγούδια</string>
+    <string name="most_played_artists">Πιο πολυπαιγμένοι καλλιτέχνες</string>
+    <string name="most_played_albums">Πιο πολυπαιγμένα άλμπουμ</string>
+
+    <string name="search">Αναζήτηση</string>
+    <string name="search_yt_music">Αναζήτηση στο Loudly</string>
+    <string name="search_library">Αναζήτηση στη βιβλιοθήκη…</string>
+    <string name="SearchHistory">Ιστορικό αναζήτησης</string>
+    <string name="Sujestions">Προτάσεις</string>
+    <string name="SearchResutls">Αποτελέσματα αναζήτησης</string>
+    <string name="filter_library">Βιβλιοθήκη</string>
+    <string name="filter_liked">Αγαπημένα</string>
+    <string name="filter_downloaded">Ληφθέντα</string>
+    <string name="filter_all">Όλα</string>
+    <string name="filter_songs">Τραγούδια</string>
+    <string name="filter_videos">Βίντεο</string>
+    <string name="filter_albums">Άλμπουμ</string>
+    <string name="filter_artists">Καλλιτέχνες</string>
+    <string name="filter_playlists">Λίστες αναπαραγωγής</string>
+    <string name="filter_community_playlists">Λίστες αναπαραγωγής κοινότητας</string>
+    <string name="filter_featured_playlists">Προτεινόμενες λίστες αναπαραγωγής</string>
+    <string name="filter_bookmarked">Με σελιδοδείκτη</string>
+    <string name="no_results_found">Δεν βρέθηκαν αποτελέσματα</string>
+
+    <string name="library_empty">Η βιβλιοθήκη σας θα εμφανιστεί εδώ</string>
+    <string name="library_song_empty">Τα τραγούδια της βιβλιοθήκης σας θα εμφανιστούν εδώ</string>
+    <string name="library_artist_empty">Οι καλλιτέχνες της βιβλιοθήκης σας θα εμφανιστούν εδώ</string>
+    <string name="library_album_empty">Τα άλμπουμ της βιβλιοθήκης σας θα εμφανιστούν εδώ</string>
+    <string name="library_playlist_empty">Οι λίστες αναπαραγωγής σας θα εμφανιστούν εδώ</string>
+
+    <string name="from_your_library">Από τη βιβλιοθήκη σας</string>
+
+    <string name="other_versions">Άλλες εκδόσεις</string>
+    <string name="favorite">Αγαπημένο</string>
+    <string name="top_songs">Κορυφαία τραγούδια</string>
+
+    <string name="liked_songs">Αγαπημένα τραγούδια</string>
+    <string name="downloaded_songs">Ληφθέντα τραγούδια</string>
+    <string name="playlist_is_empty">Η λίστα αναπαραγωγής είναι κενή</string>
+    <string name="remove_download_playlist_confirm">Θέλετε πραγματικά να αφαιρέσετε όλα τα τραγούδια της λίστας «%s» από τον αποθηκευτικό χώρο των ληφθέντων τραγουδιών;</string>
+    <string name="delete_playlist_confirm">Θέλετε πραγματικά να διαγράψετε τη λίστα αναπαραγωγής «%s»;</string>
+
+    <string name="off">Απενεργοποίηση</string>
+
+    <string name="retry">Επανάληψη</string>
+    <string name="radio">Ραδιόφωνο</string>
+    <string name="shuffle">Τυχαία αναπαραγωγή</string>
+    <string name="reset">Επαναφορά</string>
+
+    <string name="details">Λεπτομέρειες</string>
+    <string name="edit">Επεξεργασία</string>
+    <string name="start_radio">Έναρξη ραδιοφώνου</string>
+    <string name="play">Αναπαραγωγή</string>
+    <string name="play_next">Αναπαραγωγή επομένου</string>
+    <string name="add_to_queue">Προσθήκη στην ουρά</string>
+    <string name="add_to_library">Προσθήκη στη βιβλιοθήκη</string>
+    <string name="add_all_to_library">Προσθήκη όλων στη βιβλιοθήκη</string>
+    <string name="remove_from_library">Αφαίρεση από τη βιβλιοθήκη</string>
+    <string name="remove_all_from_library">Αφαίρεση όλων από τη βιβλιοθήκη</string>
+    <string name="download">Λήψη</string>
+    <string name="downloading">Λήψη σε εξέλιξη</string>
+    <string name="remove_download">Αφαίρεση λήψης</string>
+    <string name="import_playlist">Εισαγωγή λίστας αναπαραγωγής</string>
+    <string name="add_to_playlist">Προσθήκη σε λίστα αναπαραγωγής</string>
+    <string name="view_artist">Προβολή καλλιτέχνη</string>
+    <string name="view_album">Προβολή άλμπουμ</string>
+    <string name="refetch">Ανανέωση</string>
+    <string name="share">Κοινοποίηση</string>
+    <string name="delete">Διαγραφή</string>
+    <string name="remove_from_history">Αφαίρεση από το ιστορικό</string>
+    <string name="remove_from_playlist">Αφαίρεση από τη λίστα αναπαραγωγής</string>
+    <string name="remove_from_queue">Αφαίρεση από την ουρά</string>
+    <string name="remove_from_cache">Αφαίρεση από την κρυφή μνήμη</string>
+    <string name="playlist_m3u_export">Εξαγωγή ως αρχείο M3U</string>
+    <string name="search_online">Αναζήτηση στο διαδίκτυο</string>
+    <string name="sync">Συγχρονισμός</string>
+    <string name="advanced">Για προχωρημένους</string>
+    <string name="tempo_and_pitch">Ρυθμός και τόνος</string>
+
+    <string name="sort_by_create_date">Ημερομηνία προσθήκης</string>
+    <string name="sort_by_last_updated">Ημερομηνία ενημέρωσης</string>
+    <string name="sort_by_name">Όνομα</string>
+    <string name="sort_by_artist">Καλλιτέχνης</string>
+    <string name="sort_by_year">Έτος</string>
+    <string name="sort_by_song_count">Αριθμός τραγουδιών</string>
+    <string name="sort_by_length">Διάρκεια</string>
+    <string name="sort_by_play_time">Χρόνος αναπαραγωγής</string>
+    <string name="sort_by_custom">Προσαρμοσμένη σειρά</string>
+
+    <string name="media_id">Αναγνωριστικό πολυμέσου</string>
+    <string name="mime_type">Τύπος MIME</string>
+    <string name="codecs">Κωδικοποιητές</string>
+    <string name="bitrate">Ρυθμός bit</string>
+    <string name="sample_rate">Ρυθμός δειγματοληψίας</string>
+    <string name="loudness">Ένταση ήχου</string>
+    <string name="volume">Ένταση</string>
+    <string name="file_size">Μέγεθος αρχείου</string>
+    <string name="unknown">Άγνωστο</string>
+    <string name="copied">Αντιγράφηκε στο πρόχειρο</string>
+
+    <string name="edit_lyrics">Επεξεργασία στίχων</string>
+    <string name="search_lyrics">Αναζήτηση στίχων</string>
+    <string name="delete_lyric_confirm">Θέλετε πραγματικά να διαγράψετε τους αποθηκευμένους στίχους για το «%s»;</string>
+
+    <string name="edit_song">Επεξεργασία τραγουδιού</string>
+    <string name="song_title">Τίτλος τραγουδιού</string>
+    <string name="song_artists">Καλλιτέχνες τραγουδιού</string>
+    <string name="error_song_title_empty">Ο τίτλος του τραγουδιού δεν μπορεί να είναι κενός.</string>
+    <string name="error_song_artist_empty">Ο καλλιτέχνης του τραγουδιού δεν μπορεί να είναι κενός.</string>
+    <string name="save">Αποθήκευση</string>
+
+    <string name="sync_playlist">Συγχρονισμός λίστας αναπαραγωγής</string>
+    <string name="choose_playlist">Επιλογή λίστας αναπαραγωγής</string>
+    <string name="edit_playlist">Επεξεργασία λίστας αναπαραγωγής</string>
+    <string name="create_playlist">Δημιουργία λίστας αναπαραγωγής</string>
+    <string name="playlist_name">Όνομα λίστας αναπαραγωγής</string>
+    <string name="error_playlist_name_empty">Το όνομα της λίστας αναπαραγωγής δεν μπορεί να είναι κενό.</string>
+
+    <string name="edit_artist">Επεξεργασία καλλιτέχνη</string>
+    <string name="artist_name">Όνομα καλλιτέχνη</string>
+    <string name="error_artist_name_empty">Το όνομα του καλλιτέχνη δεν μπορεί να είναι κενό.</string>
+
+    <string name="duplicates">Διπλότυπα</string>
+    <string name="skip_duplicates">Παράλειψη διπλότυπων</string>
+    <string name="add_anyway">Προσθήκη ούτως ή άλλως</string>
+    <string name="duplicates_description_single">Το τραγούδι βρίσκεται ήδη στη λίστα αναπαραγωγής σας</string>
+    <string name="duplicates_description_multiple">%d τραγούδια βρίσκονται ήδη στη λίστα αναπαραγωγής σας</string>
+    <string name="allows_for_sync_witch_youtube">Σημείωση: Αυτό επιτρέπει το συγχρονισμό με το YouTube Music</string>
+
+    <plurals name="n_song">
+        <item quantity="one">%d τραγούδι</item>
+        <item quantity="other">%d τραγούδια</item>
+    </plurals>
+    <plurals name="n_artist">
+        <item quantity="one">%d καλλιτέχνης</item>
+        <item quantity="other">%d καλλιτέχνες</item>
+    </plurals>
+    <plurals name="n_album">
+        <item quantity="one">%d άλμπουμ</item>
+        <item quantity="other">%d άλμπουμ</item>
+    </plurals>
+    <plurals name="n_playlist">
+        <item quantity="one">%d λίστα αναπαραγωγής</item>
+        <item quantity="other">%d λίστες αναπαραγωγής</item>
+    </plurals>
+    <plurals name="n_week">
+        <item quantity="one">%d εβδομάδα</item>
+        <item quantity="other">%d εβδομάδες</item>
+    </plurals>
+    <plurals name="n_month">
+        <item quantity="one">%d μήνας</item>
+        <item quantity="other">%d μήνες</item>
+    </plurals>
+    <plurals name="n_year">
+        <item quantity="one">%d έτος</item>
+        <item quantity="other">%d έτη</item>
+    </plurals>
+
+    <string name="playlist_imported">Η λίστα αναπαραγωγής εισήχθη</string>
+    <string name="removed_song_from_playlist">Το «%s» αφαιρέθηκε από τη λίστα αναπαραγωγής</string>
+    <string name="playlist_synced">Η λίστα αναπαραγωγής συγχρονίστηκε</string>
+    <string name="undo">Αναίρεση</string>
+
+    <string name="now_playing">Τώρα παίζει</string>
+    <string name="lyrics_not_found">Δεν βρέθηκαν στίχοι</string>
+    <string name="sleep_timer">Χρονοδιακόπτης ύπνου</string>
+    <string name="end_of_song">Στο τέλος του τραγουδιού</string>
+    <plurals name="minute">
+        <item quantity="one">1 λεπτό</item>
+        <item quantity="other">%d λεπτά</item>
+    </plurals>
+    <string name="error_no_stream">Δεν υπάρχει διαθέσιμη ροή</string>
+    <string name="error_no_internet">Δεν υπάρχει σύνδεση δικτύου</string>
+    <string name="error_timeout">Χρονικό όριο έληξε</string>
+    <string name="error_unknown">Άγνωστο σφάλμα</string>
+    <string name="menu">Μενού</string>
+    <string name="share_list">Κοινοποίηση λίστας</string>
+
+    <string name="seek_backward">5 δευτερόλεπτα πίσω</string>
+    <string name="seek_forward">5 δευτερόλεπτα μπροστά</string>
+
+    <string name="action_like">Μου αρέσει</string>
+    <string name="action_like_all">Μου αρέσουν όλα</string>
+    <string name="action_remove_like">Αναίρεση "Μου αρέσει"</string>
+    <string name="action_remove_like_all">Αναίρεση όλων των "Μου αρέσει"</string>
+    <string name="action_shuffle_on">Τυχαία αναπαραγωγή ενεργή</string>
+    <string name="action_shuffle_off">Τυχαία αναπαραγωγή ανενεργή</string>
+    <string name="repeat_mode_off">Λειτουργία επανάληψης ανενεργή</string>
+    <string name="repeat_mode_one">Επανάληψη τρέχοντος τραγουδιού</string>
+    <string name="repeat_mode_all">Επανάληψη ουράς</string>
+
+    <string name="queue_all_songs">Όλα τα τραγούδια</string>
+    <string name="queue_searched_songs">Τραγούδια από αναζήτηση</string>
+
+    <string name="music_player">Αναπαραγωγή μουσικής</string>
+
+    <string name="notifications">Ειδοποιήσεις</string>
+    <string name="keep_alive_title">Αποτροπή τερματισμού της εφαρμογής από το σύστημα</string>
+    <string name="keep_alive_description">Χρησιμοποιήστε μια ειδοποίηση στο προσκήνιο για να αποτρέψετε το τυχαίο κλείσιμο του Loudly από το σύστημα.</string>
+    <string name="notification_permission_is_required">Απαιτείται άδεια ειδοποιήσεων</string>
+
+    <string name="settings">Ρυθμίσεις</string>
+    <string name="appearance">Εμφάνιση</string>
+    <string name="theme">Θέμα</string>
+    <string name="proxy">Διακομιστής μεσολάβησης (Proxy)</string>
+    <string name="enable_dynamic_theme">Ενεργοποίηση δυναμικού θέματος</string>
+    <string name="dark_theme">Σκοτεινό θέμα</string>
+    <string name="dark_theme_on">Ενεργό</string>
+    <string name="dark_theme_off">Ανενεργό</string>
+    <string name="dark_theme_follow_system">Ακολούθηση συστήματος</string>
+    <string name="pure_black">Απόλυτο μαύρο</string>
+    <string name="app_design_variant">Σχεδιασμός εφαρμογής</string>
+    <string name="app_design_ui_1_0">Περιβάλλον εφαρμογής 1.0</string>
+    <string name="app_design_ui_1_5">Περιβάλλον εφαρμογής 1.5</string>
+    <string name="listen_youtube_music">Ακούστε στο YouTube Music</string>
+    <string name="visit_the_loudly">Επισκεφθείτε το Loudly</string>
+    <string name="artist">Καλλιτέχνης</string>
+    <string name="listen_to_loudly">Ακούστε το Loudly</string>
+    <string name="enable_swipe_thumbnail">Ενεργοποίηση σάρωσης στη μικρογραφία για αλλαγή τραγουδιού</string>
+    <string name="customize_navigation_tabs">Προσαρμογή καρτελών πλοήγησης</string>
+    <string name="player">Player</string>
+    <string name="player_text_alignment">Στοίχιση κειμένου στο player</string>
+    <string name="lyrics_text_position">Θέση κειμένου στίχων</string>
+    <string name="sided">Πλαϊνά</string>
+    <string name="left">Αριστερά</string>
+    <string name="center">Κέντρο</string>
+    <string name="player_style">Στυλ player</string>
+    <string name="player_style_old_ui">Παλιό περιβάλλον player</string>
+    <string name="player_style_ui_1_0">Περιβάλλον player 1.0</string>
+    <string name="player_style_ui_2_0">Περιβάλλον player 2.0</string>
+    <string name="follow_theme">Ακολούθηση θέματος</string>
+    <string name="gradient">Διαβάθμιση</string>
+    <string name="blur">Θόλωση</string>
+    <string name="blurmv">Θόλωση (Κίνηση)</string>
+    <string name="player_background_style">Στυλ φόντου στο player</string>
+    <string name="right">Δεξιά</string>
+    <string name="slider_style">Στυλ ρυθμιστικού</string>
+    <string name="default_">Προεπιλογή</string>
+    <string name="squiggly">Κυματιστό</string>
+    <string name="compose">Compose</string>
+    <string name="thumbnail_corner_radius">Διαμόρφωση ακτίνας γωνίας μικρογραφίας</string>
+    <string name="show_content_filter">Εμφάνιση φίλτρου περιεχομένου</string>
+    <string name="misc">Διάφορα</string>
+    <string name="main">Κύρια</string>
+    <string name="auto_playlists_customization">Προσαρμογή αυτόματων λιστών</string>
+    <string name="show_liked_auto_playlist">Εμφάνιση αυτόματης λίστας αγαπημένων</string>
+    <string name="show_download_auto_playlist">Εμφάνιση αυτόματης λίστας ληφθέντων</string>
+    <string name="show_top_auto_playlist">Εμφάνιση αυτόματης λίστας κορυφαίων</string>
+    <string name="show_cached_auto_playlist">Εμφάνιση αυτόματης λίστας προσωρινά αποθηκευμένων</string>
+    <string name="show_local_auto_playlist">Εμφάνιση αυτόματης λίστας τοπικών</string>
+    <string name="swipe_song_to_dismiss">Σύρετε δεξιά για επόμενο τραγούδι ή αριστερά για προσθήκη στην ουρά</string>
+    <string name="default_open_tab">Προεπιλεγμένη καρτέλα ανοίγματος</string>
+    <string name="default_lib_chips">Προεπιλεγμένα φίλτρα βιβλιοθήκης</string>
+    <string name="grid_cell_size">Μέγεθος κελιού πλέγματος</string>
+    <string name="slim_navbar">Εμφάνιση ετικετών κάτω γραμμής πλοήγησης</string>
+    <string name="small">Μικρό</string>
+    <string name="big">Μεγάλο</string>
+    <string name="Changelog">Αρχείο αλλαγών</string>
+    <string name="no_changes">Δεν βρέθηκαν πρόσφατες αλλαγές</string>
+    <string name="changelogs">Πρόσφατες αλλαγές:</string>
+    <string name="closepopup">Κλείσιμο</string>
+    <string name="NewVersion">Νέα έκδοση διαθέσιμη</string>
+    <string name="Hi">Γεια σας ξανά</string>
+    <string name="Donate">Δωρεά</string>
+    <string name="Telegramchanel">Επίσημο κανάλι</string>
+    <string name="web_site">Ιστοσελίδα</string>
+    <string name="web_site_info">Επίσημη ιστοσελίδα ❯</string>
+    <string name="code">Πηγαίος κώδικας</string>
+    <string name="code_text">Πρόσβαση στον πηγαίο κώδικα της εφαρμογής</string>
+    <string name="bugs">Ζητήματα</string>
+    <string name="bugs_text">Αναφορές σφαλμάτων και άλλα</string>
+    <string name="help">Βοήθεια</string>
+    <string name="contribution_text">Αν θέλετε να συνεισφέρετε, κάντε κλικ εδώ ❯</string>
+    <string name="Developer">Προγραμματιστής | @RRechz</string>
+
+    <string name="content">Περιεχόμενο</string>
+    <string name="login">Σύνδεση</string>
+    <string name="login_description">Συνδεθείτε στις λίστες αναπαραγωγής του YT Music και σε άλλα</string>
+    <string name="token_hidden">Πατήστε για εμφάνιση του token</string>
+    <string name="token_shown">Πατήστε ξανά για αντιγραφή ή επεξεργασία</string>
+    <string name="token_adv_login_description">Αυτή είναι μια μέθοδος σύνδεσης ΓΙΑ ΠΡΟΧΩΡΗΜΕΝΟΥΣ. Ως εναλλακτική λύση στην πύλη ιστού, μπορείτε να εισαγάγετε ή να ενημερώσετε απευθείας το token σύνδεσής σας εδώ. Για παράδειγμα, αυτό μπορεί να επιταχύνει τη σύνδεση σε πολλές συσκευές. Παρακαλούμε σημειώστε ότι οποιεσδήποτε μη έγκυρες μορφές token που η εφαρμογή δεν μπορεί να αναλύσει δεν θα γίνονται αποδεκτές.</string>
+    <string name="import_from_spotify">Εισαγωγή από το Spotify</string>
+    <string name="title_spotify">Spotify</string>
+    <string name="title_discord">Discord</string>
+    <string name="like_autodownload">Αυτόματη λήψη των αγαπημένων σας τραγουδιών</string>
+    <string name="ytm_sync">Αυτόματος συγχρονισμός με τον λογαριασμό σας στο YouTube Music</string>
+    <string name="ytm_sync_description">Συγχρονίστε τις λίστες αναπαραγωγής σας και άλλα με τον λογαριασμό σας</string>
+    <string name="wifi_only">Μόνο Wi-Fi</string>
+    <string name="not_logged_in">Δεν έχετε συνδεθεί</string>
+    <string name="content_language">Προεπιλεγμένη γλώσσα περιεχομένου</string>
+    <string name="content_country">Προεπιλεγμένη χώρα περιεχομένου</string>
+    <string name="system_default">Προεπιλογή συστήματος</string>
+    <string name="enable_proxy">Ενεργοποίηση proxy</string>
+    <string name="proxy_type">Τύπος proxy</string>
+    <string name="proxy_url">URL του proxy</string>
+    <string name="restart_to_take_effect">Επανεκκινήστε για να εφαρμοστούν οι αλλαγές</string>
+    <string name="app_language">Γλώσσα εφαρμογής</string>
+    <string name="configure_app_language">Διαμόρφωση γλωσσών εφαρμογής</string>
+    <string name="intent_app_language_not_found">Δεν ήταν δυνατή η εύρεση των ρυθμίσεων γλώσσας της εφαρμογής, παρακαλούμε διαμορφώστε τις χειροκίνητα</string>
+    <string name="open_supported_links">Άνοιγμα υποστηριζόμενων συνδέσμων από προεπιλογή</string>
+    <string name="configure_supported_links">Διαμόρφωση υποστηριζόμενων συνδέσμων</string>
+    <string name="intent_supported_links_not_found">Δεν ήταν δυνατή η εύρεση των ρυθμίσεων υποστηριζόμενων συνδέσμων, παρακαλούμε διαμορφώστε τις χειροκίνητα</string>
+
+    <string name="player_and_audio">Player και ήχος</string>
+    <string name="audio_quality">Ποιότητα ήχου</string>
+    <string name="audio_quality_max">Μέγιστη</string>
+    <string name="audio_quality_auto">Αυτόματη</string>
+    <string name="audio_quality_high">Υψηλή</string>
+    <string name="audio_quality_low">Χαμηλή</string>
+    <string name="minimum_playback_duration">Ελάχιστη διάρκεια αναπαραγωγής</string>
+    <string name="minimum_playback_duration_info">Η ελάχιστη διάρκεια που πρέπει να παίξει ένα τραγούδι για να θεωρηθεί «αναπαραγμένο»</string>
+    <string name="queue">Ουρά</string>
+    <string name="persistent_queue">Μόνιμη ουρά</string>
+    <string name="persistent_queue_desc">Επαναφέρετε την τελευταία σας ουρά κατά την έναρξη της εφαρμογής</string>
+    <string name="auto_load_more">Αυτόματη φόρτωση περισσότερων τραγουδιών</string>
+    <string name="auto_load_more_desc">Αυτόματη προσθήκη περισσότερων τραγουδιών όταν φτάσετε στο τέλος της ουράς, εάν είναι δυνατόν</string>
+    <string name="skip_silence">Παράλειψη σιγής</string>
+    <string name="audio_normalization">Εξομάλυνση ήχου</string>
+    <string name="play_song_when_bluetooth_device_connected">Συνέχιση αναπαραγωγής όταν συνδέεται συσκευή Bluetooth</string>
+    <string name="stop_playing_when_song_sound_minimum_volume">Διακοπή αναπαραγωγής όταν η ένταση είναι στο ελάχιστο</string>
+    <string name="adding_played_songs_to_ytm_history">Προσθήκη αναπαραγμένων τραγουδιών στο ιστορικό του YouTube Music</string>
+    <string name="auto_skip_next_on_error">Αυτόματη μετάβαση στο επόμενο τραγούδι όταν παρουσιαστεί σφάλμα</string>
+    <string name="auto_skip_next_on_error_desc">Εξασφαλίστε τη συνεχή εμπειρία αναπαραγωγής σας</string>
+    <string name="stop_music_on_task_clear">Διακοπή μουσικής κατά την εκκαθάριση εργασιών</string>
+    <string name="equalizer">Ισοσταθμιστής</string>
+    <string name="lyrics">Στίχοι</string>
+    <string name="lyrics_settings_title">Στίχοι</string>
+    <string name="local_player_settings_title">Ρυθμίσεις τοπικού player</string>
+    <string name="storage">Αποθηκευτικός χώρος</string>
+    <string name="cache">Κρυφή μνήμη</string>
+    <string name="image_cache">Κρυφή μνήμη εικόνων</string>
+    <string name="song_cache">Κρυφή μνήμη τραγουδιών</string>
+    <string name="max_cache_size">Μέγιστο μέγεθος κρυφής μνήμης</string>
+    <string name="unlimited">Απεριόριστο</string>
+    <string name="audio_offload">Ενεργοποίηση offload</string>
+    <string name="audio_offload_description">Χρησιμοποιήστε τη διαδρομή ήχου offload για την αναπαραγωγή. Η απενεργοποίησή της μπορεί να αυξήσει την κατανάλωση ενέργειας, αλλά μπορεί να είναι χρήσιμη εάν αντιμετωπίζετε προβλήματα με την αναπαραγωγή ή την επεξεργασία του ήχου.</string>
+    <string name="clear_all_downloads">Εκκαθάριση όλων των λήψεων</string>
+    <string name="max_image_cache_size">Μέγιστο μέγεθος κρυφής μνήμης εικόνων</string>
+    <string name="clear_image_cache">Εκκαθάριση κρυφής μνήμης εικόνων</string>
+    <string name="max_song_cache_size">Μέγιστο μέγεθος κρυφής μνήμης τραγουδιών</string>
+    <string name="clear_song_cache">Εκκαθάριση κρυφής μνήμης τραγουδιών</string>
+    <string name="size_used">σε χρήση</string>
+    <string name="clear_all_cache_dialog">Είστε βέβαιοι ότι θέλετε να καθαρίσετε όλη την κρυφή μνήμη;</string>
+    <string name="clear_all_downloads_dialog">Είστε βέβαιοι ότι θέλετε να καθαρίσετε όλες τις λήψεις;</string>
+    <string name="clear_song_cache_dialog">Είστε βέβαιοι ότι θέλετε να καθαρίσετε όλα τα αποθηκευμένα τραγούδια;</string>
+    <string name="clear_images_cache_dialog">Είστε βέβαιοι ότι θέλετε να καθαρίσετε όλες τις αποθηκευμένες εικόνες;</string>
+    <string name="clear_translation_models_cache_dialog">Είστε βέβαιοι ότι θέλετε να καθαρίσετε όλα τα αποθηκευμένα μοντέλα μετάφρασης;</string>
+
+    <string name="privacy">Απόρρητο</string>
+    <string name="listen_history">Ιστορικό ακρόασης</string>
+    <string name="pause_listen_history">Παύση ιστορικού ακρόασης</string>
+    <string name="clear_listen_history">Εκκαθάριση ιστορικού ακρόασης</string>
+    <string name="clear_listen_history_confirm">Είστε βέβαιοι ότι θέλετε να καθαρίσετε όλο το ιστορικό ακρόασης;</string>
+    <string name="pause_search_history">Παύση ιστορικού αναζήτησης</string>
+    <string name="clear_search_history">Εκκαθάριση ιστορικού αναζήτησης</string>
+    <string name="clear_search_history_confirm">Είστε βέβαιοι ότι θέλετε να καθαρίσετε όλο το ιστορικό αναζήτησης;</string>
+    <string name="search_history">Ιστορικό αναζήτησης</string>
+    <string name="use_login_for_browse">Χρήση σύνδεσης για περιήγηση περιεχομένου</string>
+    <string name="use_login_for_browse_desc">Αυτό μπορεί να επηρεάσει το περιεχόμενο που βλέπετε και για παράδειγμα να εμφανίζει άλμπουμ μόνο για premium χρήστες εάν είστε συνδεδεμένοι με λογαριασμό Premium.</string>
+    <string name="disable_screenshot">Απενεργοποίηση στιγμιότυπου οθόνης</string>
+    <string name="disable_screenshot_desc">Όταν αυτή η επιλογή είναι ενεργοποιημένη, τα στιγμιότυπα οθόνης και η προβολή της εφαρμογής στις Πρόσφατες εφαρμογές είναι απενεργοποιημένα.</string>
+    <string name="enable_lrclib">Ενεργοποίηση παρόχου στίχων LrcLib</string>
+    <string name="enable_kugou">Ενεργοποίηση παρόχου στίχων KuGou</string>
+    <string name="default_lyrics_provider">Προεπιλεγμένος πάροχος στίχων</string>
+    <string name="lyrics_multiline_title">Ανάγνωση στίχων πολλαπλών γραμμών</string>
+    <string name="lyrics_multiline_description">Αντιμετωπίστε όλες τις γραμμές μεταξύ των σημείων συγχρονισμού ως ένα κείμενο στίχων</string>
+    <string name="lyrics_trim_title">Αφαίρεση κενών γύρω από τους στίχους</string>
+    <string name="lyrics_font_size">Μέγεθος γραμματοσειράς</string>
+    <string name="hide_explicit">Απόκρυψη ακατάλληλου περιεχομένου</string>
+    <string name="enable_notifications">Ενεργοποίηση ειδοποιήσεων</string>
+
+    <string name="backup_restore">Δημιουργία αντιγράφων ασφαλείας και επαναφορά</string>
+    <string name="backup">Αντίγραφο ασφαλείας</string>
+    <string name="restore">Επαναφορά</string>
+    <string name="import_m3u">Εισαγωγή λίστας αναπαραγωγής (m3u)</string>
+    <string name="m3u_import_failed">Η εισαγωγή της λίστας αναπαραγωγής απέτυχε</string>
+    <string name="imported_playlist">Εισηγμένη λίστα αναπαραγωγής</string>
+    <string name="backup_create_success">Το αντίγραφο ασφαλείας δημιουργήθηκε με επιτυχία</string>
+    <string name="backup_create_failed">Δεν ήταν δυνατή η δημιουργία αντιγράφου ασφαλείας</string>
+    <string name="restore_failed">Η επαναφορά του αντιγράφου ασφαλείας απέτυχε</string>
+
+    <string name="discord_integration">Ενσωμάτωση Discord</string>
+    <string name="discord_information">Το Loudly χρησιμοποιεί τη βιβλιοθήκη KizzyRPC για να ορίσει την κατάσταση του λογαριασμού σας στο Discord. Αυτό περιλαμβάνει τη χρήση της σύνδεσης Discord Gateway, η οποία μπορεί να θεωρηθεί παραβίαση των Όρων Παροχής Υπηρεσιών του Discord. Ωστόσο, δεν υπάρχουν γνωστές περιπτώσεις αναστολής λογαριασμών χρηστών για αυτόν τον λόγο. Χρησιμοποιήστε με δική σας ευθύνη.\n\nΤο Loudly θα εξαγάγει μόνο το token σας, και όλα τα άλλα αποθηκεύονται τοπικά.</string>
+    <string name="dismiss">Παράβλεψη</string>
+    <string name="options">Επιλογές</string>
+    <string name="preview">Προεπισκόπηση</string>
+    <string name="login_failed">Η σύνδεση απέτυχε</string>
+    <string name="logout">Αποσύνδεση</string>
+    <string name="enable_discord_rpc">Ενεργοποίηση Rich Presence</string>
+
+    <string name="about">Σχετικά</string>
+    <string name="app_version">Έκδοση εφαρμογής</string>
+    <string name="checking_for_update">Έλεγχος για ενημερώσεις...</string>
+    <string name="update_card_version_ready_to_download">η έκδοση %1$s είναι διαθέσιμη για λήψη.</string>
+    <string name="update_card_downloading">Λήψη σε εξέλιξη...</string>
+    <string name="install">Αναβάθμιση</string>
+    <string name="try_again">Προσπαθήστε ξανά</string>
+    <string name="download_now">Λήψη τώρα</string>
+    <string name="app_type">Τύπος εφαρμογής</string>
+
+    <string name="new_version_available">Νέα έκδοση διαθέσιμη</string>
+    <string name="translation_models">Μοντέλα μετάφρασης</string>
+    <string name="clear_translation_models">Εκκαθάριση μοντέλων μετάφρασης</string>
+    <string name="history_duration">Διάρκεια ιστορικού</string>
+    <plurals name="seconds">
+        <item quantity="one">1 δευτερόλεπτο</item>
+        <item quantity="other">%d δευτερόλεπτα</item>
+    </plurals>
+    <string name="widget_title">Μουσική 3x2</string>
+    <string name="widget_quick_title">Μουσική 2x1</string>
+    <string name="play_pause">Αναπαραγωγή/Παύση</string>
+    <string name="about_subtitle">Έκδοση · Προγραμματιστές · Άδεια</string>
+    <string name="category_interface">Περιβάλλον</string>
+    <string name="category_content">Περιεχόμενο &amp; Λογαριασμός</string>
+    <string name="category_player">Player</string>
+    <string name="category_system">Σύστημα</string>
+    <string name="library">Βιβλιοθήκη</string>
+    <string name="integrations">Ενσωματώσεις</string>
+    <string name="system_integration">Ενσωμάτωση συστήματος</string>
+    <string name="total_used_space">Συνολικός χρησιμοποιημένος χώρος</string>
+    <string name="currently_used">Τρέχουσα χρήση</string>
+    <string name="clear_cache">Εκκαθάριση κρυφής μνήμης</string>
+    <string name="backup_restore_description">Αντίγραφο ασφαλείας · Επαναφορά · Εισαγωγή</string>
+    <string name="privacy_description">Ιστορικό · Αναζήτηση · Στιγμιότυπο οθόνης</string>
+    <string name="storage_description">Λήψεις · Κρυφή μνήμη · Εικόνες</string>
+    <string name="player_and_audio_description">Ήχος · Ουρά · Στίχοι</string>
+    <string name="content_description">Γλώσσα · Τοποθεσία · Proxy</string>
+    <string name="account_description">Σύνδεση · Spotify · Discord</string>
+    <string name="appearance_description">Θέμα · Ρυθμιστικό · Player</string>
+
+    <string name="header_background">Εικόνα κάρτας προφίλ</string>
+    <string name="header_background_description">Προσαρμόστε την εικόνα στην κάρτα προφίλ</string>
+    <string name="select_header_image">Επιλογή εικόνας προφίλ</string>
+    <string name="predefined_images">Έτοιμες εικόνες</string>
+    <string name="select_from_gallery">Επιλογή από τη συλλογή</string>
+    <string name="edit_photo">Επεξεργασία φωτογραφίας</string>
+    <string name="cancel">Άκυρο</string>
+
+    <string name="send_to_developer">Αποστολή στον προγραμματιστή</string>
+    <string name="close">Κλείσιμο</string>
+    <string name="update_error_details">Εμφάνιση λεπτομερειών σφάλματος</string>
+    <string name="download_failed">Η λήψη απέτυχε</string>
+    <string name="show_error">Εμφάνιση σφάλματος</string>
+    <string name="go_to_update_link">Χειροκίνητη ενημέρωση</string>
+    <string name="home_card_update_desc">Ελέγξτε τη σελίδα ρυθμίσεων για λεπτομέρειες</string>
+    <string name="app_up_to_date">Το λογισμικό είναι ενημερωμένο</string>
+
+    <string name="app_ui">Περιβάλλον εφαρμογής</string>
+    <string name="app_ui_desc">Επιλέξτε ένα από 3 διαφορετικά σχέδια</string>
+    <string name="ui_version_selection">Επιλογή έκδοσης περιβάλλοντος</string>
+    <string name="ui_version_1_0_desc">Παλιά έκδοση σχεδιασμού της εφαρμογής. (Εφαρμογή, Player, MiniPlayer)</string>
+    <string name="ui_version_1_5_desc">Συμπαγής σχεδιασμός που δημιουργήθηκε με μια πιο σύγχρονη προσέγγιση. (Εφαρμογή, Player, MiniPlayer)</string>
+    <string name="ui_version_2_0_desc">Ο πιο δημοφιλής σχεδιασμός. (Εφαρμογή, Player, MiniPlayer)</string>
+    <string name="ui_version_custom_desc">Δημιουργήστε το δικό σας σχέδιο περιβάλλοντος εφαρμογής. (Εφαρμογή, Player, MiniPlayer)</string>
+    <string name="custom_app_ui">Προσαρμογή περιβάλλοντος</string>
+
+    <string name="other_settings">Άλλες ρυθμίσεις</string>
+    <string name="other_settings_description">Κάντε κλικ για διάφορες άλλες ρυθμίσεις</string>
+
+    <string name="audio_quality_auto_desc">Προσαρμόζει αυτόματα την ποιότητα μεταξύ 45 και 512 Kbps</string>
+    <string name="audio_quality_max_desc">Προσφέρει την υψηλότερη ποιότητα έως 512 Kbps</string>
+    <string name="audio_quality_high_desc">Ορίζει την ποιότητα για μέσες ταχύτητες διαδικτύου μεταξύ 128 και 256 Kbps.</string>
+    <string name="audio_quality_low_desc">Περιορίζει την ποιότητα μεταξύ 45 και 52 Kbps για εξοικονόμηση δεδομένων (Εξοικονόμηση δεδομένων)</string>
+
+    <string name="could_not_import">Δεν ήταν δυνατή η εισαγωγή</string>
+
+    <string name="text_alignment">Στοίχιση κειμένου</string>
+    <string name="text_alignment_description">Ορίστε τη θέση του κειμένου στην κάρτα</string>
+    <string name="gradient_intensity">Ένταση διαβάθμισης</string>
+    <string name="corner_round">Στρογγυλοποίηση γωνιών</string>
+    <string name="profile_picture">Εικόνα προφίλ</string>
+    <string name="profile_card">Κάρτα προφίλ</string>
+    <string name="remove_profile_picture">Αφαίρεση εικόνας προφίλ</string>
+    <string name="show_texts">Εμφάνιση κειμένων</string>
+    <string name="show_texts_description">Εμφάνιση του κειμένου χαιρετισμού και ονόματος χρήστη στην κάρτα προφίλ</string>
+    <string name="tap_to_change">Πατήστε για αλλαγή</string>
+
+    <string name="translate">Μετάφραση (BETA)</string>
+    <string name="copy">Αντιγραφή</string>
+
+    <string name="error_network_title">Σφάλμα δικτύου</string>
+    <string name="error_network_description">Ελέγξτε τη σύνδεσή σας στο διαδίκτυο και προσπαθήστε ξανά.</string>
+    <string name="error_unsupported_format_title">Μη υποστηριζόμενο περιεχόμενο</string>
+    <string name="error_unsupported_format_description">Αυτή η μορφή τραγουδιού δεν υποστηρίζεται στη συσκευή σας.</string>
+    <string name="error_behind_live_window_title">Σφάλμα ζωντανής μετάδοσης</string>
+    <string name="error_behind_live_window_description">Υπάρχει πρόβλημα με τη ζωντανή ροή. Παρακαλώ επανεκκινήστε.</string>
+    <string name="error_playback_failed_title">Η αναπαραγωγή απέτυχε</string>
+    <string name="error_playback_failed_description">Παρουσιάστηκε ένα άγνωστο σφάλμα. Παρακαλώ προσπαθήστε ξανά.</string>
+    <string name="recovering_playback">Προσπαθούμε ξανά…</string>
+    <string name="vpn_info_message">Η χρήση VPN μπορεί να επηρεάσει την ποιότητα της σύνδεσής σας. Εάν αντιμετωπίζετε προβλήματα δικτύου, αποσυνδέστε τη σύνδεση VPN ή χρησιμοποιήστε έναν proxy. Μπορείτε να το διαμορφώσετε στις «Ρυθμίσεις >> Περιεχόμενο >> Proxy».</string>
+
+    <string name="sync_local_songs_toast">Τα τοπικά τραγούδια συγχρονίστηκαν με επιτυχία</string>
+    <string name="local_scanner_title">Τοπικός σαρωτής</string>
+
+    <string name="auto_scanner_title">Αυτόματη σάρωση</string>
+    <string name="auto_scanner_description">Αυτόματη σάρωση για τραγούδια κατά το άνοιγμα της εφαρμογής</string>
+
+    <string name="scanner_settings_title">Πρόσθετες ρυθμίσεις σαρωτή</string>
+    <string name="scanner_strict_file_name_title">Αυστηρά ονόματα αρχείων</string>
+    <string name="scanner_strict_file_name_description">Όταν είναι ενεργοποιημένο, οι επεκτάσεις ΔΕΝ θα αγνοούνται. Π.χ. το «Song.ogg» θα είναι διαφορετικό τραγούδι από το «Song.flac»</string>
+    <string name="scanner_sensitivity_title">Διαμόρφωση ευαισθησίας σαρωτή</string>
+    <string name="scanner_sensitivity_L1">Αντιστοίχιση τίτλου</string>
+    <string name="scanner_sensitivity_L2">Αντιστοίχιση τίτλου και καλλιτεχνών</string>
+    <string name="scanner_sensitivity_L3">Αντιστοίχιση τίτλου, καλλιτεχνών, άλμπουμ</string>
+
+    <string name="folders_settings_title">Φάκελοι</string>
+    <string name="flat_subfolders_title">Επιπέδωση υποφακέλων</string>
+    <string name="flat_subfolders_description">Απενεργοποιήστε για να διατηρήσετε τη δομή των αρχείων όπως είναι στο δίσκο</string>
+
+    <string name="tips_and_features">Συμβουλές &amp; Δυνατότητες</string>
+    <string name="tips_and_fetures_description"> Συμβουλές · Δυνατότητες</string>
+    <string name="create_your_story">Δημιουργήστε την ιστορία σας</string>
+    <string name="share_your_story_description">Μοιραστείτε το τραγούδι που ακούτε στα μέσα κοινωνικής δικτύωσης με ένα κομψό σχέδιο που δημιουργήθηκε με τα κυρίαρχα χρώματα του εξωφύλλου του άλμπουμ.</string>
+    <string name="customizable_settings">Προσαρμόσιμες ρυθμίσεις</string>
+    <string name="customizable_settings_description">Κάντε την εφαρμογή δική σας αντικαθιστώντας το φόντο της κάρτας τίτλου στην οθόνη ρυθμίσεων με μια εικόνα από τη συλλογή σας.</string>
+    <string name="new_song_list">Νέα λίστα τραγουδιών</string>
+    <string name="new_song_list_description">Δείτε την τρέχουσα λίστα αναπαραγωγής σας και αλλάξτε εύκολα μεταξύ των τραγουδιών σύροντας προς τα πάνω από την οθόνη του player (νέος σχεδιασμός αποκλειστικά για το Player UI 2.0)</string>
+    <string name="remastered_settings">Ανασχεδιασμένες ρυθμίσεις</string>
+    <string name="remastered_settings_description">Βρείτε εύκολα αυτό που ψάχνετε με έναν νέο σχεδιασμό ρυθμίσεων βασισμένο σε κάρτες που είναι πιο σύγχρονος και βολικός.</string>
+    <string name="classic_music_widget">Κλασικό widget μουσικής</string>
+    <string name="classic_music_widget_description">Γρήγορη πρόσβαση σε όλα τα στοιχεία ελέγχου και τις πληροφορίες τραγουδιών από την αρχική σας οθόνη.</string>
+    <string name="minimalist_music_widget">Μινιμαλιστικό widget μουσικής</string>
+    <string name="minimalist_music_widget_description">Widget μουσικής «Quik» εμπνευσμένο από το σχέδιο του κουμπιού Γρήγορων Ρυθμίσεων του Android 16</string>
+    <string name="share_on_story">Κοινοποίηση σε story</string>
+    <string name="copy_song_link">Αντιγραφή συνδέσμου τραγουδιού</string>
+    <string name="link_copied">Ο σύνδεσμος αντιγράφηκε στο πρόχειρο!</string>
+    <string name="streamed_on_loudly">Αναπαράγεται στο Loudly</string>
+
+    <string name="select_all">Επιλογή όλων</string>
+    <string name="fetching_all_playlists">Λήψη όλων των λιστών αναπαραγωγής…</string>
+    <string name="import_selected_items">Εισαγωγή επιλεγμένων στοιχείων</string>
+    <string name="something_went_wrong">Κάτι πήγε στραβά. Είμαστε το ίδιο μπερδεμένοι με εσάς.</string>
+    <string name="well_thats_embarrassing">Λοιπόν, αυτό είναι ντροπιαστικό. Ούτε εμείς έχουμε ιδέα τι συνέβη.</string>
+    <string name="instructions_to_get_required_credentials">Οδηγίες για την απόκτηση των απαιτούμενων διαπιστευτηρίων</string>
+    <string name="make_sure_to_click">3. Βεβαιωθείτε ότι έχετε κάνει κλικ στο «Προσθήκη» αφού εισαγάγετε την παραπάνω τοπική διαδρομή.</string>
+    <string name="accept_the_terms_of_service">5. Αποδεχτείτε τους όρους παροχής υπηρεσιών και κάντε κλικ στο «Αποθήκευση».</string>
+    <string name="you_ll_be_redirected_to_a_new_page">Θα μεταφερθείτε σε μια νέα σελίδα. Κάντε κλικ στις Ρυθμίσεις, στη συνέχεια αντιγράψτε το Client ID και το Client Secret, και επικολλήστε τα στα παρακάτω πεδία κειμένου σε αυτήν την εφαρμογή.</string>
+    <string name="enter_the_necessary_details">2. Εισαγάγετε τις απαραίτητες λεπτομέρειες και χρησιμοποιήστε το http://127.0.0.1:45454 ως Redirect URIs.</string>
+    <string name="toggle_wep_api">4. Ενεργοποιήστε το Web API. Το πλαίσιο ελέγχου θα πρέπει τώρα να έχει ένα σημάδι επιλογής.</string>
+    <string name="now_click_the_authorize_and_continue">Τώρα, κάντε κλικ στο παρακάτω κουμπί Εξουσιοδότηση και Συνέχεια και συνδεθείτε με τον λογαριασμό από τον οποίο θέλετε να εισαγάγετε, και Εξουσιοδοτήστε και Συνεχίστε, το οποίο θα σας ανακατευθύνει σε έναν ιστότοπο που θα πρέπει να ξεκινά με http://127.0.0.1:45454/?code=\n\nΕπικολλήστε ολόκληρη αυτή τη διεύθυνση URL στο παρακάτω πεδίο κειμένου που λέει Κωδικός εξουσιοδότησης και κάντε κλικ στο κουμπί Έλεγχος ταυτότητας.</string>
+    <string name="visit_spotify_for_developers">1. Επισκεφθείτε τον πίνακα ελέγχου του Spotify για προγραμματιστές και κάντε κλικ στο «Δημιουργία εφαρμογής».</string>
+    <string name="login_with_spotify">Σύνδεση με διαπιστευτήρια Spotify API</string>
+    <string name="authorize_and_continue">Εξουσιοδότηση και Συνέχεια</string>
+    <string name="authorization_code">Κωδικός εξουσιοδότησης</string>
+    <string name="authenticate">Έλεγχος ταυτότητας</string>
+    <string name="client_secret">Client secret</string>
+    <string name="client_id">Client ID</string>
+    <string name="import_in_progress">Η εισαγωγή βρίσκεται σε εξέλιξη…</string>
+    <string name="dont_close_app_message">Μην κλείσετε την εφαρμογή και μην πάτε πίσω. Αυτή η λειτουργία δεν εκτελείται στο παρασκήνιο, οπότε μείνετε εδώ μέχρι να ολοκληρωθεί!\nΜΗΝ ΠΑΝΙΚΟΒΛΗΘΕΙΤΕ ΑΝ ΦΑΙΝΕΤΑΙ ΚΟΛΛΗΜΕΝΟ. μερικές φορές η ανάκτηση μπορεί να διαρκέσει λίγο.</string>
+    <string name="choose_liked_songs">Επιλέξτε προορισμό για τα «Αγαπημένα τραγούδια»</string>
+    <string name="where_should_the_liked_songs">Πού πρέπει να εισαχθούν τα αγαπημένα τραγούδια;</string>
+    <string name="new_playlist_named">Μια νέα λίστα αναπαραγωγής με το όνομα «Αγαπημένα τραγούδια»</string>
+    <string name="default_liked_songs">Στα προεπιλεγμένα «Αγαπημένα τραγούδια»</string>
+</resources>

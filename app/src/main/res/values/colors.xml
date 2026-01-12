@@ -1,8 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="backgroundDark">#332f2f</color>
-    <color name="iconDark">#fddbd6</color>
-    <color name="splash_background">@color/splash_bg_light</color>
-    <color name="splash_bg_light">#FFFFFF</color>
-    <color name="splash_bg_dark">#121212</color>
+    <color name="light_blue_50">#FFE1F5FE</color>
+    <color name="light_blue_200">#FF81D4FA</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
+    <color name="Lights">#FFFFFF</color>
+    <color name="white_30">#4DFFFFFF</color>
+
+    <!-- Widget Text Colors -->
+    <color name="widget_text_primary">#FFFFFF</color>
+    <color name="widget_text_secondary">#E0E0E0</color>
+
+    <!-- Widget Progress Bar Colors -->
+    <color name="widget_progress_bar_progress">#FFFFFF</color>
+    <color name="widget_progress_bar_background">#80FFFFFF</color>
 </resources>

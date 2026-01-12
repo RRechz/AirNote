@@ -8,8 +8,8 @@ plugins {
 }
 
 android {
-    namespace = "com.babelsoftware.airnote"
-    compileSdk = 36
+    namespace = "com.babelsoftware.loudly"
+    compileSdk = 35
     flavorDimensions += "default"
 
     buildFeatures {
@@ -19,28 +19,21 @@ android {
     productFlavors {
         create("default") {
             dimension = "default"
-            applicationId = "com.babelsoftware.airnote"
+            applicationId = "com.babelsoftware.loudly"
             versionNameSuffix = "-default"
-        }
-
-        create("accrescent") {
-            dimension = "default"
-            applicationId = "by.babelapps.airnote"
-            versionNameSuffix = "-babelapps"
         }
     }
 
     defaultConfig {
-        applicationId = "com.babelsoftware.airnote"
+        applicationId = "com.babelsoftware.loudly"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "v1.6.1"
         vectorDrawables {
             useSupportLibrary = true
         }
 
-        // https://developer.android.com/guide/topics/resources/app-languages#gradle-config
         resourceConfigurations.plus(
             listOf("en", "ar", "de", "es", "fa", "fil", "fr", "hi", "it", "ja", "ru", "sk", "tr", "da", "nl", "pl", "tr", "uk", "vi", "ota", "pt-rBR", "sr", "zh-rCN")
         )
@@ -84,46 +77,70 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-    buildToolsVersion = "36.0.0"
+    buildToolsVersion = "35.0.0"
 }
 
 dependencies {
-    implementation(libs.androidx.biometric.ktx)
-    implementation(libs.androidx.glance)
-    implementation(libs.coil.compose)
-    implementation(libs.hilt.navigation.compose)
-    implementation(libs.androidx.glance.appwidget)
-    implementation(libs.androidx.material3.window.size.class1.android)
-    ksp(libs.androidx.room.compiler)
-    ksp(libs.hilt.android.compiler)
-    ksp(libs.hilt.compile)
-
-    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
-    implementation("androidx.security:security-crypto:1.1.0")
-    implementation("com.udojava:EvalEx:2.7")
-    implementation("androidx.activity:activity-compose:1.11.0")
-    implementation("com.google.mlkit:translate:17.0.3")
-    implementation("com.google.mlkit:language-id:17.0.6")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
-    implementation("org.jsoup:jsoup:1.21.2")
-    implementation("com.google.code.gson:gson:2.13.2")
-    implementation(platform("io.ktor:ktor-bom:3.0.0-beta-2"))
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-client-android")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-client-logging")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
-
-    implementation(libs.hilt.android)
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.compose.material.icons.extended)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    ksp(libs.hilt.compiler)
+
+    // Coil
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
+
+    // Media3
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.session)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.common)
+
+    // Palette
+    implementation(libs.androidx.palette.ktx)
+
+    // JSON
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Network (Retrofit/OkHttp assumed if not using Ktor, but saw Ktor in AirNote. Loudly might differ. Sticking to generics)
+    // Actually the imports showed org.json but not retrofit explicitly in the snippets.
+    // I will add standard networking just in case
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Image Cropper (from manifest)
+    implementation("com.vanniktech:android-image-cropper:4.5.0")
+
+    // Material 3 Window Size Class
+    implementation("androidx.compose.material3:material3-window-size-class:1.2.1")
+
+    // Squiggles
+    implementation("me.saket.squiggles:squiggles:0.2.0")
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
