@@ -1,0 +1,636 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="welcome_to_loudly">Tervetuloa Loudlyyn</string>
+    <string name="welcome_to_loudly_description">Aloitetaan musiikkikokemuksesi personointi.</string>
+    <string name="yt_music_fingertips">YouTube Music sormiesi ulottuvilla</string>
+    <string name="ytm_account_sync">YT Music -tilin synkronointi</string>
+    <string name="ad_free_playback">Toisto ilman mainoksia</string>
+    <string name="offline_music_experience">Offline-musiikkikokemus</string>
+    <string name="android_auto">Tukee Android Autoa</string>
+    <string name="discord_support">Tukee Discord-tilaa</string>
+    <string name="fos_info">Täysin avoin lähdekoodi</string>
+    <string name="select_player_ui">Valitse soittimen käyttöliittymä</string>
+    <string name="select_player_ui_description">Valitse sovelluksen sisäinen soitinnäkymä. Voit muuttaa tätä asetusta myöhemmin kohdasta ”Asetukset > Ulkoasu”.</string>
+    <string name="setup_complete">Asennus valmis!</string>
+    <string name="setup_complete_description">Olet valmis tutustumaan Loudlyyn.</string>
+    <string name="finish">Valmis</string>
+    <string name="back">Takaisin</string>
+    <string name="next">Seuraava</string>
+    <string name="previous">Edellinen</string>
+
+    <string name="home">Koti</string>
+    <string name="explore">Selaa</string>
+    <string name="songs">Kappaleet</string>
+    <string name="artists">Artistit</string>
+    <string name="albums">Albumit</string>
+    <string name="playlists">Soittolistat</string>
+
+    <string name="liked">Pitätyt</string>
+    <string name="like">Tykkää</string>
+    <string name="offline">Offline-musiikki</string>
+    <string name="my_top">Omat top-listat</string>
+    <string name="cached">Välimuistissa</string>
+    <string name="local">Paikallinen musiikki</string>
+
+    <string name="content_filter">Sisältösuodatin</string>
+
+    <string name="all_time">Kaikkien aikojen</string>
+    <string name="past_24_hours">Viimeiset 24 tuntia</string>
+    <string name="past_week">Viime viikko</string>
+    <string name="past_month">Viime kuukausi</string>
+    <string name="past_year">Viime vuosi</string>
+
+    <plurals name="n_selected">
+        <item quantity="one">%d valittu</item>
+        <item quantity="other">%d valittu</item>
+    </plurals>
+
+    <string name="good_morning">Hyvää huomenta</string>
+    <string name="good_afternoon">Hyvää iltapäivää</string>
+    <string name="good_evening">Hyvää iltaa</string>
+    <string name="good_night">Hyvää yötä</string>
+    <string name="recent_activity">Viimeaikainen toiminta</string>
+    <string name="history">Historia</string>
+    <string name="history_empty">Historiasi näkyy täällä</string>
+    <string name="stats_empty">Tilastosi näkyvät täällä</string>
+    <string name="stats">Tilastot</string>
+    <string name="show_less">Näytä vähemmän</string>
+    <string name="show_more">Näytä enemmän</string>
+    <string name="mood_and_genres">Tunnelmat ja genret</string>
+    <string name="account">Tili</string>
+    <string name="quick_picks">Pikavalinnat</string>
+    <string name="quick_picks_empty">Kuuntele kappaleita luodaksesi pikavalintojasi</string>
+    <string name="forgotten_favorites">Unohdetut suosikit</string>
+    <string name="keep_listening">Jatka kuuntelua</string>
+    <string name="your_youtube_playlists">Omat YouTube-soittolistasi</string>
+    <string name="similar_to">Samankaltaisia kuin</string>
+    <string name="new_release_albums">Uudet albumit</string>
+    <string name="not_internet">Ei internetyhteyttä</string>
+    <string name="internet_required">Näyttää siltä, että sinulla ei ole internetyhteyttä. Tarkista verkkoyhteytesi.</string>
+    <string name="featured_for_you">Sinulle valittua</string>
+    <string name="recommended_for_you_today">Sinulle suositeltua tänään</string>
+
+    <string name="today">Tänään</string>
+    <string name="yesterday">Eilen</string>
+    <string name="this_week">Tällä viikolla</string>
+    <string name="last_week">Viime viikolla</string>
+    <string name="local_history">Paikallinen</string>
+    <string name="remote_history">Etä</string>
+    <string name="history_queue_title_local">Paikallinen historia</string>
+    <string name="history_queue_title_online">Etähistoria</string>
+
+    <string name="most_played_songs">Eniten soitetut kappaleet</string>
+    <string name="most_played_artists">Eniten soitetut artistit</string>
+    <string name="most_played_albums">Eniten soitetut albumit</string>
+
+    <string name="search">Haku</string>
+    <string name="search_yt_music">Hae Loudlysta</string>
+    <string name="search_library">Hae kirjastosta…</string>
+    <string name="SearchHistory">Hakuhistoria</string>
+    <string name="Sujestions">Ehdotukset</string>
+    <string name="SearchResutls">Hakutulokset</string>
+    <string name="filter_library">Kirjasto</string>
+    <string name="filter_liked">Pitätyt</string>
+    <string name="filter_downloaded">Ladatut</string>
+    <string name="filter_all">Kaikki</string>
+    <string name="filter_songs">Kappaleet</string>
+    <string name="filter_videos">Videot</string>
+    <string name="filter_albums">Albumit</string>
+    <string name="filter_artists">Artistit</string>
+    <string name="filter_playlists">Soittolistat</string>
+    <string name="filter_community_playlists">Yhteisön soittolistat</string>
+    <string name="filter_featured_playlists">Esitellyt soittolistat</string>
+    <string name="filter_bookmarked">Kirjanmerkeillä</string>
+    <string name="no_results_found">Tuloksia ei löytynyt</string>
+
+    <string name="library_empty">Kirjastosi näkyy täällä</string>
+    <string name="library_song_empty">Kirjaston kappaleet näkyvät täällä</string>
+    <string name="library_artist_empty">Kirjaston artistit näkyvät täällä</string>
+    <string name="library_album_empty">Kirjaston albumit näkyvät täällä</string>
+    <string name="library_playlist_empty">Omat soittolistasi näkyvät täällä</string>
+
+    <string name="from_your_library">Kirjastostasi</string>
+
+    <string name="other_versions">Muut versiot</string>
+    <string name="favorite">Suosikki</string>
+    <string name="top_songs">Suosituimmat kappaleet</string>
+
+    <string name="liked_songs">Pitätyt kappaleet</string>
+    <string name="downloaded_songs">Ladatut kappaleet</string>
+    <string name="playlist_is_empty">Soittolista on tyhjä</string>
+    <string name="remove_download_playlist_confirm">Haluatko todella poistaa kaikki soittolistan \"%s\" kappaleet ladattujen kappaleiden tallennustilasta?</string>
+    <string name="delete_playlist_confirm">Haluatko todella poistaa soittolistan \"%s\"?</string>
+
+    <string name="off">Pois päältä</string>
+
+    <string name="retry">Yritä uudelleen</string>
+    <string name="radio">Radio</string>
+    <string name="shuffle">Satunnaistoisto</string>
+    <string name="reset">Nollaa</string>
+
+    <string name="details">Tiedot</string>
+    <string name="edit">Muokkaa</string>
+    <string name="start_radio">Käynnistä radio</string>
+    <string name="play">Toista</string>
+    <string name="play_next">Toista seuraavaksi</string>
+    <string name="add_to_queue">Lisää jonoon</string>
+    <string name="add_to_library">Lisää kirjastoon</string>
+    <string name="add_all_to_library">Lisää kaikki kirjastoon</string>
+    <string name="remove_from_library">Poista kirjastosta</string>
+    <string name="remove_all_from_library">Poista kaikki kirjastosta</string>
+    <string name="download">Lataa</string>
+    <string name="downloading">Ladataan</string>
+    <string name="remove_download">Poista lataus</string>
+    <string name="import_playlist">Tuo soittolista</string>
+    <string name="add_to_playlist">Lisää soittolistalle</string>
+    <string name="view_artist">Näytä artisti</string>
+    <string name="view_album">Näytä albumi</string>
+    <string name="refetch">Hae uudelleen</string>
+    <string name="share">Jaa</string>
+    <string name="delete">Poista</string>
+    <string name="remove_from_history">Poista historiasta</string>
+    <string name="remove_from_playlist">Poista soittolistalta</string>
+    <string name="remove_from_queue">Poista jonosta</string>
+    <string name="remove_from_cache">Poista välimuistista</string>
+    <string name="playlist_m3u_export">Vie M3U-tiedostona</string>
+    <string name="search_online">Hae verkosta</string>
+    <string name="sync">Synkronoi</string>
+    <string name="advanced">Lisäasetukset</string>
+    <string name="tempo_and_pitch">Tempo ja sävelkorkeus</string>
+
+    <string name="sort_by_create_date">Lisäyspäivä</string>
+    <string name="sort_by_last_updated">Päivityspäivä</string>
+    <string name="sort_by_name">Nimi</string>
+    <string name="sort_by_artist">Artisti</string>
+    <string name="sort_by_year">Vuosi</string>
+    <string name="sort_by_song_count">Kappalemäärä</string>
+    <string name="sort_by_length">Pituus</string>
+    <string name="sort_by_play_time">Soittoaika</string>
+    <string name="sort_by_custom">Oma järjestys</string>
+
+    <string name="media_id">Median tunniste</string>
+    <string name="mime_type">MIME-tyyppi</string>
+    <string name="codecs">Koodekit</string>
+    <string name="bitrate">Bittinopeus</string>
+    <string name="sample_rate">Näytteenottotaajuus</string>
+    <string name="loudness">Äänenvoimakkuus</string>
+    <string name="volume">Volyymi</string>
+    <string name="file_size">Tiedostokoko</string>
+    <string name="unknown">Tuntematon</string>
+    <string name="copied">Kopioitu leikepöydälle</string>
+
+    <string name="edit_lyrics">Muokkaa sanoituksia</string>
+    <string name="search_lyrics">Hae sanoituksia</string>
+    <string name="delete_lyric_confirm">Haluatko todella poistaa tallennetut sanoitukset kappaleelle \"%s\"?</string>
+
+    <string name="edit_song">Muokkaa kappaletta</string>
+    <string name="song_title">Kappaleen nimi</string>
+    <string name="song_artists">Kappaleen artistit</string>
+    <string name="error_song_title_empty">Kappaleen nimi ei voi olla tyhjä.</string>
+    <string name="error_song_artist_empty">Kappaleen artisti ei voi olla tyhjä.</string>
+    <string name="save">Tallenna</string>
+
+    <string name="sync_playlist">Synkronoi soittolista</string>
+    <string name="choose_playlist">Valitse soittolista</string>
+    <string name="edit_playlist">Muokkaa soittolistaa</string>
+    <string name="create_playlist">Luo soittolista</string>
+    <string name="playlist_name">Soittolistan nimi</string>
+    <string name="error_playlist_name_empty">Soittolistan nimi ei voi olla tyhjä.</string>
+
+    <string name="edit_artist">Muokkaa artistia</string>
+    <string name="artist_name">Artistin nimi</string>
+    <string name="error_artist_name_empty">Artistin nimi ei voi olla tyhjä.</string>
+
+    <string name="duplicates">Kappaleet, jotka ovat jo listalla</string>
+    <string name="skip_duplicates">Ohita kaksoiskappaleet</string>
+    <string name="add_anyway">Lisää silti</string>
+    <string name="duplicates_description_single">Kappale on jo soittolistallasi</string>
+    <string name="duplicates_description_multiple">%d kappaletta on jo soittolistallasi</string>
+    <string name="allows_for_sync_witch_youtube">Huom: Tämä mahdollistaa synkronoinnin YouTube Musicin kanssa</string>
+
+    <plurals name="n_song">
+        <item quantity="one">%d kappale</item>
+        <item quantity="other">%d kappaletta</item>
+    </plurals>
+    <plurals name="n_artist">
+        <item quantity="one">%d artisti</item>
+        <item quantity="other">%d artistia</item>
+    </plurals>
+    <plurals name="n_album">
+        <item quantity="one">%d albumi</item>
+        <item quantity="other">%d albumia</item>
+    </plurals>
+    <plurals name="n_playlist">
+        <item quantity="one">%d soittolista</item>
+        <item quantity="other">%d soittolistaa</item>
+    </plurals>
+    <plurals name="n_week">
+        <item quantity="one">%d viikko</item>
+        <item quantity="other">%d viikkoa</item>
+    </plurals>
+    <plurals name="n_month">
+        <item quantity="one">%d kuukausi</item>
+        <item quantity="other">%d kuukautta</item>
+    </plurals>
+    <plurals name="n_year">
+        <item quantity="one">%d vuosi</item>
+        <item quantity="other">%d vuotta</item>
+    </plurals>
+
+    <string name="playlist_imported">Soittolista tuotu</string>
+    <string name="removed_song_from_playlist">Poistettiin \"%s\" soittolistalta</string>
+    <string name="playlist_synced">Soittolista synkronoitu</string>
+    <string name="undo">Kumoa</string>
+
+    <string name="now_playing">Nyt soi</string>
+    <string name="lyrics_not_found">Sanoituksia ei löytynyt</string>
+    <string name="sleep_timer">Uniajastin</string>
+    <string name="end_of_song">Kappaleen lopussa</string>
+    <plurals name="minute">
+        <item quantity="one">1 minuutti</item>
+        <item quantity="other">%d minuuttia</item>
+    </plurals>
+    <string name="error_no_stream">Striimiä ei saatavilla</string>
+    <string name="error_no_internet">Ei verkkoyhteyttä</string>
+    <string name="error_timeout">Aikakatkaisu</string>
+    <string name="error_unknown">Tuntematon virhe</string>
+    <string name="menu">Valikko</string>
+    <string name="share_list">Jaa lista</string>
+
+    <string name="seek_backward">5 sekuntia taaksepäin</string>
+    <string name="seek_forward">5 sekuntia eteenpäin</string>
+
+    <string name="action_like">Tykkää</string>
+    <string name="action_like_all">Tykkää kaikista</string>
+    <string name="action_remove_like">Poista tykkäys</string>
+    <string name="action_remove_like_all">Poista kaikki tykkäykset</string>
+    <string name="action_shuffle_on">Satunnaistoisto päällä</string>
+    <string name="action_shuffle_off">Satunnaistoisto pois päältä</string>
+    <string name="repeat_mode_off">Toistotila pois päältä</string>
+    <string name="repeat_mode_one">Toista nykyinen kappale</string>
+    <string name="repeat_mode_all">Toista jono</string>
+
+    <string name="queue_all_songs">Kaikki kappaleet</string>
+    <string name="queue_searched_songs">Haetut kappaleet</string>
+
+    <string name="music_player">Musiikkisoitin</string>
+
+    <string name="notifications">Ilmoitukset</string>
+    <string name="keep_alive_title">Estä järjestelmää sulkemasta sovellusta</string>
+    <string name="keep_alive_description">Käytä etualan ilmoitusta estääksesi Loudlya sulkeutumasta satunnaisesti järjestelmän toimesta.</string>
+    <string name="notification_permission_is_required">Ilmoituslupa vaaditaan</string>
+
+    <string name="settings">Asetukset</string>
+    <string name="appearance">Ulkoasu</string>
+    <string name="theme">Teema</string>
+    <string name="proxy">Välityspalvelin</string>
+    <string name="enable_dynamic_theme">Ota käyttöön dynaaminen teema</string>
+    <string name="dark_theme">Tumma teema</string>
+    <string name="dark_theme_on">Päällä</string>
+    <string name="dark_theme_off">Pois päältä</string>
+    <string name="dark_theme_follow_system">Seuraa järjestelmää</string>
+    <string name="pure_black">Puhdas musta</string>
+    <string name="app_design_variant">Sovelluksen suunnittelu</string>
+    <string name="app_design_ui_1_0">Sovelluksen käyttöliittymä 1.0</string>
+    <string name="app_design_ui_1_5">Sovelluksen käyttöliittymä 1.5</string>
+    <string name="listen_youtube_music">Kuuntele YouTube Musicissa</string>
+    <string name="visit_the_loudly">Vieraile Loudlyssa</string>
+    <string name="artist">Artisti</string>
+    <string name="listen_to_loudly">Kuuntele Loudlya</string>
+    <string name="enable_swipe_thumbnail">Vaihda kappaletta pyyhkäisemällä pikkukuvaa</string>
+    <string name="customize_navigation_tabs">Mukauta navigointivälilehtiä</string>
+    <string name="player">Soitin</string>
+    <string name="player_text_alignment">Soittimen tekstin tasaus</string>
+    <string name="lyrics_text_position">Sanoitusten tekstin sijainti</string>
+    <string name="sided">Sivulla</string>
+    <string name="left">Vasen</string>
+    <string name="center">Keskitetty</string>
+    <string name="player_style">Soittimen tyyli</string>
+    <string name="player_style_old_ui">Soittimen vanha käyttöliittymä</string>
+    <string name="player_style_ui_1_0">Soittimen käyttöliittymä 1.0</string>
+    <string name="player_style_ui_2_0">Soittimen käyttöliittymä 2.0</string>
+    <string name="follow_theme">Seuraa teemaa</string>
+    <string name="gradient">Liukuväri</string>
+    <string name="blur">Sumennus</string>
+    <string name="blurmv">Sumennus (liike)</string>
+    <string name="player_background_style">Soittimen taustatyyli</string>
+    <string name="right">Oikea</string>
+    <string name="slider_style">Liukusäätimen tyyli</string>
+    <string name="default_">Oletus</string>
+    <string name="squiggly">Mutkitteleva</string>
+    <string name="compose">Compose</string>
+    <string name="thumbnail_corner_radius">Määritä pikkukuvan kulman säde</string>
+    <string name="show_content_filter">Näytä sisältösuodatin</string>
+    <string name="misc">Muut</string>
+    <string name="main">Pää</string>
+    <string name="auto_playlists_customization">Automaattisten soittolistojen mukauttaminen</string>
+    <string name="show_liked_auto_playlist">Näytä automaattinen pidettyjen soittolista</string>
+    <string name="show_download_auto_playlist">Näytä automaattinen ladattujen soittolista</string>
+    <string name="show_top_auto_playlist">Näytä automaattinen top-soittolista</string>
+    <string name="show_cached_auto_playlist">Näytä automaattinen välimuistissa olevien soittolista</string>
+    <string name="show_local_auto_playlist">Näytä automaattinen paikallisten soittolista</string>
+    <string name="swipe_song_to_dismiss">Vaihda seuraavaan pyyhkäisemällä oikealle tai lisää jonoon pyyhkäisemällä vasemmalle</string>
+    <string name="default_open_tab">Oletusvälilehti avattaessa</string>
+    <string name="default_lib_chips">Oletuskirjaston suodattimet</string>
+    <string name="grid_cell_size">Ruudukon solukoko</string>
+    <string name="slim_navbar">Näytä alanavigointipalkin otsikot</string>
+    <string name="small">Pieni</string>
+    <string name="big">Iso</string>
+    <string name="Changelog">Muutosloki</string>
+    <string name="no_changes">Viimeaikaisia muutoksia ei löytynyt</string>
+    <string name="changelogs">Viimeisimmät muutokset:</string>
+    <string name="closepopup">Sulje</string>
+    <string name="NewVersion">Uusi versio saatavilla</string>
+    <string name="Hi">Hei taas</string>
+    <string name="Donate">Lahjoita</string>
+    <string name="Telegramchanel">Virallinen kanava</string>
+    <string name="web_site">Verkkosivusto</string>
+    <string name="web_site_info">Virallinen verkkosivusto ❯</string>
+    <string name="code">Lähdekoodi</string>
+    <string name="code_text">Käytä sovelluksen lähdekoodia</string>
+    <string name="bugs">Virheet</string>
+    <string name="bugs_text">Virheraportit ja muuta</string>
+    <string name="help">Ohje</string>
+    <string name="contribution_text">Jos haluat osallistua, napsauta tästä ❯</string>
+    <string name="Developer">Kehittäjä | @RRechz</string>
+
+    <string name="content">Sisältö</string>
+    <string name="login">Kirjaudu sisään</string>
+    <string name="login_description">Kirjaudu sisään YT Music -soittolistoillesi ja muuhun</string>
+    <string name="token_hidden">Näytä tunniste napauttamalla</string>
+    <string name="token_shown">Kopioi tai muokkaa napauttamalla uudelleen</string>
+    <string name="token_adv_login_description">Tämä on edistynyt kirjautumistapa. Vaihtoehtona verkkoportaalille voit syöttää tai päivittää kirjautumistunnuksesi suoraan täällä. Tämä voi esimerkiksi nopeuttaa kirjautumista useilla laitteilla. Huomaa, että sovellus ei hyväksy virheellisiä tunnusmuotoja, joita se ei pysty jäsentämään.</string>
+    <string name="import_from_spotify">Tuo Spotifysta</string>
+    <string name="title_spotify">Spotify</string>
+    <string name="title_discord">Discord</string>
+    <string name="like_autodownload">Lataa automaattisesti pitämäsi kappaleet</string>
+    <string name="ytm_sync">Synkronoi automaattisesti YouTube Music -tilisi kanssa</string>
+    <string name="ytm_sync_description">Synkronoi soittolistasi ja muut tiedot tilisi kanssa</string>
+    <string name="wifi_only">Vain Wi-Fi</string>
+    <string name="not_logged_in">Ei kirjautunut sisään</string>
+    <string name="content_language">Oletussisällön kieli</string>
+    <string name="content_country">Oletussisällön maa</string>
+    <string name="system_default">Järjestelmän oletus</string>
+    <string name="enable_proxy">Ota välityspalvelin käyttöön</string>
+    <string name="proxy_type">Välityspalvelimen tyyppi</string>
+    <string name="proxy_url">Välityspalvelimen URL-osoite</string>
+    <string name="restart_to_take_effect">Käynnistä uudelleen, jotta muutokset tulevat voimaan</string>
+    <string name="app_language">Sovelluksen kieli</string>
+    <string name="configure_app_language">Määritä sovelluksen kielet</string>
+    <string name="intent_app_language_not_found">Sovelluksen kieliasetuksia ei löytynyt, määritä ne manuaalisesti</string>
+    <string name="open_supported_links">Avaa tuetut linkit oletuksena</string>
+    <string name="configure_supported_links">Määritä tuetut linkit</string>
+    <string name="intent_supported_links_not_found">Tuettujen linkkien asetuksia ei löytynyt, määritä ne manuaalisesti</string>
+
+    <string name="player_and_audio">Soitin ja ääni</string>
+    <string name="audio_quality">Äänenlaatu</string>
+    <string name="audio_quality_max">Maksimi</string>
+    <string name="audio_quality_auto">Automaattinen</string>
+    <string name="audio_quality_high">Korkea</string>
+    <string name="audio_quality_low">Matala</string>
+    <string name="minimum_playback_duration">Minimitoiston kesto</string>
+    <string name="minimum_playback_duration_info">Kappaleen vähimmäiskesto, joka on toistettava, jotta se katsotaan "toistetuksi"</string>
+    <string name="queue">Jono</string>
+    <string name="persistent_queue">Pysyvä jono</string>
+    <string name="persistent_queue_desc">Palauta viimeisin jonosi sovelluksen käynnistyessä</string>
+    <string name="auto_load_more">Lataa lisää kappaleita automaattisesti</string>
+    <string name="auto_load_more_desc">Lisää automaattisesti lisää kappaleita, kun jonon loppu saavutetaan, jos mahdollista</string>
+    <string name="skip_silence">Ohita hiljaisuus</string>
+    <string name="audio_normalization">Äänen normalisointi</string>
+    <string name="play_song_when_bluetooth_device_connected">Jatka toistoa, kun Bluetooth-laite on yhdistetty</string>
+    <string name="stop_playing_when_song_sound_minimum_volume">Lopeta toisto, kun äänenvoimakkuus on minimissä</string>
+    <string name="adding_played_songs_to_ytm_history">Lisätään toistettuja kappaleita YouTube Musicin historiaan</string>
+    <string name="auto_skip_next_on_error">Ohita automaattisesti seuraavaan kappaleeseen virheen sattuessa</string>
+    <string name="auto_skip_next_on_error_desc">Varmista jatkuva toistokokemuksesi</string>
+    <string name="stop_music_on_task_clear">Pysäytä musiikki, kun tehtävä tyhjennetään</string>
+    <string name="equalizer">Taajuuskorjain</string>
+    <string name="lyrics">Sanoitukset</string>
+    <string name="lyrics_settings_title">Sanoitukset</string>
+    <string name="local_player_settings_title">Paikallisen soittimen asetukset</string>
+    <string name="storage">Tallennustila</string>
+    <string name="cache">Välimuisti</string>
+    <string name="image_cache">Kuvien välimuisti</string>
+    <string name="song_cache">Kappaleiden välimuisti</string>
+    <string name="max_cache_size">Välimuistin enimmäiskoko</string>
+    <string name="unlimited">Rajoittamaton</string>
+    <string name="audio_offload">Ota offload-toiminto käyttöön</string>
+    <string name="audio_offload_description">Käytä äänen toistoon offload-äänipolkua. Tämän poistaminen käytöstä voi lisätä virrankulutusta, mutta voi olla hyödyllistä, jos sinulla on ongelmia äänen toiston tai jälkikäsittelyn kanssa.</string>
+    <string name="clear_all_downloads">Tyhjennä kaikki lataukset</string>
+    <string name="max_image_cache_size">Kuvien välimuistin enimmäiskoko</string>
+    <string name="clear_image_cache">Tyhjennä kuvien välimuisti</string>
+    <string name="max_song_cache_size">Kappaleiden välimuistin enimmäiskoko</string>
+    <string name="clear_song_cache">Tyhjennä kappaleiden välimuisti</string>
+    <string name="size_used">käytetty</string>
+    <string name="clear_all_cache_dialog">Haluatko varmasti tyhjentää kaiken välimuistin?</string>
+    <string name="clear_all_downloads_dialog">Haluatko varmasti tyhjentää kaikki lataukset?</string>
+    <string name="clear_song_cache_dialog">Haluatko varmasti tyhjentää kaikki välimuistissa olevat kappaleet?</string>
+    <string name="clear_images_cache_dialog">Haluatko varmasti tyhjentää kaikki välimuistissa olevat kuvat?</string>
+    <string name="clear_translation_models_cache_dialog">Haluatko varmasti tyhjentää kaikki välimuistissa olevat käännösmallit?</string>
+
+    <string name="privacy">Yksityisyys</string>
+    <string name="listen_history">Kuunteluhistoria</string>
+    <string name="pause_listen_history">Keskeytä kuunteluhistoria</string>
+    <string name="clear_listen_history">Tyhjennä kuunteluhistoria</string>
+    <string name="clear_listen_history_confirm">Haluatko varmasti tyhjentää koko kuunteluhistorian?</string>
+    <string name="pause_search_history">Keskeytä hakuhistoria</string>
+    <string name="clear_search_history">Tyhjennä hakuhistoria</string>
+    <string name="clear_search_history_confirm">Haluatko varmasti tyhjentää koko hakuhistorian?</string>
+    <string name="search_history">Hakuhistoria</string>
+    <string name="use_login_for_browse">Käytä kirjautumista sisällön selaamiseen</string>
+    <string name="use_login_for_browse_desc">Tämä voi vaikuttaa näkemääsi sisältöön ja näyttää esimerkiksi vain Premium-albumeita, jos olet kirjautunut sisään Premium-tilillä.</string>
+    <string name="disable_screenshot">Poista kuvakaappaukset käytöstä</string>
+    <string name="disable_screenshot_desc">Kun tämä asetus on päällä, kuvakaappaukset ja sovelluksen näkymä Viimeisimmät-valikossa poistetaan käytöstä.</string>
+    <string name="enable_lrclib">Ota käyttöön LrcLib-sanoitusten tarjoaja</string>
+    <string name="enable_kugou">Ota käyttöön KuGou-sanoitusten tarjoaja</string>
+    <string name="default_lyrics_provider">Oletussanoitusten tarjoaja</string>
+    <string name="lyrics_multiline_title">Lue moniriviset sanoitukset</string>
+    <string name="lyrics_multiline_description">Käsittele kaikkia synkronointipisteiden välisiä rivejä yhtenä sanoitustekstinä</string>
+    <string name="lyrics_trim_title">Poista välilyönnit sanoitusten ympäriltä</string>
+    <string name="lyrics_font_size">Fonttikoko</string>
+    <string name="hide_explicit">Piilota selkeä sisältö</string>
+    <string name="enable_notifications">Ota ilmoitukset käyttöön</string>
+
+    <string name="backup_restore">Varmuuskopiointi ja palautus</string>
+    <string name="backup">Varmuuskopioi</string>
+    <string name="restore">Palauta</string>
+    <string name="import_m3u">Tuo soittolista (m3u)</string>
+    <string name="m3u_import_failed">Soittolistan tuonti epäonnistui</string>
+    <string name="imported_playlist">Tuotu soittolista</string>
+    <string name="backup_create_success">Varmuuskopiointi onnistui</string>
+    <string name="backup_create_failed">Varmuuskopion luonti epäonnistui</string>
+    <string name="restore_failed">Varmuuskopion palautus epäonnistui</string>
+
+    <string name="discord_integration">Discord-integraatio</string>
+    <string name="discord_information">Loudly käyttää KizzyRPC-kirjastoa asettaakseen Discord-tilisi tilan. Tämä edellyttää Discord Gateway -yhteyden käyttöä, jota voidaan pitää Discordin käyttöehtojen rikkomuksena. Käyttäjätilien jäädyttämisestä tästä syystä ei kuitenkaan ole tiedossa tapauksia. Käytä omalla vastuullasi.\n\nLoudly poimii vain tunnuksesi, ja kaikki muu tallennetaan paikallisesti.</string>
+    <string name="dismiss">Hylkää</string>
+    <string name="options">Vaihtoehdot</string>
+    <string name="preview">Esikatselu</string>
+    <string name="login_failed">Kirjautuminen epäonnistui</string>
+    <string name="logout">Kirjaudu ulos</string>
+    <string name="enable_discord_rpc">Ota Rich Presence käyttöön</string>
+
+    <string name="about">Tietoja</string>
+    <string name="app_version">Sovelluksen versio</string>
+    <string name="checking_for_update">Tarkistetaan päivityksiä...</string>
+    <string name="update_card_version_ready_to_download">versio %1$s on ladattavissa.</string>
+    <string name="update_card_downloading">Ladataan...</string>
+    <string name="install">Päivitä</string>
+    <string name="try_again">Yritä uudelleen</string>
+    <string name="download_now">Lataa nyt</string>
+    <string name="app_type">Sovelluksen tyyppi</string>
+
+    <string name="new_version_available">Uusi versio saatavilla</string>
+    <string name="translation_models">Käännösmallit</string>
+    <string name="clear_translation_models">Tyhjennä käännösmallit</string>
+    <string name="history_duration">Historian kesto</string>
+    <plurals name="seconds">
+        <item quantity="one">1 sekunti</item>
+        <item quantity="other">%d sekuntia</item>
+    </plurals>
+    <string name="widget_title">Musiikki 3x2</string>
+    <string name="widget_quick_title">Musiikki 2x1</string>
+    <string name="play_pause">Toista/Tauko</string>
+    <string name="about_subtitle">Versio · Kehittäjät · Lisenssi</string>
+    <string name="category_interface">Käyttöliittymä</string>
+    <string name="category_content">Sisältö ja tili</string>
+    <string name="category_player">Soitin</string>
+    <string name="category_system">Järjestelmä</string>
+    <string name="library">Kirjasto</string>
+    <string name="integrations">Integraatiot</string>
+    <string name="system_integration">Järjestelmäintegraatio</string>
+    <string name="total_used_space">Yhteensä käytetty tila</string>
+    <string name="currently_used">Tällä hetkellä käytössä</string>
+    <string name="clear_cache">Tyhjennä välimuisti</string>
+    <string name="backup_restore_description">Varmuuskopiointi · Palautus · Tuonti</string>
+    <string name="privacy_description">Historia · Haku · Kuvakaappaus</string>
+    <string name="storage_description">Lataukset · Välimuisti · Kuvat</string>
+    <string name="player_and_audio_description">Ääni · Jono · Sanoitukset</string>
+    <string name="content_description">Kieli · Sijainti · Välityspalvelin</string>
+    <string name="account_description">Kirjaudu sisään · Spotify · Discord</string>
+    <string name="appearance_description">Teema · Liukusäädin · Soitin</string>
+
+    <string name="header_background">Profiilikortin kuva</string>
+    <string name="header_background_description">Mukauta profiilikortin kuvaa</string>
+    <string name="select_header_image">Valitse profiilikuva</string>
+    <string name="predefined_images">Valmiit kuvat</string>
+    <string name="select_from_gallery">Valitse galleriasta</string>
+    <string name="edit_photo">Muokkaa kuvaa</string>
+    <string name="cancel">Peruuta</string>
+
+    <string name="send_to_developer">Lähetä kehittäjälle</string>
+    <string name="close">Sulje</string>
+    <string name="update_error_details">Näytä virheen tiedot</string>
+    <string name="download_failed">Lataus epäonnistui</string>
+    <string name="show_error">Näytä virhe</string>
+    <string name="go_to_update_link">Manuaalinen päivitys</string>
+    <string name="home_card_update_desc">Tarkista lisätiedot asetus-sivulta</string>
+    <string name="app_up_to_date">Ohjelmisto on ajan tasalla</string>
+
+    <string name="app_ui">Sovelluksen käyttöliittymä</string>
+    <string name="app_ui_desc">Valitse yksi kolmesta eri suunnittelusta</string>
+    <string name="ui_version_selection">Käyttöliittymän version valinta</string>
+    <string name="ui_version_1_0_desc">Sovelluksen vanha versio. (Sovellus, soitin, minisoitin)</string>
+    <string name="ui_version_1_5_desc">Kompakti muotoilu, joka on luotu modernimmalla lähestymistavalla. (Sovellus, soitin, minisoitin)</string>
+    <string name="ui_version_2_0_desc">Suosituin muotoilu. (Sovellus, soitin, minisoitin)</string>
+    <string name="ui_version_custom_desc">Luo oma sovelluksen käyttöliittymäsi. (Sovellus, soitin, minisoitin)</string>
+    <string name="custom_app_ui">Mukauta käyttöliittymää</string>
+
+    <string name="other_settings">Muut asetukset</string>
+    <string name="other_settings_description">Napsauta nähdäksesi muita erilaisia asetuksia</string>
+
+    <string name="audio_quality_auto_desc">Säätää laatua automaattisesti 45 ja 512 Kbps välillä</string>
+    <string name="audio_quality_max_desc">Tarjoaa korkeimman laadun jopa 512 Kbps</string>
+    <string name="audio_quality_high_desc">Asettaa laadun keskimääräisille internet-nopeuksille 128 ja 256 Kbps välillä.</string>
+    <string name="audio_quality_low_desc">Rajoittaa laadun 45 ja 52 Kbps välille datan säästämiseksi (Datansäästö)</string>
+
+    <string name="could_not_import">Tuonti epäonnistui</string>
+
+    <string name="text_alignment">Tekstin tasaus</string>
+    <string name="text_alignment_description">Aseta tekstin sijainti kortilla</string>
+    <string name="gradient_intensity">Liukuvärin voimakkuus</string>
+    <string name="corner_round">Kulman pyöristys</string>
+    <string name="profile_picture">Profiilikuva</string>
+    <string name="profile_card">Profiilikortti</string>
+    <string name="remove_profile_picture">Poista profiilikuva</string>
+    <string name="show_texts">Näytä tekstit</string>
+    <string name="show_texts_description">Näytä tervehdys- ja käyttäjänimiteksti profiilikortilla</string>
+    <string name="tap_to_change">Vaihda napauttamalla</string>
+
+    <string name="translate">Käännä (BETA)</string>
+    <string name="copy">Kopioi</string>
+
+    <string name="error_network_title">Verkkovirhe</string>
+    <string name="error_network_description">Tarkista internetyhteytesi ja yritä uudelleen.</string>
+    <string name="error_unsupported_format_title">Tukematon sisältö</string>
+    <string name="error_unsupported_format_description">Tätä kappaleformaattia ei tueta laitteellasi.</string>
+    <string name="error_behind_live_window_title">Suoran lähetyksen virhe</string>
+    <string name="error_behind_live_window_description">Suorassa lähetyksessä on ongelma. Käynnistä uudelleen.</string>
+    <string name="error_playback_failed_title">Toisto epäonnistui</string>
+    <string name="error_playback_failed_description">Tapahtui tuntematon virhe. Yritä uudelleen.</string>
+    <string name="recovering_playback">Yritetään uudelleen…</string>
+    <string name="vpn_info_message">VPN:n käyttö voi vaikuttaa yhteytesi laatuun. Jos sinulla on verkko-ongelmia, katkaise VPN-yhteys tai käytä välityspalvelinta. Voit määrittää tämän kohdassa ”Asetukset >> Sisältö >> Välityspalvelin”.</string>
+
+    <string name="sync_local_songs_toast">Paikalliset kappaleet synkronoitu onnistuneesti</string>
+    <string name="local_scanner_title">Paikallinen skanneri</string>
+
+    <string name="auto_scanner_title">Skannaa automaattisesti</string>
+    <string name="auto_scanner_description">Skannaa kappaleet automaattisesti sovelluksen avaamisen yhteydessä</string>
+
+    <string name="scanner_settings_title">Skannerin lisäasetukset</string>
+    <string name="scanner_strict_file_name_title">Tarkat tiedostonimet</string>
+    <string name="scanner_strict_file_name_description">Kun tämä on käytössä, tiedostopäätteitä EI ohiteta. Esim. "Song.ogg" on eri kappale kuin "Song.flac"</string>
+    <string name="scanner_sensitivity_title">Määritä skannerin herkkyys</string>
+    <string name="scanner_sensitivity_L1">Vastaa nimeä</string>
+    <string name="scanner_sensitivity_L2">Vastaa nimeä ja artisteja</string>
+    <string name="scanner_sensitivity_L3">Vastaa nimeä, artisteja, albumeja</string>
+
+    <string name="folders_settings_title">Kansiot</string>
+    <string name="flat_subfolders_title">Tasoita alikansiot</string>
+    <string name="flat_subfolders_description">Poista käytöstä säilyttääksesi tiedostorakenteen sellaisena kuin se on levyllä</string>
+
+    <string name="tips_and_features">Vinkit ja ominaisuudet</string>
+    <string name="tips_and_fetures_description"> Vinkit · Ominaisuudet</string>
+    <string name="create_your_story">Luo tarinasi</string>
+    <string name="share_your_story_description">Jaa kuuntelemasi kappale sosiaalisessa mediassa tyylikkäällä suunnittelulla, joka on luotu albumin kannen hallitsevilla väreillä.</string>
+    <string name="customizable_settings">Mukautettavat asetukset</string>
+    <string name="customizable_settings_description">Tee sovelluksesta omasi korvaamalla asetusnäytön otsikkokortin tausta kuvalla galleriastasi.</string>
+    <string name="new_song_list">Uusi kappalelista</string>
+    <string name="new_song_list_description">Tarkastele nykyistä soittolistaasi ja vaihda helposti kappaleiden välillä pyyhkäisemällä ylös soittimen näytöltä (uusi suunnittelu, joka on yksinomaan Player UI 2.0:ssa)</string>
+    <string name="remastered_settings">Uudistettu asetusnäkymä</string>
+    <string name="remastered_settings_description">Löydä etsimäsi helposti uudella korttipohjaisella asetusnäkymällä, joka on modernimpi ja kätevämpi.</string>
+    <string name="classic_music_widget">Klassinen musiikki-widget</string>
+    <string name="classic_music_widget_description">Pääset nopeasti käsiksi kaikkiin säätimiin ja kappaletietoihin aloitusnäytöltäsi.</string>
+    <string name="minimalist_music_widget">Minimalistinen musiikki-widget</string>
+    <string name="minimalist_music_widget_description">”Quik”-musiikki-widget, joka on saanut inspiraationsa Android 16:n Pika-asetukset-painikkeen suunnittelusta</string>
+    <string name="share_on_story">Jaa tarinassa</string>
+    <string name="copy_song_link">Kopioi kappaleen linkki</string>
+    <string name="link_copied">Linkki kopioitu leikepöydälle!</string>
+    <string name="streamed_on_loudly">Striimattu Loudlyssa</string>
+
+    <string name="select_all">Valitse kaikki</string>
+    <string name="fetching_all_playlists">Haetaan kaikkia soittolistoja…</string>
+    <string name="import_selected_items">Tuo valitut kohteet</string>
+    <string name="something_went_wrong">Jotain meni pieleen. Olemme yhtä ymmällämme kuin sinäkin.</string>
+    <string name="well_thats_embarrassing">No, onpa noloa. Meilläkään ei ole aavistustakaan, mitä tapahtui.</string>
+    <string name="instructions_to_get_required_credentials">Ohjeet vaadittujen tunnusten saamiseksi</string>
+    <string name="make_sure_to_click">3. Varmista, että napsautat "Lisää", kun olet syöttänyt yllä olevan paikallisen polun.</string>
+    <string name="accept_the_terms_of_service">5. Hyväksy käyttöehdot ja napsauta "Tallenna".</string>
+    <string name="you_ll_be_redirected_to_a_new_page">Sinut ohjataan uudelle sivulle. Napsauta Asetukset, kopioi sitten asiakastunnus ja asiakassalaisuus ja liitä ne alla oleviin tekstikenttiin tässä sovelluksessa.</string>
+    <string name="enter_the_necessary_details">2. Syötä tarvittavat tiedot ja käytä http://127.0.0.1:45454 uudelleenohjaus-URI-osoitteena.</string>
+    <string name="toggle_wep_api">4. Vaihda Web API:n tilaa. Valintaruudussa pitäisi nyt olla rasti.</string>
+    <string name="now_click_the_authorize_and_continue">Napsauta nyt alla olevaa Valtuuta ja jatka -painiketta ja kirjaudu sisään tililläsi, josta haluat tuoda, ja valtuuta ja jatka, mikä ohjaa sinut sivustolle, jonka pitäisi alkaa http://127.0.0.1:45454/?code=\n\nLiitä koko URL-osoite alla olevaan tekstikenttään, jossa lukee Valtuuskoodi, ja napsauta Tunnistaudu-painiketta</string>
+    <string name="visit_spotify_for_developers">1. Vieraile Spotifyn kehittäjien hallintapaneelissa ja napsauta "Luo sovellus".</string>
+    <string name="login_with_spotify">Kirjaudu sisään Spotify API -tunnuksilla</string>
+    <string name="authorize_and_continue">Valtuuta ja jatka</string>
+    <string name="authorization_code">Valtuuskoodi</string>
+    <string name="authenticate">Tunnistaudu</string>
+    <string name="client_secret">Asiakassalaisuus</string>
+    <string name="client_id">Asiakastunnus</string>
+    <string name="import_in_progress">Tuonti käynnissä…</string>
+    <string name="dont_close_app_message">Älä sulje sovellusta tai mene takaisin. Tämä toiminto ei suoriteta taustalla, joten pysy paikallasi, kunnes se on valmis!\nÄLÄ PANIROI, JOS SE NÄYTTÄÄ JUMITTUNEEN; joskus nouto voi viedä jonkin aikaa.</string>
+    <string name="choose_liked_songs">Valitse "Pidettyjen kappaleiden" kohde</string>
+    <string name="where_should_the_liked_songs">Mihin pidetyt kappaleet pitäisi tuoda?</string>
+    <string name="new_playlist_named">Uusi soittolista nimeltä "Pidettyt kappaleet"</string>
+    <string name="default_liked_songs">Oletusarvoiseen "Pidettyihin kappaleisiin"</string>
+</resources>

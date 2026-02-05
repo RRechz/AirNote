@@ -1,0 +1,626 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="welcome_to_loudly">Loudly에 오신 것을 환영합니다</string>
+    <string name="welcome_to_loudly_description">나만의 음악 경험을 만들어 보세요.</string>
+    <string name="yt_music_fingertips">손끝에서 즐기는 YouTube Music</string>
+    <string name="ytm_account_sync">YT Music 계정 동기화</string>
+    <string name="ad_free_playback">광고 없는 재생</string>
+    <string name="offline_music_experience">오프라인 음악 감상</string>
+    <string name="android_auto">Android Auto 지원</string>
+    <string name="discord_support">Discord 상태 지원</string>
+    <string name="fos_info">완전한 오픈 소스</string>
+    <string name="select_player_ui">플레이어 UI 선택</string>
+    <string name="select_player_ui_description">앱 내 플레이어 화면을 선택하세요. 이 설정은 나중에 ‘설정 > 모양’에서 변경할 수 있습니다.</string>
+    <string name="setup_complete">설정 완료!</string>
+    <string name="setup_complete_description">이제 Loudly를 탐색할 준비가 되었습니다.</string>
+    <string name="finish">완료</string>
+    <string name="back">뒤로</string>
+    <string name="next">다음</string>
+    <string name="previous">이전</string>
+
+    <string name="home">홈</string>
+    <string name="explore">탐색</string>
+    <string name="songs">노래</string>
+    <string name="artists">아티스트</string>
+    <string name="albums">앨범</string>
+    <string name="playlists">재생목록</string>
+
+    <string name="liked">좋아요 표시한 음악</string>
+    <string name="like">좋아요</string>
+    <string name="offline">오프라인 음악</string>
+    <string name="my_top">나의 인기 음악</string>
+    <string name="cached">캐시된 음악</string>
+    <string name="local">로컬 음악</string>
+
+    <string name="content_filter">콘텐츠 필터</string>
+
+    <string name="all_time">전체 기간</string>
+    <string name="past_24_hours">지난 24시간</string>
+    <string name="past_week">지난 주</string>
+    <string name="past_month">지난 달</string>
+    <string name="past_year">지난 해</string>
+
+    <plurals name="n_selected">
+        <item quantity="other">%d개 선택됨</item>
+    </plurals>
+
+    <string name="good_morning">좋은 아침입니다</string>
+    <string name="good_afternoon">좋은 오후입니다</string>
+    <string name="good_evening">좋은 저녁입니다</string>
+    <string name="good_night">안녕히 주무세요</string>
+    <string name="recent_activity">최근 활동</string>
+    <string name="history">기록</string>
+    <string name="history_empty">감상 기록이 여기에 표시됩니다</string>
+    <string name="stats_empty">통계가 여기에 표시됩니다</string>
+    <string name="stats">통계</string>
+    <string name="show_less">간략히</string>
+    <string name="show_more">더보기</string>
+    <string name="mood_and_genres">분위기 및 장르</string>
+    <string name="account">계정</string>
+    <string name="quick_picks">빠른 선곡</string>
+    <string name="quick_picks_empty">노래를 감상하여 빠른 선곡을 생성하세요</string>
+    <string name="forgotten_favorites">잊혀진 즐겨찾기</string>
+    <string name="keep_listening">계속 듣기</string>
+    <string name="your_youtube_playlists">내 YouTube 재생목록</string>
+    <string name="similar_to">비슷한 항목</string>
+    <string name="new_release_albums">새 앨범</string>
+    <string name="not_internet">인터넷에 연결되지 않음</string>
+    <string name="internet_required">인터넷에 연결되지 않은 것 같습니다. 네트워크를 확인해주세요.</string>
+    <string name="featured_for_you">추천 콘텐츠</string>
+    <string name="recommended_for_you_today">오늘의 추천</string>
+
+    <string name="today">오늘</string>
+    <string name="yesterday">어제</string>
+    <string name="this_week">이번 주</string>
+    <string name="last_week">지난 주</string>
+    <string name="local_history">로컬</string>
+    <string name="remote_history">원격</string>
+    <string name="history_queue_title_local">로컬 기록</string>
+    <string name="history_queue_title_online">원격 기록</string>
+
+    <string name="most_played_songs">가장 많이 재생한 노래</string>
+    <string name="most_played_artists">가장 많이 재생한 아티스트</string>
+    <string name="most_played_albums">가장 많이 재생한 앨범</string>
+
+    <string name="search">검색</string>
+    <string name="search_yt_music">Loudly에서 검색</string>
+    <string name="search_library">보관함 검색…</string>
+    <string name="SearchHistory">검색 기록</string>
+    <string name="Sujestions">추천 검색어</string>
+    <string name="SearchResutls">검색 결과</string>
+    <string name="filter_library">보관함</string>
+    <string name="filter_liked">좋아요 표시</string>
+    <string name="filter_downloaded">다운로드됨</string>
+    <string name="filter_all">전체</string>
+    <string name="filter_songs">노래</string>
+    <string name="filter_videos">동영상</string>
+    <string name="filter_albums">앨범</string>
+    <string name="filter_artists">아티스트</string>
+    <string name="filter_playlists">재생목록</string>
+    <string name="filter_community_playlists">커뮤니티 재생목록</string>
+    <string name="filter_featured_playlists">추천 재생목록</string>
+    <string name="filter_bookmarked">북마크됨</string>
+    <string name="no_results_found">결과를 찾을 수 없습니다</string>
+
+    <string name="library_empty">보관함이 여기에 표시됩니다</string>
+    <string name="library_song_empty">보관함의 노래가 여기에 표시됩니다</string>
+    <string name="library_artist_empty">보관함의 아티스트가 여기에 표시됩니다</string>
+    <string name="library_album_empty">보관함의 앨범이 여기에 표시됩니다</string>
+    <string name="library_playlist_empty">내 재생목록이 여기에 표시됩니다</string>
+
+    <string name="from_your_library">내 보관함에서</string>
+
+    <string name="other_versions">다른 버전</string>
+    <string name="favorite">즐겨찾기</string>
+    <string name="top_songs">인기곡</string>
+
+    <string name="liked_songs">좋아요 표시한 노래</string>
+    <string name="downloaded_songs">다운로드한 노래</string>
+    <string name="playlist_is_empty">재생목록이 비어 있습니다</string>
+    <string name="remove_download_playlist_confirm">정말로 ‘%s’ 재생목록의 모든 노래를 다운로드한 노래 저장소에서 삭제하시겠습니까?</string>
+    <string name="delete_playlist_confirm">정말로 ‘%s’ 재생목록을 삭제하시겠습니까?</string>
+
+    <string name="off">끄기</string>
+
+    <string name="retry">재시도</string>
+    <string name="radio">라디오</string>
+    <string name="shuffle">셔플</string>
+    <string name="reset">초기화</string>
+
+    <string name="details">세부정보</string>
+    <string name="edit">수정</string>
+    <string name="start_radio">라디오 시작</string>
+    <string name="play">재생</string>
+    <string name="play_next">다음에 재생</string>
+    <string name="add_to_queue">대기열에 추가</string>
+    <string name="add_to_library">보관함에 추가</string>
+    <string name="add_all_to_library">모두 보관함에 추가</string>
+    <string name="remove_from_library">보관함에서 삭제</string>
+    <string name="remove_all_from_library">모두 보관함에서 삭제</string>
+    <string name="download">다운로드</string>
+    <string name="downloading">다운로드 중</string>
+    <string name="remove_download">다운로드 삭제</string>
+    <string name="import_playlist">재생목록 가져오기</string>
+    <string name="add_to_playlist">재생목록에 추가</string>
+    <string name="view_artist">아티스트 보기</string>
+    <string name="view_album">앨범 보기</string>
+    <string name="refetch">새로고침</string>
+    <string name="share">공유</string>
+    <string name="delete">삭제</string>
+    <string name="remove_from_history">기록에서 삭제</string>
+    <string name="remove_from_playlist">재생목록에서 삭제</string>
+    <string name="remove_from_queue">대기열에서 삭제</string>
+    <string name="remove_from_cache">캐시에서 삭제</string>
+    <string name="playlist_m3u_export">M3U 파일로 내보내기</string>
+    <string name="search_online">온라인에서 검색</string>
+    <string name="sync">동기화</string>
+    <string name="advanced">고급</string>
+    <string name="tempo_and_pitch">템포 및 음높이</string>
+
+    <string name="sort_by_create_date">추가된 날짜</string>
+    <string name="sort_by_last_updated">업데이트된 날짜</string>
+    <string name="sort_by_name">이름</string>
+    <string name="sort_by_artist">아티스트</string>
+    <string name="sort_by_year">연도</string>
+    <string name="sort_by_song_count">곡 수</string>
+    <string name="sort_by_length">길이</string>
+    <string name="sort_by_play_time">재생 시간</string>
+    <string name="sort_by_custom">사용자 지정 순서</string>
+
+    <string name="media_id">미디어 ID</string>
+    <string name="mime_type">MIME 유형</string>
+    <string name="codecs">코덱</string>
+    <string name="bitrate">비트레이트</string>
+    <string name="sample_rate">샘플링 레이트</string>
+    <string name="loudness">음량</string>
+    <string name="volume">볼륨</string>
+    <string name="file_size">파일 크기</string>
+    <string name="unknown">알 수 없음</string>
+    <string name="copied">클립보드에 복사됨</string>
+
+    <string name="edit_lyrics">가사 수정</string>
+    <string name="search_lyrics">가사 검색</string>
+    <string name="delete_lyric_confirm">정말로 ‘%s’에 저장된 가사를 삭제하시겠습니까?</string>
+
+    <string name="edit_song">노래 수정</string>
+    <string name="song_title">노래 제목</string>
+    <string name="song_artists">노래 아티스트</string>
+    <string name="error_song_title_empty">노래 제목은 비워둘 수 없습니다.</string>
+    <string name="error_song_artist_empty">노래 아티스트는 비워둘 수 없습니다.</string>
+    <string name="save">저장</string>
+
+    <string name="sync_playlist">재생목록 동기화</string>
+    <string name="choose_playlist">재생목록 선택</string>
+    <string name="edit_playlist">재생목록 수정</string>
+    <string name="create_playlist">재생목록 만들기</string>
+    <string name="playlist_name">재생목록 이름</string>
+    <string name="error_playlist_name_empty">재생목록 이름은 비워둘 수 없습니다.</string>
+
+    <string name="edit_artist">아티스트 수정</string>
+    <string name="artist_name">아티스트 이름</string>
+    <string name="error_artist_name_empty">아티스트 이름은 비워둘 수 없습니다.</string>
+
+    <string name="duplicates">중복 항목</string>
+    <string name="skip_duplicates">중복 항목 건너뛰기</string>
+    <string name="add_anyway">그래도 추가</string>
+    <string name="duplicates_description_single">이 노래는 이미 재생목록에 있습니다</string>
+    <string name="duplicates_description_multiple">%d곡이 이미 재생목록에 있습니다</string>
+    <string name="allows_for_sync_witch_youtube">참고: YouTube Music과 동기화할 수 있습니다</string>
+
+    <plurals name="n_song">
+        <item quantity="other">%d곡</item>
+    </plurals>
+    <plurals name="n_artist">
+        <item quantity="other">아티스트 %d명</item>
+    </plurals>
+    <plurals name="n_album">
+        <item quantity="other">앨범 %d장</item>
+    </plurals>
+    <plurals name="n_playlist">
+        <item quantity="other">재생목록 %d개</item>
+    </plurals>
+    <plurals name="n_week">
+        <item quantity="other">%d주</item>
+    </plurals>
+    <plurals name="n_month">
+        <item quantity="other">%d개월</item>
+    </plurals>
+    <plurals name="n_year">
+        <item quantity="other">%d년</item>
+    </plurals>
+
+    <string name="playlist_imported">재생목록을 가져왔습니다</string>
+    <string name="removed_song_from_playlist">‘%s’을(를) 재생목록에서 삭제했습니다</string>
+    <string name="playlist_synced">재생목록이 동기화되었습니다</string>
+    <string name="undo">실행 취소</string>
+
+    <string name="now_playing">현재 재생 중</string>
+    <string name="lyrics_not_found">가사를 찾을 수 없습니다</string>
+    <string name="sleep_timer">취침 타이머</string>
+    <string name="end_of_song">노래 끝</string>
+    <plurals name="minute">
+        <item quantity="other">%d분</item>
+    </plurals>
+    <string name="error_no_stream">스트림을 사용할 수 없습니다</string>
+    <string name="error_no_internet">네트워크에 연결되지 않음</string>
+    <string name="error_timeout">시간 초과</string>
+    <string name="error_unknown">알 수 없는 오류</string>
+    <string name="menu">메뉴</string>
+    <string name="share_list">목록 공유</string>
+
+    <string name="seek_backward">5초 뒤로</string>
+    <string name="seek_forward">5초 앞으로</string>
+
+    <string name="action_like">좋아요</string>
+    <string name="action_like_all">모두 좋아요 표시</string>
+    <string name="action_remove_like">좋아요 취소</string>
+    <string name="action_remove_like_all">모두 좋아요 취소</string>
+    <string name="action_shuffle_on">셔플 켜기</string>
+    <string name="action_shuffle_off">셔플 끄기</string>
+    <string name="repeat_mode_off">반복 모드 끄기</string>
+    <string name="repeat_mode_one">현재 곡 반복</string>
+    <string name="repeat_mode_all">대기열 반복</string>
+
+    <string name="queue_all_songs">모든 노래</string>
+    <string name="queue_searched_songs">검색된 노래</string>
+
+    <string name="music_player">음악 플레이어</string>
+
+    <string name="notifications">알림</string>
+    <string name="keep_alive_title">시스템이 앱을 종료하지 못하도록 방지</string>
+    <string name="keep_alive_description">Loudly가 시스템에 의해 무작위로 닫히는 것을 방지하기 위해 포그라운드 알림을 사용합니다.</string>
+    <string name="notification_permission_is_required">알림 권한이 필요합니다</string>
+
+    <string name="settings">설정</string>
+    <string name="appearance">모양</string>
+    <string name="theme">테마</string>
+    <string name="proxy">프록시</string>
+    <string name="enable_dynamic_theme">동적 테마 사용</string>
+    <string name="dark_theme">어두운 테마</string>
+    <string name="dark_theme_on">켜기</string>
+    <string name="dark_theme_off">끄기</string>
+    <string name="dark_theme_follow_system">시스템 설정 따름</string>
+    <string name="pure_black">완전한 검정</string>
+    <string name="app_design_variant">앱 디자인</string>
+    <string name="app_design_ui_1_0">앱 UI 1.0</string>
+    <string name="app_design_ui_1_5">앱 UI 1.5</string>
+    <string name="listen_youtube_music">YouTube Music에서 듣기</string>
+    <string name="visit_the_loudly">Loudly 방문하기</string>
+    <string name="artist">아티스트</string>
+    <string name="listen_to_loudly">Loudly 듣기</string>
+    <string name="enable_swipe_thumbnail">썸네일 스와이프로 노래 변경</string>
+    <string name="customize_navigation_tabs">탐색 탭 맞춤설정</string>
+    <string name="player">플레이어</string>
+    <string name="player_text_alignment">플레이어 텍스트 정렬</string>
+    <string name="lyrics_text_position">가사 텍스트 위치</string>
+    <string name="sided">측면</string>
+    <string name="left">왼쪽</string>
+    <string name="center">가운데</string>
+    <string name="player_style">플레이어 스타일</string>
+    <string name="player_style_old_ui">이전 플레이어 UI</string>
+    <string name="player_style_ui_1_0">플레이어 UI 1.0</string>
+    <string name="player_style_ui_2_0">플레이어 UI 2.0</string>
+    <string name="follow_theme">테마 따름</string>
+    <string name="gradient">그라데이션</string>
+    <string name="blur">블러</string>
+    <string name="blurmv">블러 (모션)</string>
+    <string name="player_background_style">플레이어 배경 스타일</string>
+    <string name="right">오른쪽</string>
+    <string name="slider_style">슬라이더 스타일</string>
+    <string name="default_">기본값</string>
+    <string name="squiggly">물결 모양</string>
+    <string name="compose">Compose</string>
+    <string name="thumbnail_corner_radius">썸네일 모서리 반경 설정</string>
+    <string name="show_content_filter">콘텐츠 필터 표시</string>
+    <string name="misc">기타</string>
+    <string name="main">메인</string>
+    <string name="auto_playlists_customization">자동 재생목록 맞춤설정</string>
+    <string name="show_liked_auto_playlist">‘좋아요’ 자동 재생목록 표시</string>
+    <string name="show_download_auto_playlist">‘다운로드’ 자동 재생목록 표시</string>
+    <string name="show_top_auto_playlist">‘인기’ 자동 재생목록 표시</string>
+    <string name="show_cached_auto_playlist">‘캐시됨’ 자동 재생목록 표시</string>
+    <string name="show_local_auto_playlist">‘로컬’ 자동 재생목록 표시</string>
+    <string name="swipe_song_to_dismiss">오른쪽으로 스와이프하여 다음 곡 재생, 왼쪽으로 스와이프하여 대기열에 추가</string>
+    <string name="default_open_tab">기본으로 열 탭</string>
+    <string name="default_lib_chips">기본 보관함 필터</string>
+    <string name="grid_cell_size">그리드 셀 크기</string>
+    <string name="slim_navbar">하단 탐색 메뉴 라벨 표시</string>
+    <string name="small">작게</string>
+    <string name="big">크게</string>
+    <string name="Changelog">변경 로그</string>
+    <string name="no_changes">최근 변경 사항 없음</string>
+    <string name="changelogs">최근 변경 사항:</string>
+    <string name="closepopup">닫기</string>
+    <string name="NewVersion">새 버전 사용 가능</string>
+    <string name="Hi">안녕하세요</string>
+    <string name="Donate">기부하기</string>
+    <string name="Telegramchanel">공식 채널</string>
+    <string name="web_site">웹사이트</string>
+    <string name="web_site_info">공식 웹사이트 ❯</string>
+    <string name="code">소스 코드</string>
+    <string name="code_text">앱의 소스 코드에 접근</string>
+    <string name="bugs">문제점</string>
+    <string name="bugs_text">버그 신고 등</string>
+    <string name="help">도움말</string>
+    <string name="contribution_text">기여하고 싶으시면 여기를 클릭하세요 ❯</string>
+    <string name="Developer">개발자 | @RRechz</string>
+
+    <string name="content">콘텐츠</string>
+    <string name="login">로그인</string>
+    <string name="login_description">YT Music 재생목록 등에 로그인하세요</string>
+    <string name="token_hidden">탭하여 토큰 표시</string>
+    <string name="token_shown">다시 탭하여 복사 또는 수정</string>
+    <string name="token_adv_login_description">이것은 고급 로그인 방법입니다. 웹 포털 대신 여기에서 직접 로그인 토큰을 입력하거나 업데이트할 수 있습니다. 예를 들어, 여러 기기에서 더 빠르게 로그인할 수 있습니다. 앱이 파싱할 수 없는 잘못된 토큰 형식은 허용되지 않습니다.</string>
+    <string name="import_from_spotify">Spotify에서 가져오기</string>
+    <string name="title_spotify">Spotify</string>
+    <string name="title_discord">Discord</string>
+    <string name="like_autodownload">좋아요 표시한 노래 자동 다운로드</string>
+    <string name="ytm_sync">YouTube Music 계정과 자동 동기화</string>
+    <string name="ytm_sync_description">재생목록 등을 계정과 동기화</string>
+    <string name="wifi_only">Wi-Fi 전용</string>
+    <string name="not_logged_in">로그인되지 않음</string>
+    <string name="content_language">기본 콘텐츠 언어</string>
+    <string name="content_country">기본 콘텐츠 국가</string>
+    <string name="system_default">시스템 기본값</string>
+    <string name="enable_proxy">프록시 사용</string>
+    <string name="proxy_type">프록시 유형</string>
+    <string name="proxy_url">프록시 URL</string>
+    <string name="restart_to_take_effect">적용하려면 다시 시작해야 합니다</string>
+    <string name="app_language">앱 언어</string>
+    <string name="configure_app_language">앱 언어 설정</string>
+    <string name="intent_app_language_not_found">앱 언어 설정을 찾을 수 없습니다. 수동으로 설정해주세요.</string>
+    <string name="open_supported_links">지원되는 링크 기본으로 열기</string>
+    <string name="configure_supported_links">지원되는 링크 설정</string>
+    <string name="intent_supported_links_not_found">지원되는 링크 설정을 찾을 수 없습니다. 수동으로 설정해주세요.</string>
+
+    <string name="player_and_audio">플레이어 및 오디오</string>
+    <string name="audio_quality">음질</string>
+    <string name="audio_quality_max">최대</string>
+    <string name="audio_quality_auto">자동</string>
+    <string name="audio_quality_high">높음</string>
+    <string name="audio_quality_low">낮음</string>
+    <string name="minimum_playback_duration">최소 재생 시간</string>
+    <string name="minimum_playback_duration_info">‘재생됨’으로 간주되기 위해 재생해야 하는 최소 시간</string>
+    <string name="queue">대기열</string>
+    <string name="persistent_queue">영구 대기열</string>
+    <string name="persistent_queue_desc">앱 시작 시 마지막 대기열 복원</string>
+    <string name="auto_load_more">자동으로 더 많은 노래 로드</string>
+    <string name="auto_load_more_desc">가능한 경우 대기열 끝에 도달하면 자동으로 더 많은 노래를 추가합니다</string>
+    <string name="skip_silence">무음 건너뛰기</string>
+    <string name="audio_normalization">오디오 평준화</string>
+    <string name="play_song_when_bluetooth_device_connected">블루투스 기기 연결 시 재생 계속</string>
+    <string name="stop_playing_when_song_sound_minimum_volume">최소 볼륨에서 재생 중지</string>
+    <string name="adding_played_songs_to_ytm_history">재생한 노래를 YouTube Music 기록에 추가</string>
+    <string name="auto_skip_next_on_error">오류 발생 시 다음 곡으로 자동 건너뛰기</string>
+    <string name="auto_skip_next_on_error_desc">끊김 없는 재생 경험을 보장합니다</string>
+    <string name="stop_music_on_task_clear">작업 지울 때 음악 중지</string>
+    <string name="equalizer">이퀄라이저</string>
+    <string name="lyrics">가사</string>
+    <string name="lyrics_settings_title">가사</string>
+    <string name="local_player_settings_title">로컬 플레이어 설정</string>
+    <string name="storage">저장 공간</string>
+    <string name="cache">캐시</string>
+    <string name="image_cache">이미지 캐시</string>
+    <string name="song_cache">노래 캐시</string>
+    <string name="max_cache_size">최대 캐시 크기</string>
+    <string name="unlimited">무제한</string>
+    <string name="audio_offload">오디오 오프로드 사용</string>
+    <string name="audio_offload_description">오디오 재생에 오디오 오프로드 경로를 사용합니다. 비활성화하면 전력 사용량이 늘어날 수 있지만 오디오 재생이나 후처리에 문제가 있을 때 유용할 수 있습니다.</string>
+    <string name="clear_all_downloads">모든 다운로드 삭제</string>
+    <string name="max_image_cache_size">최대 이미지 캐시 크기</string>
+    <string name="clear_image_cache">이미지 캐시 삭제</string>
+    <string name="max_song_cache_size">최대 노래 캐시 크기</string>
+    <string name="clear_song_cache">노래 캐시 삭제</string>
+    <string name="size_used">사용됨</string>
+    <string name="clear_all_cache_dialog">모든 캐시를 삭제하시겠습니까?</string>
+    <string name="clear_all_downloads_dialog">모든 다운로드를 삭제하시겠습니까?</string>
+    <string name="clear_song_cache_dialog">모든 캐시된 노래를 삭제하시겠습니까?</string>
+    <string name="clear_images_cache_dialog">모든 캐시된 이미지를 삭제하시겠습니까?</string>
+    <string name="clear_translation_models_cache_dialog">모든 캐시된 번역 모델을 삭제하시겠습니까?</string>
+
+    <string name="privacy">개인정보 보호</string>
+    <string name="listen_history">감상 기록</string>
+    <string name="pause_listen_history">감상 기록 일시중지</string>
+    <string name="clear_listen_history">감상 기록 삭제</string>
+    <string name="clear_listen_history_confirm">모든 감상 기록을 삭제하시겠습니까?</string>
+    <string name="pause_search_history">검색 기록 일시중지</string>
+    <string name="clear_search_history">검색 기록 삭제</string>
+    <string name="clear_search_history_confirm">모든 검색 기록을 삭제하시겠습니까?</string>
+    <string name="search_history">검색 기록</string>
+    <string name="use_login_for_browse">로그인하여 콘텐츠 탐색</string>
+    <string name="use_login_for_browse_desc">이것은 표시되는 콘텐츠에 영향을 줄 수 있으며, 프리미엄 계정으로 로그인한 경우 프리미엄 전용 앨범을 표시할 수 있습니다.</string>
+    <string name="disable_screenshot">스크린샷 비활성화</string>
+    <string name="disable_screenshot_desc">이 옵션을 켜면 스크린샷과 최근 앱 보기에서 앱 화면이 비활성화됩니다.</string>
+    <string name="enable_lrclib">LrcLib 가사 제공자 사용</string>
+    <string name="enable_kugou">KuGou 가사 제공자 사용</string>
+    <string name="default_lyrics_provider">기본 가사 제공자</string>
+    <string name="lyrics_multiline_title">여러 줄 가사 읽기</string>
+    <string name="lyrics_multiline_description">동기화 지점 사이의 모든 줄을 하나의 가사 텍스트로 처리합니다</string>
+    <string name="lyrics_trim_title">가사 주변 공백 제거</string>
+    <string name="lyrics_font_size">글꼴 크기</string>
+    <string name="hide_explicit">성인용 콘텐츠 숨기기</string>
+    <string name="enable_notifications">알림 사용</string>
+
+    <string name="backup_restore">백업 및 복원</string>
+    <string name="backup">백업</string>
+    <string name="restore">복원</string>
+    <string name="import_m3u">재생목록 가져오기 (m3u)</string>
+    <string name="m3u_import_failed">재생목록 가져오기 실패</string>
+    <string name="imported_playlist">가져온 재생목록</string>
+    <string name="backup_create_success">백업 생성 성공</string>
+    <string name="backup_create_failed">백업 생성 실패</string>
+    <string name="restore_failed">백업 복원 실패</string>
+
+    <string name="discord_integration">Discord 연동</string>
+    <string name="discord_information">Loudly는 KizzyRPC 라이브러리를 사용하여 Discord 계정의 상태를 설정합니다. 여기에는 Discord 게이트웨이 연결 사용이 포함되며, 이는 Discord 서비스 약관 위반으로 간주될 수 있습니다. 그러나 이로 인해 사용자 계정이 정지된 사례는 알려진 바 없습니다. 위험은 본인이 감수해야 합니다.\n\nLoudly는 토큰만 추출하며, 그 외 모든 것은 로컬에 저장됩니다.</string>
+    <string name="dismiss">닫기</string>
+    <string name="options">옵션</string>
+    <string name="preview">미리보기</string>
+    <string name="login_failed">로그인 실패</string>
+    <string name="logout">로그아웃</string>
+    <string name="enable_discord_rpc">리치 프레즌스 사용</string>
+
+    <string name="about">정보</string>
+    <string name="app_version">앱 버전</string>
+    <string name="checking_for_update">업데이트 확인 중...</string>
+    <string name="update_card_version_ready_to_download">버전 %1$s 다운로드 가능.</string>
+    <string name="update_card_downloading">다운로드 중...</string>
+    <string name="install">업그레이드</string>
+    <string name="try_again">재시도</string>
+    <string name="download_now">지금 다운로드</string>
+    <string name="app_type">앱 유형</string>
+
+    <string name="new_version_available">새 버전 사용 가능</string>
+    <string name="translation_models">번역 모델</string>
+    <string name="clear_translation_models">번역 모델 삭제</string>
+    <string name="history_duration">기록 기간</string>
+    <plurals name="seconds">
+        <item quantity="other">%d초</item>
+    </plurals>
+    <string name="widget_title">음악 3x2</string>
+    <string name="widget_quick_title">음악 2x1</string>
+    <string name="play_pause">재생/일시정지</string>
+    <string name="about_subtitle">버전 · 개발자 · 라이선스</string>
+    <string name="category_interface">UI</string>
+    <string name="category_content">콘텐츠 및 계정</string>
+    <string name="category_player">플레이어</string>
+    <string name="category_system">시스템</string>
+    <string name="library">보관함</string>
+    <string name="integrations">연동</string>
+    <string name="system_integration">시스템 연동</string>
+    <string name="total_used_space">총 사용 공간</string>
+    <string name="currently_used">현재 사용 중</string>
+    <string name="clear_cache">캐시 삭제</string>
+    <string name="backup_restore_description">백업 · 복원 · 가져오기</string>
+    <string name="privacy_description">기록 · 검색 · 스크린샷</string>
+    <string name="storage_description">다운로드 · 캐시 · 이미지</string>
+    <string name="player_and_audio_description">사운드 · 대기열 · 가사</string>
+    <string name="content_description">언어 · 위치 · 프록시</string>
+    <string name="account_description">로그인 · Spotify · Discord</string>
+    <string name="appearance_description">테마 · 슬라이더 · 플레이어</string>
+
+    <string name="header_background">프로필 카드 사진</string>
+    <string name="header_background_description">프로필 카드의 사진을 맞춤설정하세요</string>
+    <string name="select_header_image">프로필 이미지 선택</string>
+    <string name="predefined_images">기본 이미지</string>
+    <string name="select_from_gallery">갤러리에서 선택</string>
+    <string name="edit_photo">사진 수정</string>
+    <string name="cancel">취소</string>
+
+    <string name="send_to_developer">개발자에게 보내기</string>
+    <string name="close">닫기</string>
+    <string name="update_error_details">오류 세부정보 표시</string>
+    <string name="download_failed">다운로드 실패</string>
+    <string name="show_error">오류 표시</string>
+    <string name="go_to_update_link">수동 업데이트</string>
+    <string name="home_card_update_desc">자세한 내용은 설정 페이지를 확인하세요</string>
+    <string name="app_up_to_date">소프트웨어가 최신 버전입니다</string>
+
+    <string name="app_ui">앱 UI</string>
+    <string name="app_ui_desc">3가지 다른 디자인 중 하나를 선택하세요</string>
+    <string name="ui_version_selection">UI 버전 선택</string>
+    <string name="ui_version_1_0_desc">앱의 이전 버전 디자인. (앱, 플레이어, 미니플레이어)</string>
+    <string name="ui_version_1_5_desc">더 현대적인 접근 방식으로 만든 컴팩트한 디자인. (앱, 플레이어, 미니플레이어)</string>
+    <string name="ui_version_2_0_desc">가장 인기 있는 디자인. (앱, 플레이어, 미니플레이어)</string>
+    <string name="ui_version_custom_desc">나만의 앱 UI 디자인 만들기. (앱, 플레이어, 미니플레이어)</string>
+    <string name="custom_app_ui">UI 맞춤설정</string>
+
+    <string name="other_settings">기타 설정</string>
+    <string name="other_settings_description">다양한 기타 설정을 보려면 클릭하세요</string>
+
+    <string name="audio_quality_auto_desc">45~512 Kbps 사이에서 품질을 자동으로 조절합니다</string>
+    <string name="audio_quality_max_desc">최대 512 Kbps의 최고 품질을 제공합니다</string>
+    <string name="audio_quality_high_desc">평균 인터넷 속도에 맞춰 128~256 Kbps의 품질을 설정합니다.</string>
+    <string name="audio_quality_low_desc">데이터 절약을 위해 품질을 45~52 Kbps로 제한합니다 (데이터 절약 모드)</string>
+
+    <string name="could_not_import">가져올 수 없습니다</string>
+
+    <string name="text_alignment">텍스트 정렬</string>
+    <string name="text_alignment_description">카드에 텍스트 위치 설정</string>
+    <string name="gradient_intensity">그라데이션 강도</string>
+    <string name="corner_round">모서리 둥글게</string>
+    <string name="profile_picture">프로필 사진</string>
+    <string name="profile_card">프로필 카드</string>
+    <string name="remove_profile_picture">프로필 사진 삭제</string>
+    <string name="show_texts">텍스트 표시</string>
+    <string name="show_texts_description">프로필 카드에 인사말과 사용자 이름 표시</string>
+    <string name="tap_to_change">탭하여 변경</string>
+
+    <string name="translate">번역 (베타)</string>
+    <string name="copy">복사</string>
+
+    <string name="error_network_title">네트워크 오류</string>
+    <string name="error_network_description">인터넷 연결을 확인하고 다시 시도하세요.</string>
+    <string name="error_unsupported_format_title">지원되지 않는 콘텐츠</string>
+    <string name="error_unsupported_format_description">이 노래 형식은 기기에서 지원되지 않습니다.</string>
+    <string name="error_behind_live_window_title">라이브 방송 오류</string>
+    <string name="error_behind_live_window_description">라이브 스트림에 문제가 있습니다. 다시 시작해주세요.</string>
+    <string name="error_playback_failed_title">재생 실패</string>
+    <string name="error_playback_failed_description">알 수 없는 오류가 발생했습니다. 다시 시도해주세요.</string>
+    <string name="recovering_playback">다시 시도 중…</string>
+    <string name="vpn_info_message">VPN 사용은 연결 품질에 영향을 줄 수 있습니다. 네트워크 문제가 있는 경우 VPN 연결을 끊거나 프록시를 사용하세요. ‘설정 >> 콘텐츠 >> 프록시’에서 설정할 수 있습니다.</string>
+
+    <string name="sync_local_songs_toast">로컬 노래를 성공적으로 동기화했습니다</string>
+    <string name="local_scanner_title">로컬 스캐너</string>
+
+    <string name="auto_scanner_title">자동으로 스캔</string>
+    <string name="auto_scanner_description">앱 열 때 자동으로 노래 스캔</string>
+
+    <string name="scanner_settings_title">추가 스캐너 설정</string>
+    <string name="scanner_strict_file_name_title">엄격한 파일 이름</string>
+    <string name="scanner_strict_file_name_description">활성화하면 확장자를 무시하지 않습니다. 예: "Song.ogg"는 "Song.flac"과 다른 노래가 됩니다</string>
+    <string name="scanner_sensitivity_title">스캐너 감도 설정</string>
+    <string name="scanner_sensitivity_L1">제목 일치</string>
+    <string name="scanner_sensitivity_L2">제목 및 아티스트 일치</string>
+    <string name="scanner_sensitivity_L3">제목, 아티스트, 앨범 일치</string>
+
+    <string name="folders_settings_title">폴더</string>
+    <string name="flat_subfolders_title">하위 폴더 평면화</string>
+    <string name="flat_subfolders_description">디스크의 파일 구조를 유지하려면 비활성화하세요</string>
+
+    <string name="tips_and_features">팁 및 기능</string>
+    <string name="tips_and_fetures_description"> 팁 · 기능</string>
+    <string name="create_your_story">내 스토리 만들기</string>
+    <string name="share_your_story_description">앨범 커버의 주 색상으로 만든 세련된 디자인으로 듣고 있는 노래를 소셜 미디어에 공유하세요.</string>
+    <string name="customizable_settings">맞춤설정 가능한 설정</string>
+    <string name="customizable_settings_description">설정 화면의 제목 카드 배경을 갤러리 이미지로 교체하여 앱을 나만의 것으로 만드세요.</string>
+    <string name="new_song_list">새 노래 목록</string>
+    <string name="new_song_list_description">현재 재생목록을 보고 플레이어 화면에서 위로 스와이프하여 쉽게 노래를 전환하세요 (플레이어 UI 2.0 전용 새로운 디자인)</string>
+    <string name="remastered_settings">새롭게 디자인된 설정</string>
+    <string name="remastered_settings_description">더 현대적이고 편리한 새로운 카드 기반 설정 디자인으로 원하는 것을 쉽게 찾으세요.</string>
+    <string name="classic_music_widget">클래식 음악 위젯</string>
+    <string name="classic_music_widget_description">홈 화면에서 모든 컨트롤과 노래 정보에 빠르게 접근하세요.</string>
+    <string name="minimalist_music_widget">미니멀리스트 음악 위젯</string>
+    <string name="minimalist_music_widget_description">Android 16의 빠른 설정 버튼 디자인에서 영감을 받은 ‘Quik’ 음악 위젯</string>
+    <string name="share_on_story">스토리에 공유</string>
+    <string name="copy_song_link">노래 링크 복사</string>
+    <string name="link_copied">링크가 클립보드에 복사되었습니다!</string>
+    <string name="streamed_on_loudly">Loudly에서 스트리밍됨</string>
+
+    <string name="select_all">전체 선택</string>
+    <string name="fetching_all_playlists">모든 재생목록을 가져오는 중…</string>
+    <string name="import_selected_items">선택한 항목 가져오기</string>
+    <string name="something_went_wrong">문제가 발생했습니다. 저희도 여러분만큼 당황스럽습니다.</string>
+    <string name="well_thats_embarrassing">음, 당황스럽네요. 저희도 무슨 일이 일어났는지 모르겠습니다.</string>
+    <string name="instructions_to_get_required_credentials">필요한 자격 증명 얻는 방법</string>
+    <string name="make_sure_to_click">3. 위의 로컬 경로를 입력한 후 ‘추가’를 클릭하세요.</string>
+    <string name="accept_the_terms_of_service">5. 서비스 약관에 동의하고 ‘저장’을 클릭하세요.</string>
+    <string name="you_ll_be_redirected_to_a_new_page">새 페이지로 리디렉션됩니다. 설정을 클릭한 다음 클라이언트 ID와 클라이언트 시크릿을 복사하여 이 앱의 아래 텍스트 필드에 붙여넣으세요.</string>
+    <string name="enter_the_necessary_details">2. 필요한 세부 정보를 입력하고 리디렉션 URI로 http://127.0.0.1:45454를 사용하세요.</string>
+    <string name="toggle_wep_api">4. 웹 API를 켜세요. 이제 체크박스에 체크 표시가 있어야 합니다.</string>
+    <string name="now_click_the_authorize_and_continue">이제 아래의 인증 및 계속 버튼을 클릭하고 가져오려는 계정으로 로그인한 다음 인증 및 계속을 진행하면 http://127.0.0.1:45454/?code=로 시작하는 사이트로 리디렉션됩니다.\n\n해당 전체 URL을 아래 ‘인증 코드’ 텍스트 필드에 붙여넣고 인증 버튼을 클릭하세요.</string>
+    <string name="visit_spotify_for_developers">1. Spotify 개발자 대시보드를 방문하여 ‘앱 만들기’를 클릭하세요.</string>
+    <string name="login_with_spotify">Spotify API 자격 증명으로 로그인</string>
+    <string name="authorize_and_continue">인증 및 계속</string>
+    <string name="authorization_code">인증 코드</string>
+    <string name="authenticate">인증</string>
+    <string name="client_secret">클라이언트 시크릿</string>
+    <string name="client_id">클라이언트 ID</string>
+    <string name="import_in_progress">가져오는 중…</string>
+    <string name="dont_close_app_message">앱을 닫거나 뒤로 가지 마세요. 이 작업은 백그라운드에서 실행되지 않으므로 끝날 때까지 기다려주세요!\n멈춘 것처럼 보여도 당황하지 마세요. 때때로 검색에 시간이 걸릴 수 있습니다.</string>
+    <string name="choose_liked_songs">‘좋아요 표시한 노래’ 대상 선택</string>
+    <string name="where_should_the_liked_songs">좋아요 표시한 노래를 어디로 가져와야 하나요?</string>
+    <string name="new_playlist_named">‘좋아요 표시한 노래’라는 이름의 새 재생목록</string>
+    <string name="default_liked_songs">기본 ‘좋아요 표시한 노래’로</string>
+</resources>

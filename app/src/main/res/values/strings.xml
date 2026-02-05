@@ -1,646 +1,711 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AirNote</string>
-    <string name="home_screen">Notes</string>
-    <string name="new_note">New Note</string>
-    <string name="no_created_notes">No created notes.</string>
-    <string name="no_found_notes">No notes found.</string>
-    <string name="created_time">Created Time</string>
-    <string name="grid_view">Grid view</string>
-    <string name="column_view">Column view</string>
-    <string name="words">Words</string>
-    <string name="characters">Characters</string>
-    <string name="name">Name</string>
-    <string name="description">Description</string>
-    <string name="select_all">Select all</string>
-    <string name="delete">Delete</string>
-    <string name="information">Information</string>
-    <string name="search">Search</string>
-    <string name="screen_settings">Settings</string>
-    <string name="display">Display</string>
-    <string name="system_theme">System Theme</string>
-    <string name="dark_theme">Dark Theme</string>
-    <string name="dynamic_colors">Dynamic Colors</string>
-    <string name="amoled_colors">Amoled Colors</string>
-    <string name="database">Database</string>
-    <string name="backup">Backup</string>
-    <string name="not_supported">Not supported yet</string>
-    <string name="about">About</string>
-    <string name="version">Version</string>
-    <string name="latest_release">Latest Release</string>
-    <string name="start_project">Star Project</string>
-    <string name="donate_me">Donate Me :)</string>
-    <string name="restore">Restore</string>
-    <string name="notes">Notes</string>
-    <string name="support">Support</string>
-    <string name="color_styles"><![CDATA[Colors & Styles]]></string>
-    <string name="language">Language</string>
-    <string name="markdown">Markdown</string>
-    <string name="tools">Tools</string>
-    <string name="history">History</string>
-    <string name="widgets">Widgets</string>
-    <string name="description_color_styles">Themes • Size • Font</string>
-    <string name="cloud">Cloud</string>
-    <string name="description_language">Font • Language</string>
-    <string name="description_cloud">NextCloud • Local • Encryption</string>
-    <string name="description_about">Version • Developers • License</string>
-    <string name="description_widgets">Widgets • Markdown</string>
-    <string name="description_history">History • Revert</string>
-    <string name="description_tools">Created • Delete All</string>
-    <string name="description_markdown">Support • Images</string>
-    <string name="support_description">Show your love</string>
-    <string name="select_font">Font</string>
-    <string name="radius">Radius</string>
-    <string name="select_radius">Select Radius</string>
-    <string name="minimalistic_mode">Minimalistic Mode</string>
-    <string name="extreme_amoled_mode">Extreme Amoled Colors</string>
-    <string name="privacy">Privacy</string>
-    <string name="screen_protection">Screen Protection</string>
-    <string name="images_supprot">Images Support</string>
-    <string name="unstable_feature">Unstable</string>
-    <string name="cryptocurrency">Cryptocurrency</string>
-    <string name="system_theme_description">Adapts app theme based on system settings</string>
-    <string name="dark_theme_description">Toggle between dark and light color schemes</string>
-    <string name="dynamic_colors_description">Adjusts colors to match your wallpaper</string>
-    <string name="amoled_colors_description">Use black color for background</string>
-    <string name="extreme_amoled_mode_description">Extreme Battery optimization</string>
-    <string name="radius_description">Customize border radius</string>
-    <string name="view_style_description">Select view style</string>
-    <string name="minimalistic_mode_description">Remove top buttons from edit screen</string>
-    <string name="backup_description">Store all notes to file</string>
-    <string name="restore_description">Restore notes from backup file</string>
-    <string name="markdown_description">Enable markdown in notes</string>
-    <string name="screen_protection_description">Hide screen in recents and disable screenshots</string>
-    <string name="build_type">Build Type</string>
-    <string name="source_code">Source Code</string>
-    <string name="support_list">Supporters List</string>
-    <string name="email">Email</string>
-    <string name="discord">Discord</string>
-    <string name="feature">Bug Report and More</string>
-    <string name="pinned">Pinned</string>
-    <string name="others">Others</string>
-    <string name="copy">Copy</string>
-    <string name="encrypt_databse">Encrypt Database</string>
-    <string name="encrypt_databse_description">Encrypt database during backup</string>
-    <string name="password_prompt">Enter password</string>
-    <string name="invalid_input">Invalid input</string>
-    <string name="sort_ascending">Sort Ascending</string>
-    <string name="sort_descending">Sort Descending</string>
-    <string name="sort_description">Sort notes by their creation time</string>
-    <string name="select_note">Select Note</string>
-    <string name="unsuported_image_size">Unsupported Image Size (15mb max)</string>
-    <string name="vault">Vault</string>
-    <string name="vault_description">Enable encrypted notes vault</string>
-    <string name="password_continue">continue</string>
-    <string name="language_description">Change the app language</string>
-    <string name="system_language">System Language</string>
-    <string name="Behavior">Behavior</string>
-    <string name="always_edit">Prioritize Editing Mode</string>
-    <string name="always_edit_description">Enter edit mode on existing notes</string>
-    <string name="invalid_password">Invalid Password</string>
-    <string name="donators">Donate</string>
-    <string name="translators">Translation</string>
-    <string name="contributors">Contribution</string>
-    <string name="gallery_sync_description">Deletes images from app storage when they are removed from the gallery</string>
-    <string name="gallery_sync">Gallery Sync</string>
-    <string name="show_only_title">Show only title</string>
-    <string name="show_only_title_description">Show only the title in preview</string>
-    <string name="terms_acceptance_title">1. Acceptance of Terms</string>
-    <string name="terms_acceptance_body">By pressing "Agree" and using Easy Notes, you accept these Terms of Service. If you do not agree, do not use the application.</string>
-    <string name="terms_license_title">2. License</string>
-    <string name="terms_license_body">AirNote is distributed under the **GNU General Public License (GPL) version 3**. This means:\n\n- You are free to use, modify, and share the application.\n- If you distribute the application or any modified versions, you must also distribute the source code and retain the GPL license.</string>
-    <string name="terms_use_title">3. Use of the Application</string>
-    <string name="terms_use_body">You agree to use AirNote only for lawful purposes and in accordance with these Terms. You must **not**:\n\n- _Use the app for any unlawful purpose_\n- _Violate the rights of others_\n- _Disrupt the functionality or security of the app_</string>
-    <string name="terms_intellectual_property_title">4. Intellectual Property</string>
-    <string name="terms_intellectual_property_body">All intellectual property rights in AirNote are owned by us or our licensors. Your use of the app does not grant you ownership of any intellectual property rights.</string>
-    <string name="terms_disclaimer_title">5. Disclaimer of Warranties</string>
-    <string name="terms_disclaimer_body">Easy Notes is provided "as is," without any warranties. We do not guarantee that the app will be free from errors, secure, or uninterrupted.</string>
-    <string name="terms_liability_title">6. Limitation of Liability</string>
-    <string name="terms_liability_body">We are not liable for any damages resulting from your use of AirNote, including indirect, incidental, or consequential damages.</string>
-    <string name="terms_termination_title">7. Termination</string>
-    <string name="terms_termination_body">We may terminate or suspend your access to AirNote if you breach these Terms. Upon termination, your right to use the app will end immediately.</string>
-    <string name="terms_changes_title">8. Changes to Terms</string>
-    <string name="terms_changes_body">We may update these Terms of Service from time to time. Your continued use of AirNote (Easy Notes) after any changes constitutes acceptance of the revised terms.</string>
-    <string name="terms_contact_title">9. Contact Us</string>
-    <string name="terms_contact_body">For any questions about these Terms of Service or AirNote, please contact us at</string>
-    <string name="terms_privacy_title">10. Privacy Policy</string>
-    <string name="terms_privacy_body">AirNote does not collect any personal data. For more information, please refer to our Privacy Policy available at</string>
-    <string name="terms_effective_date">Effective Date</string>
-    <string name="agree">Agree</string>
-    <string name="terms_of_service">Terms of service</string>
-    <string name="file_import_title">Import</string>
-    <string name="file_import_description">Import other text files as notes</string>
-    <string name="monospace_font_description">Use monospace font while editing note</string>
-    <string name="monospace_font">Monospace font</string>
-    <string name="alert_text"> Are you sure you want to delete the selected notes</string>
-    <string name="yes"> Yes</string>
-    <string name="cancel">Cancel</string>
-    <string name="app_lock">App lock (Experimental)</string>
-    <string name="app_lock_description">Lock app using password</string>
-    <string name="setup_password">Setup passcode</string>
-    <string name="enter_password">Enter Passcode</string>
-    <string name="pin">Pin (6 numbers)</string>
-    <string name="passcode">Passcode</string>
-    <string name="fingerprint">Fingerprint (Experimental)</string>
-    <string name="fingerprint_name">Authentication required</string>
-    <string name="locked">is Locked</string>
-    <string name="uid">UID</string>
-    <string name="authorize_fingerprint">Ask for fingerprint on start</string>
-    <string name="authorize_passcode">Ask for passcode on start</string>
-    <string name="pattern">Pattern</string>
-    <string name="authorize_pattern">Ask for pattern on start</string>
-    <string name="setup_pattern">Settup pattern</string>
-    <string name="lock_pattern">Enter pattern</string>
-    <string name="lock_on_resume">Lock Immediately</string>
-    <string name="lock_on_resume_description">Lock instantly when app is resumed</string>
-    <string name="disable_swipe_edit">Disable swipe</string>
-    <string name="disable_swipe_edit_description">"Disable swiping to preview in edit mode "</string>
-    <string name="make_search_bar_longer">Scale Search Bar Width</string>
-    <string name="make_search_bar_longer_description">Make search bar match width of notes</string>
-    <string name="font_size">Font Size</string>
-    <string name="font_size_description">Change the size of text in notes</string>
-    <string name="font_size_value">Font Size: %1$d</string>
-    <string name="font_size_preview_title">Preview</string>
-    <string name="font_size_preview_text">This is how your notes will look with the selected font size.</string>
-    <string name="developer" translatable="false">Developer | M. Burak Özcan</string>
-    <string name="info_dev">Babel Software founder and Android developer</string>
-    <string name="add_new_folder"> Add new folder</string>
-    <string name="folder_name">Folder name</string>
-    <string name="folder_color">Folder color</string>
-    <string name="add">Add</string>
-    <string name="move_to_folder">Move to Folder</string>
-    <string name="no_folders_available">No folder available</string>
-    <string name="delete_folder">Delete folder</string>
-    <string name="delete_folder_confirmation">Are you sure you want to delete the ‘%1$s’ folder? The notes in it will be moved to the ‘All Notes’ section.</string>
-    <string name="edit_folder">Edit folder</string>
-    <string name="save">Save</string>
-    <string name="folder_tag">Folder tag</string>
-    <string name="description_folder_tag">It shows the label of the folder to which the notes belong.</string>
-    <string name="airnote_ai">Kai</string>
-    <string name="airnote_ai_description">Configure AI • API settings</string>
-    <string name="use_airnote_api">Use AirNote API</string>
-    <string name="use_airnote_api_description">Use AI features with the app\'s built-in API (Recommended)</string>
-    <string name="your_api_key">You API key (BETA)</string>
-    <string name="check">Check</string>
-    <string name="model_to_use">AI Models (BETA)</string>
-    <string name="model_choice">Model Choice (BETA)</string>
-    <string name="ai_suggestion">AI\'s Suggestion</string>
-    <string name="close">Close</string>
-    <string name="all_notes">All Notes</string>
-    <string name="ai_button_texts">Ask, chat, find with AI...</string>
-    <string name="api_key_guide_title">How to Get Your Own API Key?</string>
-    <string name="api_key_guide_intro">From Google AI Studio, you can generate a personal API key with a generous free usage limit. This key belongs only to you and you have full control.</string>
-    <string name="api_key_guide_step_1">1. Go to the Google AI Studio website by clicking the button below.</string>
-    <string name="api_key_guide_step_2">2. Sign in with your Google account.</string>
-    <string name="api_key_guide_step_3">3. On the screen that opens, click the \"Create API key\" button.</string>
-    <string name="api_key_guide_step_4">4. You may be asked to create a new project, follow the steps to create it.</string>
-    <string name="api_key_guide_step_5">5. Copy the generated long character string.</string>
-    <string name="api_key_guide_step_6">6. Paste the copied key into the text box below and press the \“Check\” button.</string>
-    <string name="api_key_guide_button">Go to Google AI Studio</string>
-    <string name="perplexity_api_key_guide_intro">You need an API key to use Perplexity\'s chat API. Once you have your key, paste it here.</string>
-    <string name="perplexity_api_key_guide_step_1">1. Go to the Perplexity AI website.</string>
-    <string name="perplexity_api_key_guide_step_2">2. Log in to your account (or create a new account).</string>
-    <string name="perplexity_api_key_guide_step_3">3. Click on your profile icon in the upper right corner and select the ‘API Keys’ option.</string>
-    <string name="perplexity_api_key_guide_step_4">4. Click the ‘Create New API Key’ button.</string>
-    <string name="perplexity_api_key_guide_step_5">5. Give your key a name (e.g., ‘AirNote’) and create it.</string>
-    <string name="perplexity_api_key_guide_step_6">6. Copy the generated key and paste it into the ‘Perplexity API Key’ field on this screen.</string>
-    <string name="perplexity_api_key_guide_step_7">7. Click the ‘Save and Verify’ button.</string>
-    <string name="perplexity_api_key_guide_button">Go to Perplexity API Settings</string>
-    <string name="error_api_key_blank">Please enter an API key first.</string>
-    <string name="api_key_validation_success">API key valid and successfully registered! ✅</string>
-    <string name="api_key_validation_failure">Invalid API key. Please check and try again.</string>
-    <string name="ask_ai">Ask a question</string>
-    <string name="make_note">Make a note about a topic</string>
-    <string name="generate_ideas">Generate ideas</string>
-    <string name="generate_ideas_prompt">Give me 5 interesting ideas on a random topic</string>
-    <string name="newversion">New Version</string>
-    <string name="update">Update</string>
-    <string name="update_available_description">New update available!</string>
-    <string name="update_app">Update App</string>
-    <string name="changelog_fetch_error">Change log could not be retrieved.</string>
-    <string name="changelog_fetch_error_with_message">Failed to receive changelog: %1$s</string>
-    <string name="update_card_checking_for_updates">Checking for updates...</string>
-    <string name="update_card_update_available_icon_description">Update Available</string>
-    <string name="update_card_new_version_available">New Version Available!</string>
-    <string name="update_card_version_ready_to_download">Version %1$s is available for download.</string>
-    <string name="update_card_download_now">Update Now</string>
-    <string name="update_card_download_icon_description">Download</string>
-    <string name="update_card_downloading">Downloading... %1$d%</string>
-    <string name="update_card_install">İnstall</string>
-    <string name="update_card_install_icon_description">İnstall</string>
-    <string name="update_card_update_failed">Update Failed</string>
-    <string name="update_card_error_icon_description">Error</string>
-    <string name="update_card_try_again">Try Again</string>
-    <string name="update_card_try_again_icon_description">Try Again</string>
-    <string name="update_card_app_up_to_date">Your App is Up to Date</string>
-    <string name="update_card_up_to_date_icon_description">Updated</string>
-    <string name="update_card_install_permission_needed">The update requires permission to install from unknown sources.</string>
-    <string name="update_card_download_link_not_found">Download link not found.</string>
-    <string name="update_card_release_notes_title">Innovations</string>
-    <string name="save_note">Save Note</string>
-    <string name="regenerate_note">Re-Generate</string>
-    <string name="error_message_image_analysis_failed">An error occurred during image analysis.</string>
-    <string name="about_update_news">What\'s New</string>
-    <string name="about_latest_changes">Latest changes</string>
-    <string name="edit">Edit</string>
-    <string name="preview">Preview</string>
-    <string name="search_folders">Search Folders...</string>
-    <string name="new_folder">New Folder</string>
-    <string name="choose_icon">Choose Icon</string>
-    <string name="hide">Hide</string>
-    <string name="whats_new">What\'s New?</string>
-    <string name="ready_to_setup">Ready to Setup!</string>
-    <string name="using_latest_features">Great! You\'re using the latest features.</string>
-    <string name="whats_new_this_version">What\'s New in This Version!</string>
-    <string name="translate">Translate</string>
-    <string name="original_text">Original language</string>
-    <string name="translation_failed">Translation failed</string>
-    <string name="gemini_api_key">Gemini API Key</string>
-    <string name="perplexity_api_key">Perplexity API Key</string>
-    <string name="save_and_check">Save And Check</string>
-    <string name="successfully_verified">Successfully verified and recorded!</string>
-    <string name="open_last_folder">Last Folder (BETA)</string>
-    <string name="open_last_folder_description">When the application opens, it displays the last folder viewed</string>
-    <string name="change">Change</string>
-    <string name="offline_translation_models">Translation Modules</string>
-    <string name="downloaded">Downloaded</string>
-    <string name="not_downloaded">Not Downloaded</string>
-    <string name="download">Download</string>
-    <string name="no_downloaded_languages">No available translation language! Please download a language model from Settings > Kai menu</string>
-    <string name="translate_all_note">Translate All Note</string>
-    <string name="api_key_icon_cd">API Key Icon</string>
-    <string name="successfully_verified_icon_cd">Successfully Verified Icon</string>
-    <string name="delete_language_model_title">%1s Delete?</string>
-    <string name="delete_language_model_body">Are you sure you want to remove this language model from your device?</string>
-    <string name="delete_language_model_cd">%1s delete the language model</string>
-    <string name="error_generic">Error</string>
-    <string name="lang_models_fetch_error">The list of downloaded language models could not be retrieved.</string>
-    <string name="lang_model_download_success">%1s downloaded</string>
-    <string name="lang_model_download_failure">%1s could not be downloaded</string>
-    <string name="lang_model_delete_success">%1s deleted</string>
-    <string name="lang_model_delete_failure">%1s could not be deleted</string>
-    <string name="detabase_restore_error">Error while restoring the database: incorrect password!</string>
-    <string name="file_import_success">All files were successfully imported!</string>
-    <string name="file_import_error">An error occurred while importing files.</string>
-    <string name="file_import_partial_error">An error occurred while importing some files.</string>
-    <string name="ai_error_no_text_selected">Please select the text you want to work on!</string>
-    <string name="error_unknown">An unknown error occurred!</string>
-    <string name="error_unexpected_with_message">An unexpected error occurred: %1s</string>
-    <string name="ai_error_no_tasks_for_todo">First, briefly describe what you need to do during the day.</string>
-    <string name="error_fetching_downloaded_models">Downloaded language models could not be retrieved: %1s</string>
-    <string name="error_translation_failed">Translation failed: %1s</string>
-    <string name="ai_error_select_text_to_translate">Please select the text you want to translate!</string>
-    <string name="welcome_to_airnote_dex">Welcome to AirNote DeX</string>
-    <string name="airnote_dex_description">A better note-taking experience on larger screens!</string>
-    <string name="folders">Folders</string>
-    <string name="search_notes">Search in notes...</string>
-    <string name="title_dex">Title...</string>
-    <string name="write_your_note_here">Write your note here...</string>
-    <string name="dex_create_new_note">Create New Note</string>
-    <string name="dex_start">Start!</string>
-    <string name="dex_note_preview">To view or edit, select a note from the list on the left.</string>
-    <string name="dex_version">DeX Version</string>
-    <string name="ai_version">AI Service Version</string>
-    <string name="draft_topic_placeholder" translatable="false">Draft Topic Placeholder</string>
-    <string name="ask_airnote_ai" translatable="false">Ask AirNote Kai...</string>
-    <string name="new_chat">New Chat</string>
-    <string name="no_chat_history">No Chat History...</string>
-    <string name="delete_chat">Delete Chat?</string>
-    <string name="delete_chat_description">Are you sure you want to delete this chat? This action cannot be undone!</string>
-    <string name="ai_mode_note_assistant">Note Assistant</string>
-    <string name="ai_mode_creative_mind">Creative Mind</string>
-    <string name="ai_mode_academic_research">Academic Research</string>
-    <string name="ai_mode_professional_strategy">Professional Strategy</string>
-    <string name="ai_greeting_message">Hello!</string>
-    <string name="dex_mode" translatable="false">AirNote DeX (BETA)</string>
-    <string name="dex_mode_description" translatable="false">UI • DeX AI</string>
-    <string name="dex_mode_uı">DeX Mode UI</string>
-    <string name="dex_mode_uı_description">Use the desktop interface in landscape mode on large screens</string>
-    <string name="dex_ai_features">DeX AI Features</string>
-    <string name="dex_ai_features_description">Use your AI assistant and its features in desktop mode</string>
-    <string name="ai_think">Think</string>
-    <string name="ai_search">Search</string>
-    <string name="unleash_your_curiosity">Unleash Your Curiosity!</string>
-    <string name="ask_ai_topic">What topic piques your curiosity?</string>
-    <string name="send">Send</string>
-    <string name="create">Create</string>
-    <string name="example_question">E.g.: Introduction to Quantum Physics</string>
-    <string name="sample_question_request">What topic would you like to create a note about? Briefly describe the topic.</string>
-    <string name="new_ai_note_draft">A New AI Note Draft</string>
-    <string name="ask_a_question_title">Unleash Your Curiosity</string>
-    <string name="ask_a_question">What would you like to ask AirNote AI?</string>
-    <string name="ai_disclaimer_text">AirNote Kai may make mistakes.</string>
-    <string name="ai_disclaimer_link_text"> More information</string>
-    <string name="ai_disclaimer_link_url" translatable="false">https://github.com/RRechz/airnote-ai</string>
-    <string name="not_set">Not set</string>
-    <string name="image_being_analyzed">Image being analyzed...</string>
+
+    <!-- Setup wizard -->
+    <string name="welcome_to_loudly">Welcome to Loudly</string>
+    <string name="welcome_to_loudly_description">Let\'s start personalizing your music experience.</string>
+    <string name="yt_music_fingertips">YouTube Music at your fingertips</string>
+    <string name="ytm_account_sync">YT Music account sync</string>
+    <string name="ad_free_playback">No ADS in playback</string>
+    <string name="offline_music_experience">Offline music experience</string>
+    <string name="android_auto">Support Android Auto</string>
+    <string name="discord_support">Support Discord state</string>
+    <string name="fos_info">Full open source</string>
+    <string name="select_player_ui">Select Your Player UI</string>
+    <string name="select_player_ui_description">Select the in-app player view. You can change this setting later in “Settings > Appearance”.</string>
+    <string name="setup_complete">Setup Complete!</string>
+    <string name="setup_complete_description">You are ready to explore Loudly.</string>
+    <string name="finish">Finish</string>
     <string name="back">Back</string>
-    <string name="dream_journal">Dream Journal</string>
-    <string name="dream_journal_new_note">New Dream Note</string>
-    <string name="emotional_analysis">Emotional Analysis</string>
-    <string name="explain_symbols">Explain the Symbols</string>
-    <string name="interpret_my_dream">Interpret My Dream</string>
-    <string name="dream_journal_ai_title">AirNote Kai - Dream Edition</string>
-    <string name="dream_not_found">Your dream could not be found! Please describe your dream.</string>
-    <string name="instagram">Official | @AirNoteApp</string>
-    <string name="gemini_models_25" translatable="false">Gemini 2.5</string>
-    <string name="gemini_models_20" translatable="false">Gemini 2.0</string>
-    <string name="gemini_models_15" translatable="false">Gemini 1.5</string>
-    <string name="perplexity_models_pplx_7b_online" translatable="false">PPLX 7B</string>
-    <string name="perplexity_models_sonar_medium_online" translatable="false">PPLX Sonar-M</string>
-    <string name="model_in_use_prefix">Active Model: %1$s</string>
-    <string name="not_found_note">No notes matching your search were found.</string>
-    <string name="folder_not_found">I couldn\'t find the %1$s folder you were looking for.</string>
-    <string name="found_note">I found these notes: \n%1$s</string>
-    <string name="ask_perplexity_placeholder">Search on Perplexity...</string>
-    <string name="perplexity_api_not_empty">The Perplexity API key cannot be empty!</string>
-    <string name="ai_service_gemini">Gemini AI Service</string>
-    <string name="ai_service_perplexity">Perplexity AI Service</string>
-    <string name="perplexity_ai_service_description">ATTENTION: This API only supports Perplexity Pro user APIs.</string>
-    <string name="enabled">Enabled</string>
-    <string name="enable_perplexity_ai">Enable Perplexity AI</string>
-    <string name="app_lock_description_active">Select security management</string>
-    <string name="active">Active</string>
-    <string name="activate">Activate</string>
-    <string name="fingerprint_verification">Fingerprint Verification</string>
-    <string name="verify_to_enable">Verify to enable</string>
-    <string name="not_support_fingerprint">Your device does not support fingerprint recognition.</string>
-    <string name="vault_setup">Vault Setup</string>
-    <string name="set_a_password_vault">Set a password for the vault:</string>
-    <string name="vault_password">Vault Password</string>
-    <string name="encryption_type">Encryption Type:</string>
-    <string name="vault_created">Vault created!</string>
-    <string name="password_not_empty">The password cannot be empty!</string>
-    <string name="note_lock_password">Note Lock Password</string>
-    <string name="set_a_password_individual_notes">Set a password to lock your individual notes.</string>
-    <string name="note_password">Note Password</string>
-    <string name="passoword_updated">Password Updated</string>
-    <string name="tap_to_setup">Tap to Setup...</string>
-    <string name="tap_to_activate">Tap to Activate...</string>
-    <string name="applock_password">App Lock Password</string>
-    <string name="new_password">New Password</string>
-    <string name="password_set">Password has been set</string>
-    <string name="enter_least_4">Enter at least 4 characters</string>
-    <string name="fingerprint_activate">Fingerprint ia Activated!</string>
-    <string name="first_set_a_note_password">First, set a note password in the settings!</string>
-    <string name="first_set_a_password_in_the_settings">To lock your notes, first set a password in the settings.</string>
-    <string name="note_is_locked_but_no_password">This note is locked but no password has been set.</string>
-    <string name="unlock_note">Unlock Note</string>
-    <string name="enter_your_password_to_view_this_note">Please enter your password to view this note.</string>
-    <string name="unlock_selected_notes">Unlock Selected Notes</string>
-    <string name="confirm">Confirm</string>
-    <string name="notes_are_locked">Notes are locked</string>
-    <string name="notes_are_unlocked">Notes are unlocked</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
 
-    <!-- Ai Prompt Analyze -->
-    <string name="analyze_create_note">create a note or create note</string>
-    <string name="analyze_analyze">analyze or analyze the text or analysis</string>
-    <string name="analyze_take_notes">take notes or take note or take down on notes or take down on note</string>
-    <string name="analyze_summarize_and_take_notes">summarize and take notes or summarize it and add it to the notes</string>
-    <string name="analyze_prepare_a_draft">prepare a draft or prepare a draft about or prepare a draft text for me or create a draft</string>
-    <string name="analyze_analyze_my_file_image">Analyze my file/image or analyze the attached file or Analyze my file/image and take notes</string>
-    <string name="file_empty_or_not_read">The file is empty or cannot be read</string>
+    <!-- Bottom navigation -->
+    <string name="home">Home</string>
+    <string name="explore">Explore</string>
+    <string name="songs">Songs</string>
+    <string name="artists">Artists</string>
+    <string name="albums">Albums</string>
+    <string name="playlists">Playlists</string>
 
-    <!-- Gemini Repository Strings-->
-    <string name="add_image">Add Image</string>
-    <string name="add_text_file">Add Text File (only ".txt")</string>
+    <string name="liked">Liked music</string>
+    <string name="like">Like</string>
+    <string name="offline">Offline music</string>
+    <string name="my_top">My top music</string>
+    <string name="cached">Cached music</string>
+    <string name="local">Local music</string>
 
-    <string name="ai_action_improve_writing">Optimize Writing</string>
-    <string name="ai_action_summarize">Summarize</string>
-    <string name="ai_action_make_shorter">Make it Shorter</string>
-    <string name="ai_action_make_longer">Make it longer</string>
-    <string name="ai_action_change_tone">Change Tone</string>
+    <string name="content_filter">Content filter</string>
 
-    <string name="ai_tone_formal">Offical (lang)</string>
-    <string name="ai_tone_balanced">Balanced</string>
-    <string name="ai_tone_friendly">Friendly</string>
-    <string name="error_no_user_api_key">User API key not found. Please check in settings.</string>
-    <string name="error_api_request_failed">API request failed: %1$s</string>
-    <string name="ai_welcome_message">Hello there! How can I help you?</string>
-    <string name="ai_suggestions_title">SUGGESTED</string>
-    <string name="ai_command_pros_cons">List the Pros and Cons</string>
-    <string name="ai_command_todo">Create To-Do List</string>
-    <string name="ai_command_simpler">Tell It Simpler</string>
-    <string name="ai_command_simpler_subtitle">Recommended for imported files</string>
-    <string name="ai_command_title">Suggest Title</string>
-    <string name="create_note_from_object">Take Notes from the Image</string>
+    <!-- My top -->
+    <string name="all_time">All time</string>
+    <string name="past_24_hours">Past 24 hours</string>
+    <string name="past_week">Past week</string>
+    <string name="past_month">Past month</string>
+    <string name="past_year">Past year</string>
 
-    <string name="ai_prompt_for_draft_topic">Great, what should we create a draft about? Please write the topic.</string>
+    <!-- Top bar -->
+    <plurals name="n_selected">
+        <item quantity="other">%d selected</item>
+    </plurals>
 
-    <string name="prompt_improve_writing">Correct the grammar and expression mistakes in the text below to make it more fluent. Answer only the corrected text:\n\n---\n\n%1$s</string>
-    <string name="prompt_summarize">Summarize the text below in one or two sentences, keeping the main idea. Answer only the summary text:\n\n---\n\n%1$s</string>
-    <string name="prompt_make_shorter">Shorten the following text significantly while preserving its meaning. Reply only with the shortened text:\n\n---\n\n%1$s</string>
-    <string name="prompt_make_longer">Add creative details to the text below to make it longer. Only reply with the extended text:\n\n---\n\n%1$s</string>
-    <string name="error_server_busy_try_again">AI servers are currently busy. Please try again in a few minutes.</string>
+    <!-- Home -->
+    <string name="good_morning">Good morning</string>
+    <string name="good_afternoon">Good afternoon</string>
+    <string name="good_evening">Good evening</string>
+    <string name="good_night">Good night</string>
+    <string name="recent_activity">Recent activity</string>
+    <string name="history">History</string>
+    <string name="history_empty">Your history will show up here</string>
+    <string name="stats_empty">Your stats will show up here</string>
+    <string name="stats">Stats</string>
+    <string name="show_less">Show Less</string>
+    <string name="show_more">Show More</string>
+    <string name="mood_and_genres">Mood and Genres</string>
+    <string name="account">Account</string>
+    <string name="quick_picks">Quick picks</string>
+    <string name="quick_picks_empty">Listen to songs to generate your quick picks</string>
+    <string name="forgotten_favorites">Forgotten favorites</string>
+    <string name="keep_listening">Keep listening</string>
+    <string name="your_youtube_playlists">Your YouTube playlists</string>
+    <string name="similar_to">Similar to</string>
+    <string name="new_release_albums">New release albums</string>
+    <string name="not_internet">No Internet Сoonnection</string>
+    <string name="internet_required">It looks like you have no Internet connection. Please check your network.</string>
+    <string name="featured_for_you">Featured for You</string>
+    <string name="recommended_for_you_today">Recommended for you Today</string>
 
-    <string name="prompt_change_tone_template">%1$s\n\n---\n\n%2$s</string>
-    <string name="prompt_instruction_tone_formal">Rewrite the text below in a professional and formal language. Keep the meaning, only change the tone. Only reply with the final text:</string>
-    <string name="prompt_instruction_tone_balanced">Rewrite the text below in a balanced language, neither too formal nor too sincere. Keep the meaning. Only reply with the conclusion:</string>
-    <string name="prompt_instruction_tone_friendly">Rewrite the text below in a more sincere, warm, conversational and friendly way. Keep the meaning. Only reply with the conclusion:</string>
+    <!-- History -->
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="this_week">This week</string>
+    <string name="last_week">Last week</string>
+    <string name="local_history">Local</string>
+    <string name="remote_history">Remote</string>
+    <string name="history_queue_title_local">Local history</string>
+    <string name="history_queue_title_online">Remote history</string>
 
-    <string name="prompt_assistant_give_idea">A note-taking app user is working on a note titled \"%1$s\". Suggest some creative and inspiring ideas or starting points that fit this title. Keep your answer short and in list format.</string>
-    <string name="prompt_assistant_continue_writing">Continue the text below, keeping the integrity of meaning and the author\'s style. Only reply to the new text, do not repeat the existing text:\n\n---\n\n\nTitle: %1$s\n\nContent:\n%2$s</string>
-    <string name="prompt_assistant_change_perspective">Analyze the text below and write a paragraph on how to approach this topic from a completely different perspective. Do not summarize the existing text, offer an alternative perspective:\n\n---\n\n\nTitle: %1$s\n\nContent:\n%2$s</string>
-    <string name="prompt_assistant_pros_and_cons">Analyze the text below and list the positive and negative points under the headings \'### Pros\' and \'### Cons\'. Answer only these two headings and items:\n\n\n---\n\n\n\n%1$s</string>
-    <string name="prompt_assistant_create_todo">Analyze the text below. If the text mentions tasks to be done during the day, turn them into a to-do list by putting \'[] \'  at the beginning of each line. If the text does not mention tasks, answer ONLY \'NO_TASKS\' without typing anything else. Detect the language of the text and create the list in that language:\n\n---\n\n%1$s</string>
-    <string name="prompt_assistant_simplify">Translate the complex text below into simple and fluent language that everyone can understand. Keep the main idea and important details of the text. Answer only the simplified text:\n\n---\n\n%1$s</string>
-    <string name="prompt_assistant_suggest_title">Suggest 5 creative and attention-grabbing titles that best fit the content of the text below. Give your answer as a numbered list:\n\n---\n\n%1$s</string>
+    <!-- Stats -->
+    <string name="most_played_songs">Most played songs</string>
+    <string name="most_played_artists">Most played artists</string>
+    <string name="most_played_albums">Most played albums</string>
 
-    <string name="prompt_assistant_draft_anything">A user wants to draft a note about the topic \"%1$s\". You MUST give your answer in the following format: TITLE: [insert title here]\n\nCONTENT: [insert note content here]</string>
-    <string name="prompt_airnote_ai_analyzeimage">Analyze the image in this attachment like Sherlock Holmes and create a note describing its content. Your answer should include ‘TITLE:’ and ‘CONTENT:’, with a clear distinction between title and content.</string>
+    <!-- Search -->
+    <string name="search">Search</string>
+    <string name="search_yt_music">Search in Loudly</string>
+    <string name="search_library">Search library…</string>
+    <string name="SearchHistory">Search History</string>
+    <string name="Sujestions">Suggestions</string>
+    <string name="SearchResutls">Search Results</string>
+    <string name="filter_library">Library</string>
+    <string name="filter_liked">Liked</string>
+    <string name="filter_downloaded">Downloaded</string>
+    <string name="filter_all">All</string>
+    <string name="filter_songs">Songs</string>
+    <string name="filter_videos">Videos</string>
+    <string name="filter_albums">Albums</string>
+    <string name="filter_artists">Artists</string>
+    <string name="filter_playlists">Playlists</string>
+    <string name="filter_community_playlists">Community playlists</string>
+    <string name="filter_featured_playlists">Featured playlists</string>
+    <string name="filter_bookmarked">Bookmarked</string>
+    <string name="no_results_found">No results found</string>
 
-    <string name="prompt_mention_context">The user is currently referencing a note titled \'%1$s\'. Answer their questions based on the content of this note. The content of the note is below:\n\n---\n%2$s\n---</string>
-    <string name="prompt_mention_ack">Understood. I have received the content of the note titled \'%1$s\' and will respond with reference to this note.</string>
+    <!-- Library -->
+    <string name="library_empty">Library will show up here</string>
+    <string name="library_song_empty">Library songs will show up here</string>
+    <string name="library_artist_empty">Library artists will show up here</string>
+    <string name="library_album_empty">Library albums will show up here</string>
+    <string name="library_playlist_empty">Your playlists will show up here</string>
 
-    <string name="prompt_dream_journal_header">You are the dream interpreter of Kai AI, integrated into the AirNote app. Your task is to analyze the dreams told to you, explain the symbols, and interpret their psychological or cultural meanings. Talk only and exclusively about dreams, dream symbols, and dream interpretations. Respond to any questions unrelated to dreams with, “I am here solely to interpret dreams.” Here is the dream you need to interpret:\n\n</string>
-    <string name="prompt_dream_journal_symbol_analysis">You are the dream symbol expert for Kai AI, integrated into the AirNote app. Your task is to find the key symbols (objects, people, places, actions) in the dream described to you and list their possible meanings. Do not provide a general dream interpretation; focus solely on the symbols. Only discuss dream symbols. If asked another question, respond with, “I am only here to explain dream symbols.” Here is the dream whose symbols you need to analyze:\n\n</string>
-    <string name="prompt_dream_journal_emotion_analysis">You are the dream therapist of Kai AI, integrated into the AirNote app. Your task is to analyze the dominant emotional tone (fear, happiness, anxiety, etc.) in the dream described to you and explain what these emotions might mean for the dreamer. Refrain from making general interpretations or explaining symbols; focus solely on the emotions evoked by the dream and their possible psychological underpinnings. Discuss only the emotions of the dream. If asked another question, respond with, “I am here solely to perform an emotional analysis of dreams.” Here is the dream you need to analyze:\n\n</string>
+    <!-- Artist screen -->
+    <string name="from_your_library">From your library</string>
 
-    <string name="system_prompt_note_assistant" translatable="false">
-        You are a robotic, expert, and concise note-taking assistant for an app called AirNote. You MUST be direct and factual.
-        You MUST follow these rules. This is a strict instruction.
+    <!-- Album screen -->
+    <string name="other_versions">Other versions</string>
+    <string name="favorite">Favorite</string>
+    <string name="top_songs">Top Songs</string>
 
-        1.  **NORMAL CONVERSATION:** If the user is just chatting or asking for information (like "summarize this"), respond normally.
+    <!-- Playlist -->
+    <string name="liked_songs">Liked songs</string>
+    <string name="downloaded_songs">Downloaded songs</string>
+    <string name="playlist_is_empty">The playlist is empty</string>
+    <string name="remove_download_playlist_confirm">Do you really want to remove all \"%s\" playlist songs from the Downloaded Songs storage?</string>
+    <string name="delete_playlist_confirm">Do you really want to delete the playlist \"%s\"?</string>
 
-        2.  **NOTE MODIFICATION:** If the user explicitly asks to modify a note (e.g., "add", "change", "delete", "rename", "update" the referenced note), you MUST NOT reply with conversational text (like "Okay, I've done it.").
-        You MUST reply ONLY with the specific XML tag for that action. This is the most important rule.
+    <string name="off">Disable</string>
 
-        --- MODIFICATION TAGS ---
-        -   To REPLACE the note\'s entire content: `<NOTE_UPDATE_CONTENT>...new content...</NOTE_UPDATE_CONTENT>`
-        -   To APPEND (add) to the note\'s content: `<NOTE_APPEND_CONTENT>...content to add...</NOTE_APPEND_CONTENT>`
-        -   To RENAME the note\'s title: `<NOTE_CHANGE_TITLE>...new title...</NOTE_CHANGE_TITLE>`
-        -   To DELETE the note: `<NOTE_DELETE_SELF>CONFIRMED</NOTE_DELETE_SELF>`
+    <!-- Button -->
+    <string name="retry">Retry</string>
+    <string name="radio">Radio</string>
+    <string name="shuffle">Shuffle</string>
+    <string name="reset">Reset</string>
 
-        Example:
-        User: "@ShoppingList'e 'süt' ekle."
-        Your ONLY response MUST be: `<NOTE_APPEND_CONTENT>süt</NOTE_APPEND_CONTENT>`
+    <!-- Menu -->
+    <string name="details">Details</string>
+    <string name="edit">Edit</string>
+    <string name="start_radio">Start radio</string>
+    <string name="play">Play</string>
+    <string name="play_next">Play next</string>
+    <string name="add_to_queue">Add to queue</string>
+    <string name="add_to_library">Add to library</string>
+    <string name="add_all_to_library">Add all to library</string>
+    <string name="remove_from_library">Remove from library</string>
+    <string name="remove_all_from_library">Remove all from library</string>
+    <string name="download">Download</string>
+    <string name="downloading">Downloading</string>
+    <string name="remove_download">Remove download</string>
+    <string name="import_playlist">Import playlist</string>
+    <string name="add_to_playlist">Add to playlist</string>
+    <string name="view_artist">View artist</string>
+    <string name="view_album">View album</string>
+    <string name="refetch">Refetch</string>
+    <string name="share">Share</string>
+    <string name="delete">Delete</string>
+    <string name="remove_from_history">Remove from history</string>
+    <string name="remove_from_playlist">Remove from playlist</string>
+    <string name="remove_from_queue">Remove from queue</string>
+    <string name="remove_from_cache">Remove from cache</string>
+    <string name="playlist_m3u_export">Export as M3U file</string>
+    <string name="search_online">Search online</string>
+    <string name="sync">Sync</string>
+    <string name="advanced">Advanced</string>
+    <string name="tempo_and_pitch">Tempo and Pitch</string>
 
-        Example:
-        User: "@MyNote'u sil."
-        Your ONLY response MUST be: `<NOTE_DELETE_SELF>CONFIRMED</NOTE_DELETE_SELF>`
+    <!-- Sort menu -->
+    <string name="sort_by_create_date">Date added</string>
+    <string name="sort_by_last_updated">Date updated</string>
+    <string name="sort_by_name">Name</string>
+    <string name="sort_by_artist">Artist</string>
+    <string name="sort_by_year">Year</string>
+    <string name="sort_by_song_count">Song count</string>
+    <string name="sort_by_length">Length</string>
+    <string name="sort_by_play_time">Play time</string>
+    <string name="sort_by_custom">Custom order</string>
 
-        Do not add any other text outside these tags if you are modifying.
-    </string>
-    <string name="system_prompt_creative_mind">You are a creative brainstorming partner and writing assistant integrated into an application called AirNote. Your purpose is to inspire users, generate novel ideas, and help them overcome writer\'s block. Your tone should be encouraging, imaginative, and expansive. Feel free to use lists, metaphors, and suggest unconventional approaches. Engage the user in a creative dialogue.</string>
-    <string name="system_prompt_academic_researcher">You are an Academic Researcher AI belonging to Kai AI in the AirNote application. Your primary goal is to assist with academic writing. You must be objective, precise, and evidence-based. Structure your responses logically with clear arguments. Avoid colloquialisms and adopt a formal tone. When analyzing text, focus on logical consistency, strength of argumentation, and clarity. Your responses should be well-structured and suitable for academic papers, essays, and research notes.</string>
-    <string name="system_prompt_professional_strategist">You are a professional strategy expert belonging to Kai AI in the AirNote application. Your purpose is to assist with business and professional communication. Your responses must be clear, concise, and goal-oriented. Focus on actionable insights and practical solutions. Adopt a professional and confident tone. When generating or modifying text, prioritize clarity, impact, and audience awareness. Your output should be suitable for business reports, professional emails, presentations, and strategic documents.</string>
+    <!-- Dialog -->
+    <string name="media_id">Media id</string>
+    <string name="mime_type">MIME type</string>
+    <string name="codecs">Codecs</string>
+    <string name="bitrate">Bitrate</string>
+    <string name="sample_rate">Sample rate</string>
+    <string name="loudness">Loudness</string>
+    <string name="volume">Volume</string>
+    <string name="file_size">File size</string>
+    <string name="unknown">Unknown</string>
+    <string name="copied">Copied to clipboard</string>
 
-    <string name="system_prompt_automation_engine" translatable="false">
-    You are Kai, an intelligent automation assistant integrated into the AirNote app.
-    Your job is to analyze user requests and convert them into a JSON array of actions to be executed.
-    You MUST ONLY respond with a valid JSON object in the specified format.
+    <string name="edit_lyrics">Edit lyrics</string>
+    <string name="search_lyrics">Search lyrics</string>
+    <string name="delete_lyric_confirm">Do you really want to delete the stored lyrics for \"%s\"?</string>
 
-    --- CONTEXT ---
-    If the user provides the content of an existing note (prefixed with "--- CURRENT NOTE CONTEXT ---"), your actions (APPEND, REWRITE, DELETE) MUST target that note.
-    If no context is provided, actions like CREATE_NOTE or CREATE_FOLDER should be used.
+    <string name="edit_song">Edit song</string>
+    <string name="song_title">Song title</string>
+    <string name="song_artists">Song artists</string>
+    <string name="error_song_title_empty">Song title cannot be empty.</string>
+    <string name="error_song_artist_empty">Song artist cannot be empty.</string>
+    <string name="save">Save</string>
 
-    --- AVAILABLE TOOLS (ACTIONS) ---
+    <string name="sync_playlist">Sync Playlist</string>
+    <string name="choose_playlist">Choose playlist</string>
+    <string name="edit_playlist">Edit playlist</string>
+    <string name="create_playlist">Create playlist</string>
+    <string name="playlist_name">Playlist name</string>
+    <string name="error_playlist_name_empty">Playlist name cannot be empty.</string>
 
-    1. CREATE_NOTE
-       - Description: Creates a new note. **Use this ONLY if the user explicitly asks to \'create a note\', \'save as a note\', \'not oluştur\', \'kaydet\', or \'taslak hazırla\'.**
-       - Parameters:
-         - \"title\" (String): The title of the note.
-         - \"content\" (String, optional): The content (Markdown formatted) of the note.
+    <string name="edit_artist">Edit artist</string>
+    <string name="artist_name">Artist name</string>
+    <string name="error_artist_name_empty">Artist name cannot be empty.</string>
 
-    2. CREATE_TODO_NOTE
-       - Description: Creates a note containing a to-do list.
-       - Parameters:
-         - \"title\" (String): The title of the to-do list.
-         - \"tasks\" (Array&lt;String&gt;): An array of task strings.
+    <string name="duplicates">Duplicates</string>
+    <string name="skip_duplicates">Skip duplicates</string>
+    <string name="add_anyway">Add anyway</string>
+    <string name="duplicates_description_single">The song is already in your playlist</string>
+    <string name="duplicates_description_multiple">%d songs are already in your playlist</string>
+    <string name="allows_for_sync_witch_youtube">Note: This allows for syncing with YouTube Music</string>
 
-    3. CREATE_FOLDER
-       - Description: Creates a new note folder.
-       - Parameters:
-         - \"name\" (String): The name of the folder.
-         - \"iconName\" (String, optional): Default is "Folder".
+    <!-- Noun -->
+    <plurals name="n_song">
+        <item quantity="one">%d song</item>
+        <item quantity="other">%d songs</item>
+    </plurals>
+    <plurals name="n_artist">
+        <item quantity="one">%d artist</item>
+        <item quantity="other">%d artists</item>
+    </plurals>
+    <plurals name="n_album">
+        <item quantity="one">%d album</item>
+        <item quantity="other">%d albums</item>
+    </plurals>
+    <plurals name="n_playlist">
+        <item quantity="one">%d playlist</item>
+        <item quantity="other">%d playlists</item>
+    </plurals>
+    <plurals name="n_week">
+        <item quantity="one">%d week</item>
+        <item quantity="other">%d weeks</item>
+    </plurals>
+    <plurals name="n_month">
+        <item quantity="one">%d month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
+    <plurals name="n_year">
+        <item quantity="one">%d year</item>
+        <item quantity="other">%d years</item>
+    </plurals>
 
-    4. MOVE_NOTE_TO_FOLDER
-       - Description: Moves an existing note (by title) into an existing folder (by name).
-       - Parameters:
-         - \"note_title\" (String): The exact title of the note to move.
-         - \"folder_name\" (String): The exact name of the target folder.
+    <!-- Snackbar -->
+    <string name="playlist_imported">Playlist imported</string>
+    <string name="removed_song_from_playlist">Removed \"%s\" from playlist</string>
+    <string name="playlist_synced">Playlist synced</string>
+    <string name="undo">Undo</string>
 
-    5. CHAT
-       - Description: Respond with a simple chat message. **Use this if the user asks you to \'write\', \'tell\', or \'söyle\' something *without* asking to save it as a note.**
-       - Parameters:
-         - \"response\" (String): The text to display to the user.
+    <!-- Player -->
+    <string name="now_playing">Now playing</string>
+    <string name="lyrics_not_found">Lyrics not found</string>
+    <string name="sleep_timer">Sleep timer</string>
+    <string name="end_of_song">End of song</string>
+    <plurals name="minute">
+        <item quantity="one">1 minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <string name="error_no_stream">No stream available</string>
+    <string name="error_no_internet">No network connection</string>
+    <string name="error_timeout">Timeout</string>
+    <string name="error_unknown">Unknown error</string>
+    <string name="menu">Menu</string>
+    <string name="share_list">Share List</string>
 
-    6. APPEND_TO_NOTE
-       - Description: Appends (adds) text to the end of the CURRENTLY REFERENCED note.
-       - Parameters:
-         - \"content\" (String): The text content to append (Markdown formatted).
+    <string name="seek_backward">5 seconds backward</string>
+    <string name="seek_forward">5 seconds forward</string>
 
-    7. REWRITE_NOTE
-       - Description: Replaces the entire content of the CURRENTLY REFERENCED note.
-       - Parameters:
-         - \"new_content\" (String): The new text content (Markdown formatted) for the note.
+    <!-- Player action -->
+    <string name="action_like">Like</string>
+    <string name="action_like_all">Like all</string>
+    <string name="action_remove_like">Remove like</string>
+    <string name="action_remove_like_all">Remove all likes</string>
+    <string name="action_shuffle_on">Shuffle on</string>
+    <string name="action_shuffle_off">Shuffle off</string>
+    <string name="repeat_mode_off">Repeat mode off</string>
+    <string name="repeat_mode_one">Repeat current song</string>
+    <string name="repeat_mode_all">Repeat queue</string>
 
-    8. DELETE_NOTE
-       - Description: Deletes the CURRENTLY REFERENCED note. (No parameters needed)
+    <!-- Queue Title -->
+    <string name="queue_all_songs">All songs</string>
+    <string name="queue_searched_songs">Searched songs</string>
 
-    9. QUERY_NOTES
-       - Description: Searches for notes based on criteria. Use this if the user asks to "find", "list", "search", "ara", "bul", "listele".
-       - Parameters:
-         - \"search_term\" (String, optional): A keyword to search for in the note\'s title or content.
-         - \"folder_name\" (String, optional): The name of the folder to search within.
+    <!-- Notification name -->
+    <string name="music_player">Music Player</string>
 
-    --- JSON OUTPUT FORMAT ---
-    You MUST respond ONLY with a raw JSON object matching this structure:
-    {
-      \"thought\": \"A brief analysis of the user\'s request and the planned actions.\",
-      \"actions\": [
-        { \"action_type\": \"ACTION_NAME\", \"param1\": \"value1\", ... }
-      ],
-      \"response_message\": \"A confirmation message for the user.\"
-    }
+    <!-- Notifications settings -->
+    <string name="notifications">Notifications</string>
+    <string name="keep_alive_title">Prevent system killing app</string>
+    <string name="keep_alive_description">Use a foreground notification to prevent Loudly from being randomly closed by the system.</string>
+    <string name="keep_to_alive_settings">Keep to Alive Settings</string>
+    <string name="notification_permission_is_required">Notification permission is required</string>
+    <string name="ComradeNotification">Comrade Notification</string>
 
-    --- EXAMPLES (No Context) ---
-    User: \"Bana \'Alışveriş Listesi\' adında bir not oluştur ve içine süt, ekmek ve yumurta ekle.\"
-    Your Response:
-    {
-      \"thought\": \"User wants a new to-do note. I will use CREATE_TODO_NOTE.\",
-      \"actions\": [
-        { \"action_type\": \"CREATE_TODO_NOTE\", \"title\": \"Alışveriş Listesi\", \"tasks\": [\"süt\", \"ekmek\", \"yumurta\"] }
-      ],
-      \"response_message\": \"Elbette, \'Alışveriş Listesi\' notunuzu 3 görevle birlikte oluşturdum.\"
-    }
+    <string name="comrade_notifications_title">Comrade Notifications</string>
+    <string name="comrade_notifications_enable">Enable Smart Notifications</string>
+    <string name="comrade_notifications_enable_desc">Loudly provides smart music recommendations based on your preferences.</string>
 
-    User: \"Kuantum fiziği hakkında bir not taslağı oluştur.\"
-    Your Response:
-    {
-      \"thought\": \"User wants a new note with formatted content about quantum physics. I will use CREATE_NOTE.\",
-      \"actions\": [
-        {
-          \"action_type\": \"CREATE_NOTE\",
-          \"title\": \"Kuantum Fiziğine Giriş\",
-          \"content\": \"## Kuantum Fiziği Nedir?\nKuantum fiziği, maddenin ve enerjinin **atom altı** seviyelerdeki davranışını inceleyen bir bilim dalıdır.\n\n### Temel Kavramlar\n* **Kuantizasyon:** Değerlerin kesikli (ayrı) birimler halinde bulunması.\n* **Dalga-Parçacık İkiliği:** Parçacıkların hem dalga hem de parçacık özelliği göstermesi.\n* **Belirsizlik İlkesi:** Bir parçacığın konumunun ve momentumunun aynı anda tam olarak bilinememesi.\"
-        }
-      ],
-      \"response_message\": \"Elbette, \'Kuantum Fiziğine Giriş\' notunuzu temel başlıklarla birlikte oluşturdum.\"
-    }
+    <string name="permissions_category">Permissions</string>
+    <string name="comrade_permission_activity_title">Physical Activity Permission</string>
+    <string name="comrade_permission_activity_desc">This permission is required to detect when you are running or driving and provide relevant music recommendations.</string>
+    <string name="permission_button_grant">Allow</string>
+    <string name="permission_button_granted">Allowed</string>
 
-    User: \"Bana bahar hakkında bir şiir yaz.\"
-    Your Response:
-    {
-      \"thought\": \"User wants me to write a poem, but did not ask to save it as a note. I will use the CHAT action.\",
-      \"actions\": [
-        {
-          \"action_type\": \"CHAT\",
-          "response": "Elbette, işte bahar hakkında kısa bir şiir:\n\nKuşlar cıvıldar, güneş parlar,\nAğaçlar yeşerir, çiçekler açar,\nBahar gelmiş, hoş gelmiş!"
-        }
-      ],
-      "response_message": "Elbette, işte bahar hakkında kısa bir şiir:\n\nKuşlar cıvıldar, güneş parlar,\nAğaçlar yeşerir, çiçekler açar,\nBahar gelmiş, hoş gelmiş!"
-    }
+    <string name="comrade_recommendation_types">Types of Suggestions</string>
+    <string name="comrade_driving_detection">Driving Detection</string>
+    <string name="comrade_driving_detection_desc">It suggests route lists when you use the vehicle.</string>
+    <string name="comrade_activity_detection">Running/Walking Detection</string>
+    <string name="comrade_activity_detection_desc">It recommends energy lists for your exercise activities.</string>
 
-    User: \"İçinde \'toplantı\' kelimesi geçen notları bul.\"
-    Your Response:
-    {
-      \"thought\": \"User wants to find notes containing the word \'toplantı\'. I will use QUERY_NOTES.\",
-      \"actions\": [
-        { \"action_type\": \"QUERY_NOTES\", \"search_term\": \"toplantı\" }
-      ],
-      \"response_message\": \"\'toplantı\' kelimesini içeren notları arıyorum...\"
-    }
+    <string name="demo_button_text" translatable="false">DEMO</string>
 
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="appearance">Appearance</string>
+    <string name="theme">Theme</string>
+    <string name="proxy">Proxy</string>
+    <string name="enable_dynamic_theme">Enable dynamic theme</string>
+    <string name="dark_theme">Dark theme</string>
+    <string name="dark_theme_on">On</string>
+    <string name="dark_theme_off">Off</string>
+    <string name="dark_theme_follow_system">Follow system</string>
+    <string name="pure_black">Pure black</string>
+    <string name="app_design_variant">App design</string>
+    <string name="app_design_ui_1_0">App UI 1.0</string>
+    <string name="app_design_ui_1_5">App UI 1.5</string>
+    <string name="listen_youtube_music">Listen on YouTube Music</string>
+    <string name="visit_the_loudly">Visit the Loudly</string>
+    <string name="artist">Artist</string>
+    <string name="listen_to_loudly">Listen to Loudly</string>
+    <string name="enable_swipe_thumbnail">Enable swipe on thumbnail to change song</string>
+    <string name="customize_navigation_tabs">Customize navigation tabs</string>
+    <string name="player">Player</string>
+    <string name="player_text_alignment">Player text alignment</string>
+    <string name="lyrics_text_position">Lyrics text position</string>
+    <string name="sided">Sided</string>
+    <string name="left">Left</string>
+    <string name="center">Center</string>
+    <string name="mini_player_action_button">Mini Player Actions</string>
+    <string name="player_style">Player style</string>
+    <string name="player_style_old_ui">Player Old UI</string>
+    <string name="player_style_ui_1_0">Player UI 1.0</string>
+    <string name="player_style_ui_2_0">Player UI 2.0</string>
+    <string name="none">None</string>
+    <string name="follow_theme">Follow theme</string>
+    <string name="gradient">Gradient</string>
+    <string name="blur">Blur</string>
+    <string name="blurmv">Blur (Motion)</string>
+    <string name="player_background_style">Player background style</string>
+    <string name="right">Right</string>
+    <string name="slider_style">Slider style</string>
+    <string name="default_">Default</string>
+    <string name="squiggly">Squiggly</string>
+    <string name="compose">Compose</string>
+    <string name="thumbnail_corner_radius">Configure thumbnail corner radius</string>
+    <string name="show_content_filter">Show content filter</string>
+    <string name="misc">Misc</string>
+    <string name="main">Main</string>
+    <string name="auto_playlists_customization">Auto playlists customization</string>
+    <string name="show_liked_auto_playlist">Show auto-playlist liked</string>
+    <string name="show_download_auto_playlist">Show auto-playlist download</string>
+    <string name="show_top_auto_playlist">Show auto-playlist top</string>
+    <string name="show_cached_auto_playlist">Show auto-playlist cached</string>
+    <string name="show_local_auto_playlist">Show auto-playlist local</string>
+    <string name="swipe_song_to_dismiss">Swipe song to right for play next or left for adding to queue</string>
+    <string name="default_open_tab">Default open tab</string>
+    <string name="default_lib_chips">Default library chips</string>
+    <string name="grid_cell_size">Grid cell size</string>
+    <string name="slim_navbar">Show bottom navigation bar labels</string>
+    <string name="small">Small</string>
+    <string name="big">Big</string>
+    <string name="Changelog">Changelog</string>
+    <string name="no_changes">No recent changes found</string>
+    <string name="changelogs">Recent changes:</string>
+    <string name="closepopup">Close</string>
+    <string name="NewVersion">New version available</string>
+    <string name="Hi">Hello Again</string>
+    <string name="Donate">Donate</string>
+    <string name="Telegramchanel">Official Channel</string>
+    <string name="web_site">Website</string>
+    <string name="web_site_info">Official website ❯</string>
+    <string name="code">Source code</string>
+    <string name="code_text">Access the source code of the app</string>
+    <string name="bugs">Issues</string>
+    <string name="bugs_text">Bugs Report and More</string>
+    <string name="help">Help</string>
+    <string name="contribution_text">If you want to contribute, click here ❯</string>
+    <string name="Developer">Developer | @RRechz</string>
 
-    --- EXAMPLES (With Context) ---
-    [CONTEXT INJECTED BY SYSTEM: --- CURRENT NOTE CONTEXT --- Title: \"Alışveriş Listesi\" Content: \"[ ] süt\n[ ] ekmek\"]
-    User: \"Bu listeye \'peynir\' ekle.\"
-    Your Response:
-    {
-      \"thought\": \"User wants to add \'peynir\' to the referenced note. I will use APPEND_TO_NOTE.\",
-      \"actions\": [
-        { \"action_type\": \"APPEND_TO_NOTE\", \"content\": \"[ ] peynir\" }
-      ],
-      \"response_message\": \"Anlaşıldı, \'Alışveriş Listesi\' notunuza \'peynir\' eklendi.\"
-    }
+    <string name="content">Content</string>
+    <string name="login">Login</string>
+    <string name="login_description">Sign in to your YT Music playlists and more</string>
+    <string name="token_hidden">Tap to show token</string>
+    <string name="token_shown">Tap again to copy or edit</string>
+    <string name="token_adv_login_description">This is an ADVANCED login method. As an alternative to the web portal, you may directly enter or update your login token here. For example, this can speed up logging in on multiple devices. Please note that any invalid token formats the app fails to parse will not be accepted</string>
+    <string name="import_from_spotify">Import from spotify</string>
+    <string name="title_spotify">Spotify</string>
+    <string name="title_discord">Discord</string>
+    <string name="like_autodownload">Automatically download your liked songs</string>
+    <string name="ytm_sync">Automatically sync with your YouTube Music account</string>
+    <string name="ytm_sync_description">Sync your playlists and more with your account</string>
+    <string name="wifi_only">Wifi only</string>
+    <string name="not_logged_in">Not logged in</string>
+    <string name="content_language">Default content language</string>
+    <string name="content_country">Default content country</string>
+    <string name="system_default">System default</string>
+    <string name="enable_proxy">Enable proxy</string>
+    <string name="proxy_type">Proxy type</string>
+    <string name="proxy_url">Proxy URL</string>
+    <string name="restart_to_take_effect">Restart to take effect</string>
+    <string name="app_language">App language</string>
+    <string name="configure_app_language">Configure app languages</string>
+    <string name="intent_app_language_not_found">Couldn\'t find app language settings, please configure them manually</string>
+    <string name="open_supported_links">Open supported link by default</string>
+    <string name="configure_supported_links">Configure supported links</string>
+    <string name="intent_supported_links_not_found">Couldn\'t find supported links settings, please configure them manually</string>
 
-    [CONTEXT INJECTED BY SYSTEM: --- CURRENT NOTE CONTEXT --- Title: \"Toplantı Notları\" Content: \"Çok uzun bir paragraf...\"]
-    User: \"Bu notu özetle.\"
-    Your Response:
-    {
-      \"thought\": \"User wants to summarize the referenced note. I will generate a summary and use REWRITE_NOTE.\",
-      \"actions\": [
-        { \"action_type\": \"REWRITE_NOTE\", \"new_content\": \"## Özet\nToplantının ana fikri şuydu...\" }
-      ],
-      \"response_message\": \"Notunuzu başarıyla özetledim.\"
-    }
-</string>
+    <string name="player_and_audio">Player and Audio</string>
+    <string name="audio_quality">Audio quality</string>
+    <string name="audio_quality_max">Max</string>
+    <string name="audio_quality_auto">Auto</string>
+    <string name="audio_quality_high">High</string>
+    <string name="audio_quality_low">Low</string>
+    <string name="minimum_playback_duration">Minimum playback duration</string>
+    <string name="minimum_playback_duration_info">The minimum amount of a song that must be played before it is considered \"played\"</string>
+    <string name="queue">Queue</string>
+    <string name="persistent_queue">Persistent queue</string>
+    <string name="persistent_queue_desc">Restore your last queue when the app starts</string>
+    <string name="auto_load_more">Auto load more songs</string>
+    <string name="auto_load_more_desc">Automatically add more songs when the end of the queue is reached, if possible</string>
+    <string name="skip_silence">Skip silence</string>
+    <string name="audio_normalization">Audio normalization</string>
+    <string name="play_song_when_bluetooth_device_connected">Continue playback when the bluetooth device is connected</string>
+    <string name="stop_playing_when_song_sound_minimum_volume">Stop playing song when sound minimum volume</string>
+    <string name="adding_played_songs_to_ytm_history">Adding played songs to YouTube-Music history</string>
+    <string name="auto_skip_next_on_error">Auto skip to next song when error occurs</string>
+    <string name="auto_skip_next_on_error_desc">Ensure your continuous playback experience</string>
+    <string name="stop_music_on_task_clear">Stop music on task clear</string>
+    <string name="equalizer">Equalizer</string>
+    <string name="lyrics">Lyrics</string>
+    <string name="lyrics_settings_title">Lyrics</string>
+    <string name="local_player_settings_title">Local player settings</string>
+    <string name="storage">Storage</string>
+    <string name="cache">Cache</string>
+    <string name="image_cache">Image Cache</string>
+    <string name="song_cache">Song Cache</string>
+    <string name="max_cache_size">Max cache size</string>
+    <string name="unlimited">Unlimited</string>
+    <string name="audio_offload">Enable offload</string>
+    <string name="audio_offload_description">Use the offload audio path for audio playback. Disabling this may increase power usage but can be useful if you experience issues with audio playback or post processing</string>
+    <string name="clear_all_downloads">Clear all downloads</string>
+    <string name="clear_all_downloads_confirmation">WARNING! All downloads will be deleted. Do you confirm?</string>
+    <string name="currently_used_formatted">Currently used Formatted</string>
+    <string name="caches">Caches</string>
+    <string name="max_image_cache_size">Max image cache size</string>
+    <string name="clear_image_cache">Clear image cache</string>
+    <string name="max_song_cache_size">Max song cache size</string>
+    <string name="clear_song_cache">Clear song cache</string>
+    <string name="size_used">used</string>
+    <string name="clear_all_cache_dialog">Are you sure you want to clear all cached?</string>
+    <string name="clear_all_downloads_dialog">Are you sure you want to clear all downloads?</string>
+    <string name="clear_song_cache_dialog">Are you sure you want to clear all cached songs?</string>
+    <string name="clear_images_cache_dialog">Are you sure you want to clear all cached images?</string>
+    <string name="clear_translation_models_cache_dialog">Are you sure you want to clear all cached translation models?</string>
 
-    <!-- System Prompts for AI Command Mode -->
-    <string name="system_prompt_command_chat_header">You are Kai, an intelligent assistant integrated into the AirNote app. Your primary goal is to assist the user with their notes by understanding their intent. You must analyze the user\'s request based on the provided note context and their message.</string>
-    <string name="system_prompt_intent_chat_desc">INTENT 1: CHAT\nIf the user is asking a question about the note, asking for ideas, or wants a summary WITHOUT explicitly asking to change the note\'s content, use this JSON format:\n{\n  \"intent\": \"CHAT\",\n  \"response\": \"[Your helpful chat response here]\"\n}</string>
-    <string name="system_prompt_intent_edit_desc">INTENT 2: EDIT_NOTE\nIf the user explicitly asks to change the note (e.g., \"delete the last paragraph\", \"add a summary at the end\", \"fix grammar\", \"continue writing\"), use this JSON format:\n{\n  \"intent\": \"EDIT_NOTE\",\n  \"new_note_content\": \"[The FULL content of the note after applying the user\'s requested changes]\"\n}</string>
-    <string name="system_prompt_json_instruction">IMPORTANT: You must ONLY respond with raw JSON. Do not include any markdown formatting like ```json or ```.</string>
-    <string name="system_prompt_context_header">--- CURRENT NOTE CONTENT ---\n\"\"\"%s\"\"\"</string>
-    <string name="system_prompt_request_header">--- USER REQUEST ---\n\"\"\"%s\"\"\"</string>
+    <string name="privacy">Privacy</string>
+    <string name="listen_history">Listen history</string>
+    <string name="pause_listen_history">Pause listen history</string>
+    <string name="clear_listen_history">Clear listen history</string>
+    <string name="clear_listen_history_confirm">Are you sure you want to clear all listen history?</string>
+    <string name="pause_search_history">Pause search history</string>
+    <string name="clear_search_history">Clear search history</string>
+    <string name="clear_search_history_confirm">Are you sure you want to clear all search history?</string>
+    <string name="search_history">Search history</string>
+    <string name="use_login_for_browse">Use login for browsing content</string>
+    <string name="use_login_for_browse_desc">This can influence what content you see and for example shows premium-only albums if you are logged in with a Premium account</string>
+    <string name="disable_screenshot">Disable screenshot</string>
+    <string name="disable_screenshot_desc">When this option is on, screenshots and the app\'s view in Recents are disabled.</string>
+    <string name="enable_lrclib">Enable LrcLib lyrics provider</string>
+    <string name="enable_kugou">Enable KuGou lyrics provider</string>
+    <string name="default_lyrics_provider">Default lyrics provider</string>
+    <string name="lyrics_multiline_title">Read multiline lyrics</string>
+    <string name="lyrics_multiline_description">Treat all the lines between sync points as one lyric text</string>
+    <string name="lyrics_trim_title">Remove spaces around lyrics</string>
+    <string name="lyrics_font_size">Font size</string>
+    <string name="hide_explicit">Hide explicit content</string>
+    <string name="enable_notifications">Enable notifications</string>
 
-    <!-- AI Chat Messages -->
-    <string name="chat_message_note_updated">I\'ve updated your note as requested.</string>
-    <string name="ai_error_invalid_json">Received an invalid response from AI. Please try again.</string>
-    <string name="ai_confirmation_note_updated">Of course, I updated the content of the \'@%1$s\' note.</string>
-    <string name="ai_confirmation_note_appended">Ok, I added the information you requested to the note \'@%1$s\'.</string>
-    <string name="ai_confirmation_note_renamed">Understood. I changed the title of note \'@%1$s\' to \'@%2$s\'.</string>
-    <string name="ai_confirmation_note_deleted">I deleted the note \'@%1$s\' as you requested.</string>
-    <string name="ai_error_modification_failed">I encountered an issue while changing the note. Please try again.</string>
+    <string name="backup_restore">Backup and restore</string>
+    <string name="backup">Backup</string>
+    <string name="restore">Restore</string>
+    <string name="import_m3u">Import a playlist (m3u)</string>
+    <string name="m3u_import_failed">Failed to import playlist</string>
+    <string name="imported_playlist">Imported playlist</string>
+    <string name="backup_create_success">Backup created successfully</string>
+    <string name="backup_create_failed">Couldn\'t create backup</string>
+    <string name="restore_failed">Failed to restore backup</string>
+
+    <string name="discord_integration">Discord Integration</string>
+    <string name="discord_information">Loudly uses the KizzyRPC library to set your Discord account\'s status. This involves using the Discord Gateway connection, which may be considered a violation of Discord\'s TOS. However, there are no known cases of user accounts being suspended for this reason. Use at your own risk.\n\nLoudly will only extract your token, and everything else is stored locally.</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="options">Options</string>
+    <string name="preview">Preview</string>
+    <string name="login_failed">Login failed</string>
+    <string name="logout">Logout</string>
+    <string name="enable_discord_rpc">Enable Rich Presence</string>
+
+    <string name="about">About</string>
+    <string name="app_version">App version</string>
+    <string name="checking_for_update">Checking for updates...</string>
+    <string name="update_card_version_ready_to_download">version %1$s available for download.</string>
+    <string name="update_card_downloading">Downloading...</string>
+    <string name="install">Upgrade</string>
+    <string name="try_again">Try Again</string>
+    <string name="download_now">Download Now</string>
+    <string name="app_type">App Type</string>
+
+    <string name="new_version_available">New version available</string>
+    <string name="translation_models">Translation Models</string>
+    <string name="clear_translation_models">Clear translation models</string>
+    <string name="history_duration">History duration</string>
+    <plurals name="seconds">
+        <item quantity="one">1 second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+    <string name="widget_title">Music 3x2</string>
+    <string name="widget_quick_title">Music 2x1</string>
+    <string name="play_pause">Play/Pause</string>
+    <string name="about_subtitle">Version · Developers · License</string>
+    <string name="category_interface">UI</string>
+    <string name="category_content">Content &amp; Account</string>
+    <string name="category_player">Player</string>
+    <string name="category_system">System</string>
+    <string name="library">Library</string>
+    <string name="integrations">Integrations</string>
+    <string name="system_integration">System Integration</string>
+    <string name="total_used_space">Total used space</string>
+    <string name="currently_used">Currently used</string>
+    <string name="clear_cache">Clear cache</string>
+    <string name="backup_restore_description">Backup · Restore · İmport</string>
+    <string name="privacy_description">History · Search · Screenshot</string>
+    <string name="storage_description">Downloads · Cache · Images</string>
+    <string name="player_and_audio_description">Sound · Queue · Lyrics</string>
+    <string name="content_description">Language · Location · Proxy</string>
+    <string name="account_description">Log in · Spotify · Discord</string>
+    <string name="appearance_description">Theme · Slider · Player</string>
+    <string name="comrade_notification_description">Comrade Notifications · Comrade Setup</string>
+
+    <string name="appearance_setup_desc">Customize the appearance of the app and player</string>
+    <string name="dynamic_theme_setup_dec">Uses color theme of device</string>
+    <string name="player_and_audio_setup_desc">Customize your sound and playback experience</string>
+    <string name="skip_silence_setup_desc">Skip the quiet moments in songs</string>
+    <string name="stop_music_setup_desc">If the application is cleared from the recently used list, it will stop the music</string>
+    <string name="login_successful">You have successfully logged in!</string>
+
+    <string name="header_background">Profile Card Picture</string>
+    <string name="header_background_description">Customize the picture on the profile card</string>
+    <string name="select_header_image">Choose profile image</string>
+    <string name="predefined_images">Ready-made images</string>
+    <string name="select_from_gallery">Select from gallery</string>
+    <string name="edit_photo">Edit Photo</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="send_to_developer">Send to Developer</string>
+    <string name="close">Close</string>
+    <string name="update_error_details">Show Error Details</string>
+    <string name="download_failed">Download Failed</string>
+    <string name="show_error">Show Error</string>
+    <string name="go_to_update_link">Manuel Update</string>
+    <string name="home_card_update_desc">Check the settings page for details</string>
+    <string name="app_up_to_date">Software Up To Date</string>
+
+    <string name="app_ui">App UI</string>
+    <string name="app_ui_desc">Select one of 3 different designs</string>
+    <string name="ui_version_selection">UI Version Selection</string>
+    <string name="ui_version_1_0_desc">Old version design of the application. (App, Player, MiniPlayer)</string>
+    <string name="ui_version_1_5_desc">Compact design created with a more modern approach. (App, Player, MiniPlayer)</string>
+    <string name="ui_version_2_0_desc">Most popular design. (App, Player, MiniPlayer)</string>
+    <string name="ui_version_custom_desc">Create your own app UI design. (App, Player, MiniPlayer)</string>
+    <string name="custom_app_ui">Customize UI</string>
+
+    <string name="other_settings">Other settings</string>
+    <string name="other_settings_description">Click for other various settings</string>
+
+    <string name="audio_quality_auto_desc">Automatically adjusts quality between 45 and 512 Kbps</string>
+    <string name="audio_quality_max_desc">Offers the highest quality up to 512 Kbps</string>
+    <string name="audio_quality_high_desc">Sets the quality for average internet speeds between 128 and 256 Kbps.</string>
+    <string name="audio_quality_low_desc">Limits quality to between 45 and 52 Kbps to save data (Data Saver)</string>
+
+    <string name="could_not_import">Could not import</string>
+
+    <string name="text_alignment">Text Alignment</string>
+    <string name="text_alignment_description">Set the position of the text on the card</string>
+    <string name="gradient_intensity">Gradient Intensity</string>
+    <string name="corner_round">Corner Round</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="profile_card">Profile Card</string>
+    <string name="remove_profile_picture">Remove Profile Picture</string>
+    <string name="show_texts">Show Texts</string>
+    <string name="show_texts_description">Display the greeting and username text on the profile card</string>
+    <string name="tap_to_change">Tap to change</string>
+
+    <!-- Player UI -->
+    <string name="translate">Translate (BETA)</string>
+    <string name="copy">Copy</string>
+    <string name="album_streak_message">\"%1s\" continue from the album?</string>
+    <string name="artist_streak_message">Continue with artist \"%1s\"?</string>
+    <string name="streak_dialog_message">Would you like to continue with this flow?</string>
+    <string name="notification_headset_title">Are you ready for some music? 🎧</string>
+    <string name="notification_headset_continue">Continue from the last song you listened to: %1s</string>
+    <string name="notification_headset_generic">Tap to open Loudly!</string>
+    <string name="notification_vehicle_title">The journey begins! 🚗</string>
+    <string name="notification_vehicle_text">Would you like to play your “Road Songs” playlist?</string>
+    <string name="notification_running_title">Time to run! 👟</string>
+    <string name="notification_running_text">Keep up the tempo with your “Energy” playlist.</string>
+
+    <!-- Playback Error -->
+    <string name="error_network_title">Network Error</string>
+    <string name="error_network_description">Check your internet connection and try again.</string>
+    <string name="error_unsupported_format_title">Unsupported Content</string>
+    <string name="error_unsupported_format_description">This song format is not supported on your device.</string>
+    <string name="error_behind_live_window_title">Live Broadcast Error</string>
+    <string name="error_behind_live_window_description">There is a problem with the live stream. Please restart.</string>
+    <string name="error_playback_failed_title">Playback Failed</string>
+    <string name="error_playback_failed_description">An unknown error has occurred. Please try again.</string>
+    <string name="recovering_playback">Trying again…</string>
+    <string name="vpn_info_message">Using a VPN may affect your connection quality. If you are experiencing network problems, disconnect your VPN connection or use a proxy. You can configure this in “Settings >> Content >> Proxy.”</string>
+
+    <!--scanner page settings-->
+    <string name="sync_local_songs_toast">Sync local songs successfully</string>
+    <string name="local_scanner_title">Local scanner</string>
+
+    <string name="auto_scanner_title">Scan automatically</string>
+    <string name="auto_scanner_description">Automatically scan for songs when opening the app</string>
+
+    <!--scanner additional settings-->
+    <string name="scanner_settings_title">Additional scanner settings</string>
+    <string name="scanner_strict_file_name_title">Strict file names</string>
+    <string name="scanner_strict_file_name_description">When enabled extensions will NOT be ignored. Ex. "Song.ogg" will be a different song from "Song.flac"</string>
+    <string name="scanner_sensitivity_title">Configure scanner sensitivity</string>
+    <string name="scanner_sensitivity_L1">Match title</string>
+    <string name="scanner_sensitivity_L2">Match title and artists</string>
+    <string name="scanner_sensitivity_L3">Match title, artists, albums</string>
+
+    <!--Folders-->
+    <string name="folders_settings_title">Folders</string>
+    <string name="flat_subfolders_title">Flatten subfolders</string>
+    <string name="flat_subfolders_description">Disable to preserve the file structure as on disk</string>
+
+    <!--Tips Screen-->
+    <string name="tips_and_features">Tips &amp; Features</string>
+    <string name="tips_and_fetures_description"> Tips · Features</string>
+    <string name="create_your_story">Create your story</string>
+    <string name="share_your_story_description">Share the song you are listening to on social media with a stylish design created with the dominant colors of the album cover.</string>
+    <string name="customizable_settings">Customizable Settings</string>
+    <string name="customizable_settings_description">Make the app your own by replacing the background of the title card on the settings screen with an image from your gallery.</string>
+    <string name="new_song_list">New Song List</string>
+    <string name="new_song_list_description">View your current playlist and easily switch between songs by swiping up from the player screen (new design exclusive to Player UI 2.0)</string>
+    <string name="remastered_settings">Remastered Setings Design</string>
+    <string name="remastered_settings_description">Find what you\'re looking for easily with a new card-based settings design that is more modern and convenient.</string>
+    <string name="classic_music_widget">Classic Music Widget</string>
+    <string name="classic_music_widget_description">Quickly access all controls and song information from your home screen.</string>
+    <string name="minimalist_music_widget">Minimalist Music Widget</string>
+    <string name="minimalist_music_widget_description">“Quik” music widget inspired by Android 16\'s Quick Settings button design</string>
+    <string name="share_on_story">Share on Story</string>
+    <string name="copy_song_link">Copy song link</string>
+    <string name="link_copied">Link copied to the clipboard!</string>
+    <string name="streamed_on_loudly">Streamed on Loudly</string>
+
+    <!-- Spotify import settings -->
+    <string name="select_all">Select All</string>
+    <string name="fetching_all_playlists">Fetching all playlists…</string>
+    <string name="import_selected_items">Import Selected Items</string>
+    <string name="something_went_wrong">Something went wrong. We’re just as confused as you are.</string>
+    <string name="well_thats_embarrassing">Well, that’s embarrassing. We have no clue what happened either.</string>
+    <string name="instructions_to_get_required_credentials">Instructions to get required credentials</string>
+    <string name="make_sure_to_click">3. Make sure to click "Add" once you\'ve entered the local path above.</string>
+    <string name="accept_the_terms_of_service">5. Accept the terms of service and click "Save".</string>
+    <string name="you_ll_be_redirected_to_a_new_page">You’ll be redirected to a new page. Click on Settings, then copy the Client ID and Client Secret, and paste them into the text fields below in this app.</string>
+    <string name="enter_the_necessary_details">2. Enter the necessary details and use http://127.0.0.1:45454 as the Redirect URIs.</string>
+    <string name="toggle_wep_api">4. Toggle Web API. The checkbox should now have a tick mark.</string>
+    <string name="now_click_the_authorize_and_continue">Now, click the Authorize and Continue button below and login with your account from which you want to import from, and Authorize and Continue, which will redirect you to a site which should start from http://127.0.0.1:45454/?code=
+
+Paste that entire URL in the below text field which says Authorization Code and click the Authenticate button</string>
+    <string name="visit_spotify_for_developers">1. Visit spotify for developers Spotify for developers dashboard and click on "Create app". </string>
+    <string name="login_with_spotify">Login with Spotify API Credentials</string>
+    <string name="authorize_and_continue">Authorize and Continue</string>
+    <string name="authorization_code">Authorization Code</string>
+    <string name="authenticate">Authenticate</string>
+    <string name="client_secret">Client secret</string>
+    <string name="client_id">Client ID</string>
+    <string name="import_in_progress">Import in progress…</string>
+    <string name="dont_close_app_message">Don\'t close the app or go back. This operation does\'t run in the background, so stay put until it\'s done!
+DO NOT PANIC IF IT LOOKS STUCK; sometimes retrieval may take some time.</string>
+    <string name="choose_liked_songs">Choose \"Liked Songs\" Destination</string>
+    <string name="where_should_the_liked_songs">Where should the liked songs be imported?</string>
+    <string name="new_playlist_named">A new playlist named "Liked Songs"</string>
+    <string name="default_liked_songs">In the default "Liked Songs"</string>
 </resources>
